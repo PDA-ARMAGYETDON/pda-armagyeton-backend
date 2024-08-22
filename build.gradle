@@ -10,6 +10,8 @@ plugins {
 //	}
 //}
 
+// 모든 프로젝트 설정
+
 allprojects{
 	group = 'ARMAGYETDON'
 	version = '0.0.1-SNAPSHOT'
@@ -29,7 +31,7 @@ allprojects{
 	}
 
 	dependencies {
-		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 		implementation 'org.springframework.boot:spring-boot-starter-web'
 		compileOnly 'org.projectlombok:lombok'
 		annotationProcessor 'org.projectlombok:lombok'
