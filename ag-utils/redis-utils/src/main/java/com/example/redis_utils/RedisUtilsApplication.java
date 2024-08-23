@@ -1,4 +1,4 @@
-package com.example.db_utils;
+package com.example.redis_utils;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
