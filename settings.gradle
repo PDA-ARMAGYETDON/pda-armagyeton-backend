@@ -1,4 +1,5 @@
 rootProject.name = 'armagyeton-backend'
 include 'armagyetdon', 'chatting', 'realtime-stock', 'invest-references'
 include 'common'
-include 'ag-utils'
+include 'db-utils'
+project(':db-utils').projectDir = file('ag-utils/db-utils')
