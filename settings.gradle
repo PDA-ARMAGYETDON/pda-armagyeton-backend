@@ -1,5 +1,5 @@
 rootProject.name = 'armagyeton-backend'
 include 'armagyetdon', 'chatting', 'realtime-stock', 'invest-references'
 include 'common'
-include 'ag-utils'
+include 'ag-utils:redis-utils'
 include 'ag-gateway'
