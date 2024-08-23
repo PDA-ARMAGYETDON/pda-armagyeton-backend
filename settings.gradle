@@ -1,8 +1,27 @@
 rootProject.name = 'armagyeton-backend'
-include 'armagyetdon', 'chatting', 'realtime-stock', 'invest-references'
+
+include 'armagyetdon'
+//project(':armagyetdon').buildFileName = 'armagyetdon/build.gradle'
+
+include 'chatting'
+//project(':chatting').buildFileName = 'chatting/build.gradle'
+
+include 'realtime-stock'
+project(':realtime-stock').buildFileName = 'realtime-stock/build.gradle'
+
+include 'invest-references'
+project(':invest-references').buildFileName = 'invest-references/build.gradle'
+
 include 'common'
+//project(':common').buildFileName = 'common/build.gradle'
+
 include 'ag-gateway'
+//project(':ag-gateway').buildFileName = 'ag-gateway/build.gradle'
+
 include 'redis-utils'
 project(':redis-utils').projectDir = file('ag-utils/redis-utils')
+//project(':redis-utils').buildFileName = 'ag-utils/redis-utils/build.gradle'
+
 include 'mysql-utils'
 project(':mysql-utils').projectDir = file('ag-utils/mysql-utils')
+//project(':mysql-utils').buildFileName = 'ag-utils/mysql-utils/build.gradle'
