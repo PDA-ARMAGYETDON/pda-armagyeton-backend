@@ -23,7 +23,7 @@ public class Account {
     private AccountPInfo accountPInfo;
 
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "account")
     private List<TransferHistory> transferHistories;
 
     // TODO: receiving account id와의 연관관계를 넣어줄 것인가?
