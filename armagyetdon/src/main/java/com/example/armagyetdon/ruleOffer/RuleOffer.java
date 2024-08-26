@@ -1,5 +1,6 @@
 package com.example.armagyetdon.ruleOffer;
 
+import com.example.armagyetdon.enums.OfferStatus;
 import com.example.armagyetdon.member.Member;
 import com.example.armagyetdon.rule.Rule;
 import jakarta.persistence.*;
@@ -25,6 +26,6 @@ public class RuleOffer {
     private int upvotes;
     private int downvotes;
 
-//    @Enumerated(EnumType.STRING)
-//    private ROfferStatus status; // => DTYPE
+    @Enumerated(EnumType.STRING)
+    private OfferStatus status;
 }
