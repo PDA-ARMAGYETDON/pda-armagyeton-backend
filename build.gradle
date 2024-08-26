@@ -1,71 +1,34 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.3.2'
-	id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.springframework.boot' version '3.2.4' apply false
+    id 'io.spring.dependency-management' version '1.1.2' apply false
 }
 
-//configurations {
-//	compileOnly {
-//		extendsFrom annotationProcessor
-//	}
-//}
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
 
-// 모든 프로젝트 설정
+    group = 'com.example'
+    version = '0.0.1-SNAPSHOT'
 
-allprojects{
-	group = 'ARMAGYETDON'
-	version = '0.0.1-SNAPSHOT'
-
-	apply plugin: 'java'
-	apply plugin: 'org.springframework.boot'
-	apply plugin: 'io.spring.dependency-management'
-
-	java {
-		toolchain {
-			languageVersion = JavaLanguageVersion.of(17)
-		}
-	}
-
-	repositories {
-		mavenCentral()
-	}
-
-	dependencies {
-//		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-		implementation 'org.springframework.boot:spring-boot-starter-web'
-		compileOnly 'org.projectlombok:lombok'
-		annotationProcessor 'org.projectlombok:lombok'
-		testImplementation 'org.springframework.boot:spring-boot-starter-test'
-		testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	}
-
-	tasks.named('test') {
-		useJUnitPlatform()
-	}
+    repositories {
+        mavenCentral()
+    }
 }
 
-// 개별 프로젝트 설정
+// 하위 프로젝트
+subprojects {
 
-project(':armagyetdon') {
-	dependencies {
-		implementation project(':common')
-	}
-}
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+    
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
 
-project(':chatting') {
-	dependencies {
-		implementation project(':common')
-	}
-}
+    dependencies {
 
-project(':invest-references') {
-	dependencies {
-		implementation project(':common')
-	}
-}
-
-project(':realtime-stock') {
-	dependencies {
-		implementation project(':common')
-	}
+    }
 }

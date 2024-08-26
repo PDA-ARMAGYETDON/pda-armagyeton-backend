@@ -1,8 +1,9 @@
 rootProject.name = 'armagyeton-backend'
-include 'armagyetdon', 'chatting', 'realtime-stock', 'invest-references'
-include 'common'
+
 include 'ag-gateway'
-include 'redis-utils'
-project(':redis-utils').projectDir = file('ag-utils/redis-utils')
-include 'mysql-utils'
-project(':mysql-utils').projectDir = file('ag-utils/mysql-utils')
+include 'alarm'
+include 'armagyetdon'
+include 'chatting'
+include 'realtime-stock'
+include 'invest-references'
+include 'common'
