@@ -11,10 +11,6 @@ public class UserPInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne
-    @JoinColumn(name="user_id")
-    private User user;
-
     private String pInfo;
 
     @UpdateTimestamp

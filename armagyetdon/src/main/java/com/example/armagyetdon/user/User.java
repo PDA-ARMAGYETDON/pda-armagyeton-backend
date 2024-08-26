@@ -24,7 +24,8 @@ public class User {
 
     private String address;
 
-    @OneToOne(mappedBy = "p_info")
+    @OneToOne
+    @JoinColumn(name="p_info_id")
     private UserPInfo pInfo;
 
     @OneToMany(mappedBy = "user")
