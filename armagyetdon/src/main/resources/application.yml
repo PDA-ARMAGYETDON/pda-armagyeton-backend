@@ -1,5 +1,20 @@
 spring:
   application:
     name: armagyetdon
+
+  datasource:
+    driver-class-name: 
+    url:
+    username:
+    password:
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
 server:
   port: 8081
