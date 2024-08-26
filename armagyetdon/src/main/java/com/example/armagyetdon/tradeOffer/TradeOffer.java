@@ -32,6 +32,6 @@ public class TradeOffer {
     private int downvotes;
 
 
-//    private int stockId;
+    private String stockCode;
 
 }
