@@ -1,11 +1,10 @@
 package com.example.armagyetdon.account;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.armagyetdon.transferHistory.TransferHistory;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class Account {
@@ -19,4 +18,13 @@ public class Account {
     private int totalEvluPfls;
     private float totalEvluPflsRt;
     private LocalDateTime createdAt;
+
+    @OneToOne(mappedBy = "account")
+    private AccountPInfo accountPInfo;
+
+
+    @OneToMany(mappedBy = "author")
+    private List<TransferHistory> transferHistories;
+
+    // TODO: receiving account id와의 연관관계를 넣어줄 것인가?
 }
