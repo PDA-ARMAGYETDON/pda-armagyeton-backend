@@ -11,13 +11,9 @@ public class ErrorResponse {
     private String divisionCode;        // 에러 구분 코드
     private String message;           // 에러 메시지
 
-    public static ResponseEntity<ErrorResponse> toResponseEntity(ErrorCode e){
-        return ResponseEntity
-                .status(e.getStatus())
-                .body(ErrorResponse.builder()
-                        .status(e.getStatus())
-                        .divisionCode(e.getDivisionCode())
-                        .message(e.getMessage())
-                        .build());
+    public ErrorResponse(int status, String divisionCode, String message) {
+        this.status = status;
+        this.divisionCode = divisionCode;
+        this.message = message;
     }
 }
