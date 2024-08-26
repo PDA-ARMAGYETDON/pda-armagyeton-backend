@@ -3,10 +3,10 @@ spring:
     name: armagyetdon
 
   datasource:
-    driver-class-name: 
-    url:
-    username:
-    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${RDS_URL}
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
 
   jpa:
     properties:
