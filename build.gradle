@@ -48,24 +48,24 @@ allprojects{
 
 project(':armagyetdon') {
 	dependencies {
-
+		implementation project(':common')
 	}
 }
 
 project(':chatting') {
 	dependencies {
-
+		implementation project(':common')
 	}
 }
 
 project(':invest-references') {
 	dependencies {
-
+		implementation project(':common')
 	}
 }
 
 project(':realtime-stock') {
 	dependencies {
-
+		implementation project(':common')
 	}
 }

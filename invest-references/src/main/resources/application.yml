@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: invest-references
+server:
+  port: 8084
