@@ -24,5 +24,5 @@ public class Account {
     @OneToMany(mappedBy = "account")
     private List<TransferHistory> transferHistories;
 
-    // TODO: receiving account id와의 연관관계를 넣어줄 것인가?
+    private int receivingAccountId;
 }
