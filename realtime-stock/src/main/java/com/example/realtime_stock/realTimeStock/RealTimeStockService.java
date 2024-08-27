@@ -25,10 +25,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Service
 public class RealTimeStockService {
 
-    @Value("${HANTU_APP_KEY}")
+    @Value("${HANTU_APP_KEY_REALTIME}")
     private String appKeyRaw;
 
-    @Value("${HANTU_APP_SECRET_KEY}")
+    @Value("${HANTU_APP_SECRET_KEY_REALTIME}")
     private String appSecretKeyRaw;
 
     @Value("${HANTU_SOCKET_CONNECT_URL_M}")
