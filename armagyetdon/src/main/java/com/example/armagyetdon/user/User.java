@@ -24,10 +24,6 @@ public class User {
 
     private String address;
 
-    @OneToOne
-    @JoinColumn(name="p_info_id")
-    private UserPInfo pInfo;
-
     @OneToMany(mappedBy = "user")
     private List<Member> members = new ArrayList<>();
 }

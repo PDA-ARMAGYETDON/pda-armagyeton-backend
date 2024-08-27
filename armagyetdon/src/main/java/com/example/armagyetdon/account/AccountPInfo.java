@@ -11,10 +11,6 @@ public class AccountPInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne
-    @JoinColumn(name="account_id")
-    private Account account;
-
     private String pInfo;
 
     @UpdateTimestamp
