@@ -1,9 +1,7 @@
 package com.example.armagyetdon.rule;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.armagyetdon.team.Team;
+import jakarta.persistence.*;
 
 import java.util.Date;
 
@@ -12,6 +10,11 @@ public class Rule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @ManyToOne(targetEntity = Team.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
+
     private float prdyVrssRt;
     private int urgentTradeUpvotes;
     private int tradeUpvotes;

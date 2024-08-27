@@ -1,7 +1,7 @@
 package com.example.armagyetdon.team.dto;
 
-import com.example.armagyetdon.team.Category;
-import com.example.armagyetdon.team.TeamStatus;
+import com.example.armagyetdon.enums.Category;
+import com.example.armagyetdon.enums.TeamStatus;
 
 import java.time.LocalDateTime;
 

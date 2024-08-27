@@ -1,4 +1,4 @@
-package com.example.armagyetdon.team;
+package com.example.armagyetdon.enums;
 
 public enum Category {
     TRAVEL,
