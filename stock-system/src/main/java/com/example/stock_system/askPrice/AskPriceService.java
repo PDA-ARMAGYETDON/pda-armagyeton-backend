@@ -1,4 +1,4 @@
-package com.example.realtime_stock.askPrice;
+package com.example.stock_system.askPrice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Setter;
@@ -104,7 +104,8 @@ public class AskPriceService {
 
         String jsonContent = Files.readString(path);
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(jsonContent, new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {});
+        return objectMapper.readValue(jsonContent, new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {
+        });
     }
 
     private String getApprovalKey(String appKey, String appSecretKey) {

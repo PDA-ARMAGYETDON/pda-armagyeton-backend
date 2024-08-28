@@ -1,4 +1,4 @@
-package com.example.realtime_stock.askPrice;
+package com.example.stock_system.askPrice;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -35,6 +35,7 @@ public class AskPriceController {
         askPriceService.streamByStockCode(stockCode);
         return askPriceService.stream();
     }
+
     @PostMapping("/stream/stop")
     public String stopStreaming() {
         askPriceService.stopStreaming();
