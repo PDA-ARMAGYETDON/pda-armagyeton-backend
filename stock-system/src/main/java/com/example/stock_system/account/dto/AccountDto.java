@@ -11,7 +11,6 @@ public class AccountDto {
     private int totalPchsAmt;
     private int totalEvluPfls;
     private double totalEvluPflsRt;
-    private int receivingAccountId;
 
     public Account toEntity() {
         return Account.builder()
@@ -21,7 +20,6 @@ public class AccountDto {
                 .totalPchsAmt(this.totalPchsAmt)
                 .totalEvluPfls(this.totalEvluPfls)
                 .totalEvluPflsRt(this.totalEvluPflsRt)
-                .receivingAccountId(this.receivingAccountId)
                 .build();
     }
 }
