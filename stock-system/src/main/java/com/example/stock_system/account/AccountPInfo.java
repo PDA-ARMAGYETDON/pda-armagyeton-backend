@@ -8,7 +8,10 @@ import java.time.LocalDateTime;
 @Entity
 public class AccountPInfo {
     @Id
+    private int id;
+
     @OneToOne
+    @MapsId
     @JoinColumn(name = "account_id")
     private Account account;
 
