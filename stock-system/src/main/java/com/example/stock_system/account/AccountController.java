@@ -1,6 +1,6 @@
-package com.example.armagyetdon.account;
+package com.example.stock_system.account;
 
-import com.example.armagyetdon.account.dto.AccountDto;
+import com.example.stock_system.account.dto.AccountDto;
 import com.example.common.dto.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

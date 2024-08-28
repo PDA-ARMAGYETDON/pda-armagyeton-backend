@@ -1,4 +1,4 @@
-package com.example.armagyetdon.account;
+package com.example.stock_system.account;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

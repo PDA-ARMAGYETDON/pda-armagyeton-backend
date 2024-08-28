@@ -1,4 +1,4 @@
-package com.example.armagyetdon.account.exception;
+package com.example.stock_system.account.exception;
 
 import lombok.Getter;
 
