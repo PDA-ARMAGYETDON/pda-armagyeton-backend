@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -47,6 +48,8 @@ public class AskPriceService {
 
     @Setter
     private String stockCode = null; // 필터링할 주식 코드
+
+    private volatile boolean isStreamingActive = true;  // 스트림 활성화 여부
 
     @Autowired
     public AskPriceService(WebClient.Builder webClientBuilder) {
@@ -156,8 +159,12 @@ public class AskPriceService {
     }
 
     private void processData(String data) {
+        if (!isStreamingActive) {
+            return; // 스트리밍이 중지된 경우 데이터 처리 중단
+        }
+
         if (data.trim().startsWith("{")) {
-            System.out.println("수신 된 JSON형식 데이터 " + data);
+            System.out.println("연결 json data 형식: " + data);
             return;
         }
 
@@ -167,7 +174,7 @@ public class AskPriceService {
             String stockData = parts[3];
             processAskPriceData(stockData);
         } else {
-            System.err.println("원하지 않는 데이터 형식입니다. 해당 데이터: " + data);
+            System.err.println("에러 데이터");
         }
     }
 
@@ -175,7 +182,7 @@ public class AskPriceService {
         String[] fields = data.split("\\^");
 
         if (fields.length < 25) {
-            System.err.println("데이터 형식이 올바르지 않습니다: " + data);
+            System.err.println("에러 데이터" + data);
             return;
         }
 
@@ -185,20 +192,38 @@ public class AskPriceService {
         askBidData[0][1] = fields[0];
 
         for (int i = 0; i < 5; i++) {
-            askBidData[i + 1][0] = fields[3 + i];  // askPrice
-            askBidData[i + 1][1] = fields[23 + i]; // askQty
-            askBidData[6 + i][0] = fields[13 + i]; // bidPrice
-            askBidData[6 + i][1] = fields[33 + i]; // bidQty
+            askBidData[i + 1][0] = fields[3 + i];  // 매도 호가
+            askBidData[i + 1][1] = fields[23 + i]; // 매도 호가 잔량
+            askBidData[6 + i][0] = fields[13 + i]; // 매수 호가
+            askBidData[6 + i][1] = fields[33 + i]; // 매수 호가 잔량
         }
 
-        // 필터링 로직을 적용하여 주식 코드가 일치할 때만 전송
-        if (stockCode == null || stockCode.equals(askBidData[0][1])) {
+        if (stockCode != null && stockCode.equals(askBidData[0][1])) {
             sink.tryEmitNext(askBidData);
         }
     }
 
+
     public Flux<Object[][]> stream() {
-        return sink.asFlux();
+        return sink.asFlux()
+                .filter(data -> stockCode == null || stockCode.equals(data[0][1])) // 필터링 로직 유지
+                .doOnCancel(() -> {
+                    isStreamingActive = false; // 구독 캔슬하면 스트리밍 활성 안되게끔 처리
+                })
+                .delayElements(Duration.ofMillis(100));  // 데이터 스트리밍 지연시간 0.1초
+    }
+
+    // 스트리밍 중지
+    public void stopStreaming() {
+        isStreamingActive = false;
+        System.out.println("데이터 스트리밍 중지");
+    }
+
+    // 스트리밍(특정 주식 코드로)
+    public void streamByStockCode(String stockCode) {
+        this.stockCode = stockCode;
+        isStreamingActive = true;
+        System.out.println("해당 주식 코드에 대해 스트리밍 시작 " + stockCode);
     }
 
     private void handleError(Throwable error) {

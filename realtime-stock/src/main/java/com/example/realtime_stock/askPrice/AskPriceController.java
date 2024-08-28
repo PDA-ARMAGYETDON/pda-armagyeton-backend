@@ -11,28 +11,33 @@ import java.io.IOException;
 @RequestMapping("/api/ask-bid")
 public class AskPriceController {
 
-    private final AskPriceService askSellPriceSocketClient;
+    private final AskPriceService askPriceService;
 
     @Autowired
-    public AskPriceController(AskPriceService asckSellPriceSocketClient) {
-        this.askSellPriceSocketClient = asckSellPriceSocketClient;
+    public AskPriceController(AskPriceService askPriceService) {
+        this.askPriceService = askPriceService;
     }
 
     @PostMapping("/start")
     public String startWebSocket() throws IOException {
-        askSellPriceSocketClient.start();
+        askPriceService.start();
         return "웹 소켓 연결 시작";
     }
 
     @PostMapping("/stop")
     public String stopWebSocket() {
-        askSellPriceSocketClient.stop();
+        askPriceService.stop();
         return "웹 소켓 연결 종료";
     }
 
     @GetMapping(value = "/stream/{stockCode}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<Object[][]> streamFilteredByStockCode(@PathVariable String stockCode) {
-        askSellPriceSocketClient.setStockCode(stockCode);
-        return askSellPriceSocketClient.stream();
+    public Flux<Object[][]> streamByStockCode(@PathVariable String stockCode) {
+        askPriceService.streamByStockCode(stockCode);
+        return askPriceService.stream();
+    }
+    @PostMapping("/stream/stop")
+    public String stopStreaming() {
+        askPriceService.stopStreaming();
+        return "데이터 스트리밍 중지";
     }
 }
