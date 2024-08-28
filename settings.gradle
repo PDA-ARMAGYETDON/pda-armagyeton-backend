@@ -2,7 +2,7 @@ rootProject.name = 'armagyeton-backend'
 
 include 'ag-gateway'
 include 'alarm'
-include 'armagyetdon'
+include 'group-investment'
 include 'chatting'
 include 'realtime-stock'
 include 'invest-references'
