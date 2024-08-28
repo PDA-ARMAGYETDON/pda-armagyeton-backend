@@ -1,0 +1,16 @@
+spring:
+  application:
+    name:
+      alarm
+
+  rabbitmq:
+    host: 3.38.242.178
+    port: 5672
+    username: test
+    password: test
+    exchange:
+      name: (AMQP default)
+    recvChatQueue:
+      name: chat_to_alarm
+    recvStockQueue:
+      name: stock_to_alarm
