@@ -37,6 +37,8 @@ public class Account {
     @OneToMany(mappedBy = "account")
     private List<TransferHistory> transferHistories;
 
+    public Account() {}
+
     @Builder
     public Account(String accountNumber, int deposit, int totalEvluAmt, int totalPchsAmt, int totalEvluPfls, double totalEvluPflsRt, int receivingAccountId) {
         this.accountNumber = accountNumber;
