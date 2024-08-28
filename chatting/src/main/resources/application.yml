@@ -1,2 +1,36 @@
-spring.application.name=chatting
-server.port = 8082
+spring:
+  application:
+    name: chatting
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    template:
+      exchange: chat.exchange
+      routing-key: chat.room
+    listener:
+      simple:
+        missing-queues-fatal: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+rabbitmq:
+  queue:
+    name: chat.queue
+  exchange:
+    name: chat.exchange
+
+redis:
+  chatroom:
+    prefix: "chat:"
+
+chat:
+  path: http://localhost:8082
+
+server:
+  port: 8082
