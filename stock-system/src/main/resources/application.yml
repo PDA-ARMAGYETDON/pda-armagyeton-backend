@@ -1,5 +1,5 @@
 spring:
   application:
-    name: realtime-stock
+    name: stock-system
 server:
   port: 8083
