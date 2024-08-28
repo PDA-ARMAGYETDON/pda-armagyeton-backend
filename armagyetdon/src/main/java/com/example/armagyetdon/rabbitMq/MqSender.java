@@ -20,7 +20,6 @@ public class MqSender<D> {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    //DTO 만들면 String -> DTO 타입으로 변경
     public void send(D data) {
         try {
             //json 으로 직렬화 하여 전송
@@ -29,6 +28,7 @@ public class MqSender<D> {
 
             rabbitTemplate.convertAndSend(queueName, objToJson);
 
+            //TODO: 테스트 후 삭제 할 것
             System.out.println("보낸 큐 이름: " + queueName);
             System.out.println("[Main] Send: '" + data.toString() + "'");
 
