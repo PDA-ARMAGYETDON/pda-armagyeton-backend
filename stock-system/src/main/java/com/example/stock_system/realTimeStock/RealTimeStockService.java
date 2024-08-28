@@ -1,4 +1,4 @@
-package com.example.realtime_stock.realTimeStock;
+package com.example.stock_system.realTimeStock;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

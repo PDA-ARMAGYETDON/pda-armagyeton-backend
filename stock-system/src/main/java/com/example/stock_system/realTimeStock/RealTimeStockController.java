@@ -1,4 +1,4 @@
-package com.example.realtime_stock.realTimeStock;
+package com.example.stock_system.realTimeStock;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
