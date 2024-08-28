@@ -30,3 +30,8 @@ public class ChatRoomService {
         chatRoom.setGroupId(groupId);
         chatRoomRepository.save(chatRoom);
     }
+
+    public List<ChatMessage> selectChatMessageList(Long groupId) {
+        return chatMessageRepository.findByGroupId(groupId);
+    }
+}

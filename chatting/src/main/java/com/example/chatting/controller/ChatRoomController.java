@@ -1,3 +1,7 @@
+package com.example.chatting.controller;
+
+
+import com.example.chatting.domain.ChatMessage;
 import com.example.chatting.domain.ChatRoom;
 import com.example.chatting.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
@@ -26,3 +30,18 @@ public class ChatRoomController {
         }
     }
 
+    @GetMapping("/room")
+    public ResponseEntity<Map<String, Object>> getRoom(@RequestParam("groupId") Long groupId) {
+        try {
+            List<ChatMessage> messages = chatRoomService.selectChatMessageList(groupId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("messages", messages);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+}
