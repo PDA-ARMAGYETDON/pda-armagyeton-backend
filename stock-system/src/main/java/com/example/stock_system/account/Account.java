@@ -6,6 +6,7 @@ import com.example.stock_system.trade.Trade;
 import com.example.stock_system.transferHistory.TransferHistory;
 import jakarta.persistence.*;
 import lombok.Builder;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,8 +23,9 @@ public class Account {
     private int totalPchsAmt;
     private int totalEvluPfls;
     private double totalEvluPflsRt;
+
+    @CreationTimestamp
     private LocalDateTime createdAt;
-    private int receivingAccountId;
 
     @OneToMany(mappedBy = "account")
     private List<Holdings> holdings;
@@ -39,14 +41,16 @@ public class Account {
 
     public Account() {}
 
+    public Account(String accountNumber){
+        this.accountNumber = accountNumber;
+    }
     @Builder
-    public Account(String accountNumber, int deposit, int totalEvluAmt, int totalPchsAmt, int totalEvluPfls, double totalEvluPflsRt, int receivingAccountId) {
+    public Account(String accountNumber, int deposit, int totalEvluAmt, int totalPchsAmt, int totalEvluPfls, double totalEvluPflsRt) {
         this.accountNumber = accountNumber;
         this.deposit = deposit;
         this.totalEvluAmt = totalEvluAmt;
         this.totalPchsAmt = totalPchsAmt;
         this.totalEvluPfls = totalEvluPfls;
         this.totalEvluPflsRt = totalEvluPflsRt;
-        this.receivingAccountId = receivingAccountId;
     }
 }
