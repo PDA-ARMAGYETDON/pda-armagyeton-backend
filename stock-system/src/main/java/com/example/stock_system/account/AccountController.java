@@ -13,7 +13,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping("/{id}")
-    public ApiResponse<AccountDto> getAccount(@PathVariable("id") int id) throws Exception {
+    public ApiResponse<AccountDto> getAccount(@PathVariable("id") int id) {
         AccountDto accountDto = accountService.getAccount(id);
         return new ApiResponse<>(200, true, "계좌를 조회했습니다.", accountDto);
     }
