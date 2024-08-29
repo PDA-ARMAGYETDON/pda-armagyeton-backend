@@ -23,7 +23,6 @@ public class Account {
     private int totalEvluPfls;
     private double totalEvluPflsRt;
     private LocalDateTime createdAt;
-    private int receivingAccountId;
 
     @OneToMany(mappedBy = "account")
     private List<Holdings> holdings;
@@ -37,16 +36,16 @@ public class Account {
     @OneToMany(mappedBy = "account")
     private List<TransferHistory> transferHistories;
 
-    public Account() {}
+    public Account() {
+    }
 
     @Builder
-    public Account(String accountNumber, int deposit, int totalEvluAmt, int totalPchsAmt, int totalEvluPfls, double totalEvluPflsRt, int receivingAccountId) {
+    public Account(String accountNumber, int deposit, int totalEvluAmt, int totalPchsAmt, int totalEvluPfls, double totalEvluPflsRt) {
         this.accountNumber = accountNumber;
         this.deposit = deposit;
         this.totalEvluAmt = totalEvluAmt;
         this.totalPchsAmt = totalPchsAmt;
         this.totalEvluPfls = totalEvluPfls;
         this.totalEvluPflsRt = totalEvluPflsRt;
-        this.receivingAccountId = receivingAccountId;
     }
 }
