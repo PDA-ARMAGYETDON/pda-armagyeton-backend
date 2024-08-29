@@ -18,8 +18,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.setApplicationDestinationPrefixes("/pub"); // client -> server
-        config.enableSimpleBroker("/sub"); // 구독 요청
+        config.setApplicationDestinationPrefixes("/pub");
+        config.enableSimpleBroker("/sub");
     }
 
 

@@ -16,5 +16,5 @@ public class ChatRoom implements Serializable {
     @Id
     private Long groupId;
     //private String name;
-    //private LocalDateTime createDate;
+
 }
