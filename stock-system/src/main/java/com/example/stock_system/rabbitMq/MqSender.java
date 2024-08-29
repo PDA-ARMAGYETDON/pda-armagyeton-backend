@@ -1,4 +1,4 @@
-package com.example.realtime_stock.rabbitMq;
+package com.example.stock_system.rabbitMq;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

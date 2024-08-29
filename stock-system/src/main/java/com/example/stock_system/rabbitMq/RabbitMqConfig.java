@@ -1,4 +1,4 @@
-package com.example.realtime_stock.rabbitMq;
+package com.example.stock_system.rabbitMq;
 
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -26,16 +26,8 @@ public class RabbitMqConfig {
     @Value("${spring.rabbitmq.password}")
     private String rabbitmqPassword;
 
-    @Value("${spring.rabbitmq.recvQueue.name}")
-    private String recvqQueueName;
-
     @Value("${spring.rabbitmq.sendQueue.name}")
     private String sendQueueName;
-
-    @Bean
-    public Queue mainToStockQueue() {
-        return new Queue(recvqQueueName, true);
-    }
 
     @Bean
     public Queue stockToAlarmQueue() {
