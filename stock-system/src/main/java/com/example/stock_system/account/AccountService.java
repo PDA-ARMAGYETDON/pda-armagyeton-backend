@@ -8,7 +8,6 @@ import com.example.stock_system.account.exception.AccountException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -18,7 +17,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountPInfoRepository accountPInfoRepository;
     private final AccountDtoConverter accountDtoConverter;
-    public AccountDto getAccount(int id) throws Exception {
+    public AccountDto getAccount(int id) {
         Account account = accountRepository.findById(id).orElseThrow(
                 ()->new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
         return accountDtoConverter.fromEntity(account);
