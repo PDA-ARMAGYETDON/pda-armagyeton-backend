@@ -6,11 +6,14 @@ import com.example.stock_system.trade.Trade;
 import com.example.stock_system.transferHistory.TransferHistory;
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Getter
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +25,8 @@ public class Account {
     private int totalPchsAmt;
     private int totalEvluPfls;
     private double totalEvluPflsRt;
+
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "account")
@@ -39,6 +44,9 @@ public class Account {
     public Account() {
     }
 
+    public Account(String accountNumber){
+        this.accountNumber = accountNumber;
+    }
     @Builder
     public Account(String accountNumber, int deposit, int totalEvluAmt, int totalPchsAmt, int totalEvluPfls, double totalEvluPflsRt) {
         this.accountNumber = accountNumber;
