@@ -20,15 +20,15 @@ public class AccountController {
 
     @PostMapping("/personal")
     public ApiResponse<AccountDto> createPersonalAccount(@RequestBody CreateAccountRequest createAccountRequest){
-        Account savedAccount = accountService.createPersonalAccount();   //계정먼저 생성
-        accountService.createAccountPInfo(savedAccount,createAccountRequest);  //비밀번호 연결해서 생성
+        Account savedAccount = accountService.createPersonalAccount();
+        accountService.createAccountPInfo(savedAccount,createAccountRequest);
         return new ApiResponse<>(201, true, "계좌가 생성되었습니다.", null);
     }
 
     @PostMapping("/team")
     public ApiResponse<AccountDto> createTeamAccount(@RequestBody CreateAccountRequest createAccountRequest){
-        Account savedAccount = accountService.createTeamAccount();   //계정먼저 생성
-        accountService.createAccountPInfo(savedAccount,createAccountRequest);  //비밀번호 연결해서 생성
+        Account savedAccount = accountService.createTeamAccount();
+        accountService.createAccountPInfo(savedAccount,createAccountRequest);
         return new ApiResponse<>(201, true, "모임 계좌가 생성되었습니다.", null);
     }
 

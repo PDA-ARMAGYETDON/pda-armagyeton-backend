@@ -25,8 +25,6 @@ public class AccountService {
 
     public Account createTeamAccount(){
 
-        //랜덤으로 11자 계좌 만들어주기
-        //팀 계좌 81902 뒤에 6자 난수
         String accountNumber = "81902" + generateRandomNumber();
         Account account = new Account(accountNumber);
 
@@ -35,7 +33,6 @@ public class AccountService {
 
     public Account createPersonalAccount(){
 
-        //개인 계좌는 81901 뒤에 6자 난수로 뽑기
         String accountNumber = "81901"+ generateRandomNumber();
         Account account = new Account(accountNumber);
 
