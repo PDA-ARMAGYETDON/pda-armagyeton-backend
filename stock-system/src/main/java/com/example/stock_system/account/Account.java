@@ -41,7 +41,8 @@ public class Account {
     @OneToMany(mappedBy = "account")
     private List<TransferHistory> transferHistories;
 
-    public Account() {}
+    public Account() {
+    }
 
     public Account(String accountNumber){
         this.accountNumber = accountNumber;

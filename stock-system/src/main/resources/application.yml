@@ -16,5 +16,15 @@ spring:
       ddl-auto: none
     show-sql: true
 
+  rabbitmq:
+    host: 3.38.242.178
+    port: 5672
+    username: test
+    password: test
+    exchange:
+      name: (AMQP default)
+    sendQueue:
+      name: stock_to_alarm
+
 server:
   port: 8083
