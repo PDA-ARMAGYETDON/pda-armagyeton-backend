@@ -21,7 +21,6 @@ public class AccountDto {
                 .totalPchsAmt(this.totalPchsAmt)
                 .totalEvluPfls(this.totalEvluPfls)
                 .totalEvluPflsRt(this.totalEvluPflsRt)
-                .receivingAccountId(this.receivingAccountId)
                 .build();
     }
 }
