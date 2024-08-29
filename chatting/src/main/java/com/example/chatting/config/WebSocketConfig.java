@@ -12,37 +12,53 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Value("${chat.path}")
-    private String path;
-
-    @Value("localhost")
-    private String rabbitmqHost;
-
-    @Value("5672")
-    private int rabbitmqPort;
-
-    @Value("guest")
-    private String rabbitmqUsername;
-
-    @Value("guest")
-    private String rabbitmqPassword;
+//    @Value("${chat.path}")
+//    private String path;
+//
+//    @Value("localhost")
+//    private String rabbitmqHost;
+//
+//    @Value("5672")
+//    private int rabbitmqPort;
+//
+//    @Value("guest")
+//    private String rabbitmqUsername;
+//
+//    @Value("guest")
+//    private String rabbitmqPassword;
+//
+//    @Override
+//    public void registerStompEndpoints(StompEndpointRegistry registry) {
+//        registry.addEndpoint("/stomp/chat").setAllowedOrigins("*");
+//        //registry.addEndpoint("/ws").setAllowedOrigins(path).withSockJS();
+//    }
+//
+//    public void configureMessageBroker(MessageBrokerRegistry registry) {
+//        registry.setPathMatcher(new AntPathMatcher(".")).setApplicationDestinationPrefixes("/pub");
+//
+//        registry.enableStompBrokerRelay("/queue","/topic","/exchange", "/amq/queue")
+//                .setClientLogin(rabbitmqUsername)
+//                .setClientPasscode(rabbitmqPassword)
+//                .setVirtualHost("/");
+////                .setSystemLogin(rabbitmqUsername)
+////                .setSystemPasscode(rabbitmqPassword)
+////                .setRelayHost(rabbitmqHost)
+////                .setRelayPort(rabbitmqPort);
+////                .setVirtualHost(rabbitmqHost)
+////                .setClientLogin(rabbitmqUsername)
+////                .setSystemPasscode(rabbitmqPassword);
+//    }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/stomp/chat").setAllowedOrigins("*");
-        //registry.addEndpoint("/ws").setAllowedOrigins(path).withSockJS();
-    }
+        registry.addEndpoint("/stomp/chat")
+                .setAllowedOriginPatterns("*");
+    } // 연결 요청
 
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setPathMatcher(new AntPathMatcher(".")).setApplicationDestinationPrefixes("/pub");
-
-        registry.enableStompBrokerRelay("/queue","/topic","/exchange", "/amq/queue")
-                .setClientLogin(rabbitmqUsername)
-                .setClientPasscode(rabbitmqPassword)
-                .setVirtualHost("/");
-//                .setVirtualHost(rabbitmqHost);
-//                .setClientLogin(rabbitmqUsername)
-//                .setSystemPasscode(rabbitmqPassword);
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        config.setApplicationDestinationPrefixes("/pub"); // client -> server
+        config.enableSimpleBroker("/sub"); // 구독 요청
     }
 
 
