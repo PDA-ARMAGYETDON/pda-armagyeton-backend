@@ -6,6 +6,7 @@ import com.example.chatting.repository.ChatMsRepository;
 import com.example.chatting.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMsRepository chatMessageRepository;
+    private final SimpMessageSendingOperations messageTemplate;
 
 //    public ChatRoom selectChatRoom(Long roomId) throws Exception {
 //        return chatRoomRepository.findById(roomId)
@@ -33,5 +35,11 @@ public class ChatRoomService {
 
     public List<ChatMessage> selectChatMessageList(Long groupId) {
         return chatMessageRepository.findByGroupId(groupId);
+    }
+
+    public void sendMessage(ChatMessage messageDto) {
+
+        messageTemplate.convertAndSend("/sub/chat/room/"+messageDto.getGroupId(), messageDto);
+        chatMessageRepository.save(messageDto);
     }
 }
