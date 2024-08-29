@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ArmagyetdonApplication {
+public class GroupInvestmentApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ArmagyetdonApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(GroupInvestmentApplication.class, args);
+    }
 
 }
