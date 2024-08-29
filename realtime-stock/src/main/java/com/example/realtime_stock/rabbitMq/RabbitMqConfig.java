@@ -1,4 +1,4 @@
-package rabbitMq;
+package com.example.realtime_stock.rabbitMq;
 
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
