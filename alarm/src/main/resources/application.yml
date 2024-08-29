@@ -1,7 +1,7 @@
 spring:
   application:
-    name: chatting
-  port: 8082
+    name:
+      alarm
 
   rabbitmq:
     host: 3.38.242.178
@@ -12,20 +12,5 @@ spring:
       name: (AMQP default)
     recvChatQueue:
       name: chat_to_alarm
-
-  data:
-    redis:
-      host: localhost
-      port: 6379
-
-
-redis:
-  chatroom:
-    prefix: "chat:"
-
-chat:
-  path: http://localhost:8082
-
-server:
-  port: 8082
-
+    recvStockQueue:
+      name: stock_to_alarm

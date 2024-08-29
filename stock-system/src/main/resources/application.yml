@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: stock-system
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${RDS_URL}
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  rabbitmq:
+    host: 3.38.242.178
+    port: 5672
+    username: test
+    password: test
+    exchange:
+      name: (AMQP default)
+    sendQueue:
+      name: stock_to_alarm
+
+server:
+  port: 8083

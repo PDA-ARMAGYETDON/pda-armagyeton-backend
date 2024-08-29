@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: armagyetdon
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${RDS_URL}
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
+
+  rabbitmq:
+    host: 3.38.242.178
+    port: 5672
+    username: test
+    password: test
+    exchange:
+      name: (AMQP default)
+    queue:
+      name: main_to_stock
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+server:
+  port: 8081
