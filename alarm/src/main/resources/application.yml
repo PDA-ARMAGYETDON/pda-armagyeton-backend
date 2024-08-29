@@ -2,7 +2,6 @@ spring:
   application:
     name:
       alarm
-  port: 8082
 
   rabbitmq:
     host: 3.38.242.178
@@ -13,3 +12,5 @@ spring:
       name: (AMQP default)
     recvChatQueue:
       name: chat_to_alarm
+    recvStockQueue:
+      name: stock_to_alarm
