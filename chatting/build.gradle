@@ -2,6 +2,7 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-web:3.3.3'
     testImplementation 'org.springframework.boot:spring-boot-starter-test:3.3.3'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
     compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
