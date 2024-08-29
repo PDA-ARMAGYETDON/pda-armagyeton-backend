@@ -23,4 +23,14 @@ public class TradeOfferDto {
         this.quantity = quantity;
     }
 
+    public TradeOffer toEntity() {
+        return TradeOffer.builder()
+                .member(this.member)
+                .tradeType(this.tradeType)
+                .stockCode(this.code)
+                .recentPrice(this.recentPrice)
+                .wantPrice(this.wantPrice)
+                .quantity(this.quantity)
+                .build();
+    }
 }
