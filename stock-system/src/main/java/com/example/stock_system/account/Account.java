@@ -6,12 +6,14 @@ import com.example.stock_system.trade.Trade;
 import com.example.stock_system.transferHistory.TransferHistory;
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Getter
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
