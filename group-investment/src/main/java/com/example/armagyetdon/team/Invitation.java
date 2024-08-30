@@ -17,4 +17,15 @@ public class Invitation {
     private String inviteCode;
     private String inviteUrl;
 
+
+    @Builder
+    public Invitation(String inviteCode, String inviteUrl, Team team) {
+        this.inviteCode = inviteCode;
+        this.inviteUrl = inviteUrl;
+        this.team = team;
+    }
+
+    public Invitation() {
+
+    }
 }
