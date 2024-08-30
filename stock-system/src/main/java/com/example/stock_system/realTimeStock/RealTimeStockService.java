@@ -2,6 +2,7 @@ package com.example.stock_system.realTimeStock;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -11,15 +12,17 @@ import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
@@ -41,14 +44,22 @@ public class RealTimeStockService {
     private String stockFilePath;
 
     private final List<Disposable> connections = new CopyOnWriteArrayList<>();
-    private final Map<String, String> stockDataMap = new ConcurrentHashMap<>();
     private final WebClient webClient;
-    private final ObjectMapper objectMapper;
+    private Sinks.Many<Object[]> sink;
+
+    @Setter
+    private String stockCode = null;
+
+    private boolean isStreamingActive = true;
 
     @Autowired
     public RealTimeStockService(WebClient.Builder webClientBuilder, ObjectMapper objectMapper) {
         this.webClient = webClientBuilder.build();
-        this.objectMapper = objectMapper;
+        initializeSink();
+    }
+
+    private void initializeSink() {
+        this.sink = Sinks.many().multicast().onBackpressureBuffer();
     }
 
     // 웹소켓 연결 시작
@@ -67,9 +78,7 @@ public class RealTimeStockService {
 
         List<String> stockCodes = getStockCodes();
 
-        // 최대 처리 가능한 stockCode의 개수는 appKey의 개수 * 40
         int maxProcessableCodes = Math.min(stockCodes.size(), appKeys.size() * 40);
-
         int stockCodeIndex = 0;
 
         for (int i = 0; i < appKeys.size() && stockCodeIndex < maxProcessableCodes; i++) {
@@ -77,7 +86,6 @@ public class RealTimeStockService {
             String appSecretKey = appSecretKeys.get(i).trim();
             String approvalKey = getApprovalKey(appKey, appSecretKey);
 
-            // 각 appKey는 최대 40개의 stockCode를 처리
             int endIdx = Math.min(stockCodeIndex + 40, maxProcessableCodes);
             List<String> batch = stockCodes.subList(stockCodeIndex, endIdx);
             connectToWebSocket(batch, approvalKey);
@@ -87,7 +95,6 @@ public class RealTimeStockService {
     }
 
 
-    // 모든 웹소켓 연결 종료
     public void stop() {
         for (Disposable connection : connections) {
             if (connection != null && !connection.isDisposed()) {
@@ -98,17 +105,17 @@ public class RealTimeStockService {
         System.out.println("모든 웹소켓 연결 종료");
     }
 
-    // 주식 코드를 파일에서 JSON 배열로 가져오는 메서드
+
     private List<String> getStockCodes() throws IOException {
         ClassPathResource resource = new ClassPathResource(stockFilePath);
         Path path = resource.getFile().toPath();
 
         String jsonContent = Files.readString(path);
-        return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {
-        });
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {});
     }
 
-    // 웹소켓 연결 키를 발급받는 메서드
+
     private String getApprovalKey(String appKey, String appSecretKey) {
         return webClient.post()
                 .uri(socketConnectUrl)
@@ -123,7 +130,7 @@ public class RealTimeStockService {
                 .block();
     }
 
-    // 웹소켓 연결
+
     private void connectToWebSocket(List<String> stockCodes, String approvalKey) {
         ReactorNettyWebSocketClient client = new ReactorNettyWebSocketClient();
         Disposable connection = client.execute(URI.create(realTimeStockUrl), session ->
@@ -162,7 +169,10 @@ public class RealTimeStockService {
     }
 
     private void processStockData(String data) {
-        try {
+        if (!isStreamingActive) {
+            return;
+        }
+
             if (data.trim().startsWith("{")) {
                 System.out.println("수신 된 JSON형식 데이터 " + data);
                 return;
@@ -173,12 +183,8 @@ public class RealTimeStockService {
             if (parts.length >= 4) {
                 String stockData = parts[3];
                 parseStockData(stockData);
-            } else {
-                System.err.println("원하지 않는 데이터 형식입니다. 해당 데이터: " + data);
             }
-        } catch (Exception e) {
-            System.err.println("데이터 가공 실패: " + e.getMessage());
-        }
+
     }
 
     private void parseStockData(String data) {
@@ -189,26 +195,36 @@ public class RealTimeStockService {
             return;
         }
 
-        String stockCode = fields[0];
-        String tradingTime = fields[1];
-        String price = fields[2];
+        Object[] stockArray = new Object[2];
+        stockArray[0] = fields[0];  // stockCode
+        stockArray[1] = fields[2];  // price
 
-        stockDataMap.put(stockCode, String.format("체결 시간: %s, 체결 가격: %s", tradingTime, price));
+        sink.tryEmitNext(stockArray);
+    }
+
+    public Flux<Object[]> stream() {
+        return sink.asFlux()
+                .filter(data -> stockCode == null || stockCode.equals(data[0]))
+                .delayElements(Duration.ofMillis(100));
+    }
+
+
+    public void stopStreaming() {
+        isStreamingActive = false;
+    }
+
+
+    public void streamByStockCode(String stockCode) {
+        this.stockCode = stockCode;
+        isStreamingActive = true;
+    }
+
+    public void streamAll() {
+        this.stockCode = null;
+        isStreamingActive = true;
     }
 
     private void handleError(Throwable error) {
         System.err.println("웹 소켓 에러: " + error.getMessage());
-
-
-    }
-
-    // 특정 종목 코드에 대한 데이터 조회
-    public String getStockData(String stockCode) {
-        return stockDataMap.get(stockCode);
-    }
-
-    // 모든 종목 코드에 대한 데이터 조회
-    public Map<String, String> getAllStockData() {
-        return stockDataMap;
     }
 }
