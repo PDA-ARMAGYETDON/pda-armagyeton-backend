@@ -3,6 +3,13 @@ spring:
     name:
       alarm
 
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_HOST}
+    username: ${DB_USER}
+    password: ${DB_PASSWD}
+
+
   rabbitmq:
     host: 3.38.242.178
     port: 5672
