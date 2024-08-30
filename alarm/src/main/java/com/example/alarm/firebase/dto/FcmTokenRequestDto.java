@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public class FcmTokenRequestDto {
 
-    private String userId;
-    
+    private int userId;
+
     private String fcmToken;
 }
