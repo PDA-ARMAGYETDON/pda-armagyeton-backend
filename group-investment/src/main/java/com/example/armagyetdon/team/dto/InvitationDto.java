@@ -15,4 +15,12 @@ public class InvitationDto {
         this.inviteCode = inviteCode;
         this.inviteUrl = inviteUrl;
     }
+
+    public Invitation toEntity() {
+        return Invitation.builder()
+                .team(this.team)
+                .inviteCode(this.inviteCode)
+                .inviteUrl(this.inviteUrl)
+                .build();
+    }
 }
