@@ -32,7 +32,7 @@ public class TradeOffer {
 
     @Enumerated(EnumType.STRING)
     @ColumnDefault("PROGRESS")
-    private OfferStatus offerStatus;
+    private OfferStatus offerStatus = OfferStatus.PROGRESS;
 
     @ColumnDefault("0")
     private int upvotes;
