@@ -5,17 +5,20 @@ import com.example.stock_system.enums.TradeStatus;
 import com.example.stock_system.enums.TradeType;
 import com.example.stock_system.stocks.Stocks;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
 public class Trade {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(targetEntity = Account.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = Account.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "account_id")
     private Account account;
 
@@ -23,6 +26,7 @@ public class Trade {
     private TradeType type;
 
     @Enumerated(EnumType.STRING)
+    @Setter
     private TradeStatus status;
     private int price;
     private int quantity;
@@ -32,5 +36,5 @@ public class Trade {
 
     @ManyToOne(targetEntity = Stocks.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "stock_code")
-    private Stocks stocks;
+    private Stocks stockCode;
 }
