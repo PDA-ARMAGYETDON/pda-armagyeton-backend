@@ -13,11 +13,10 @@ public class FcmService {
 
     private final FcmTokenRepository fcmTokenRepository;
 
-
     public void saveFcmToken(FcmTokenRequestDto fcmTokenRequestDto) {
         fcmTokenRepository.save(new FcmToken(fcmTokenRequestDto.getUserId(), fcmTokenRequestDto.getFcmToken()));
     }
-//
+
 //    @Transactional
 //    public void deleteFcmToken(int userId) {
 //        fcmTokenRepository.deleteByUserId(userId);

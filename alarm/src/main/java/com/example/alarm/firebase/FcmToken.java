@@ -5,9 +5,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class FcmToken {
 
     @Id
@@ -18,4 +20,8 @@ public class FcmToken {
 
     private String fcmToken;
 
+    public FcmToken(int userId, String fcmToken) {
+        this.userId = userId;
+        this.fcmToken = fcmToken;
+    }
 }
