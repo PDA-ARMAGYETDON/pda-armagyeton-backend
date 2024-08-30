@@ -42,6 +42,9 @@ public class TradeOffer {
 
     private String stockCode;
 
+    public TradeOffer() {
+    }
+
     @Builder
     public TradeOffer(Member member, TradeType tradeType, int recentPrice, int wantPrice, int quantity, String stockCode) {
         this.member = member;
