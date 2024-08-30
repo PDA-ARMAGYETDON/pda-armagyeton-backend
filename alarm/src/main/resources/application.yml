@@ -10,7 +10,14 @@ spring:
     password: test
     exchange:
       name: (AMQP default)
+    recvMainQueue:
+      name: main_to_alarm
     recvChatQueue:
       name: chat_to_alarm
     recvStockQueue:
       name: stock_to_alarm
+
+fcm:
+  service:
+    key:
+      ./serviceAccountKey.json
