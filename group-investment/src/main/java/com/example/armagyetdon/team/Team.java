@@ -4,6 +4,7 @@ import com.example.armagyetdon.enums.Category;
 import com.example.armagyetdon.enums.TeamStatus;
 import com.example.armagyetdon.member.Member;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,6 +25,8 @@ public class Team {
 
     private LocalDateTime startAt;
     private LocalDateTime endAt;
+
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "team")
