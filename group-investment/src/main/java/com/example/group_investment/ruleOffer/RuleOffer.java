@@ -1,6 +1,7 @@
 package com.example.group_investment.ruleOffer;
 
 import com.example.group_investment.enums.OfferStatus;
+import com.example.group_investment.enums.RuleType;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.rule.Rule;
 import jakarta.persistence.*;
@@ -31,8 +32,6 @@ public class RuleOffer {
     @JoinColumn(name="member_id")
     private Member member;
 
-//    private RuleType rule_type;
-
     @Builder.Default
     private int upvotes = 0;
     @Builder.Default
@@ -41,7 +40,8 @@ public class RuleOffer {
     private int totalvotes;
 
     @Formula("RTYPE")
-    private String rtype;
+    @Enumerated(EnumType.STRING)
+    private RuleType rtype;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
