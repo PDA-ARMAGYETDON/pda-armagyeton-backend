@@ -19,7 +19,7 @@ public class GetROfferResponseUrgentSale implements GetROfferResponseType {
     int tradeUpvotes;
     double prdyVrssRt;
 
-    public GetROfferResponseUrgentSale(RuleType type, int upvotes, int downvotes, int totalvotes, int tradeUpvotes, int prdyVrssRt) {
+    public GetROfferResponseUrgentSale(RuleType type, int upvotes, int downvotes, int totalvotes, int tradeUpvotes, double prdyVrssRt) {
         this.type = type;
         this.upvotes = upvotes;
         this.downvotes = downvotes;
