@@ -16,7 +16,7 @@ public class TradeOfferService {
     private final MemberRepository memberRepository;
 
     public void createTradeOffer(CreateTradeOfferRequest createTradeOfferRequest) {
-        // 토큰으로 사용자 아이디와 모임 아이디 가져와야함
+        // FIXME: 토큰으로 사용자 아이디와 모임 아이디 가져와야함
         int userId = 1;
         int teamId = 1;
 
