@@ -32,4 +32,17 @@ public class RuleDto {
         this.maxProfitRt = maxProfitRt;
     }
 
+    public Rule toEntity() {
+        return Rule.builder()
+                .team(this.team)
+                .prdyVrssRt(this.prdyVrssRt)
+                .urgentTradeUpvotes(this.urgentTradeUpvotes)
+                .tradeUpvotes(this.tradeUpvotes)
+                .depositAmt(this.depositAmt)
+                .period(this.period)
+                .payDate(this.payDate)
+                .maxLossRt(this.maxLossRt)
+                .maxProfitRt(this.maxProfitRt)
+                .build();
+    }
 }
