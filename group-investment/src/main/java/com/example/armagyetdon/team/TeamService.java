@@ -1,5 +1,7 @@
 package com.example.armagyetdon.team;
 
+import com.example.armagyetdon.member.MemberRepository;
+import com.example.armagyetdon.rule.Rule;
 import com.example.armagyetdon.rule.RuleRepository;
 import com.example.armagyetdon.rule.dto.RuleDto;
 import com.example.armagyetdon.rule.exception.RuleErrorCode;
@@ -7,6 +9,10 @@ import com.example.armagyetdon.rule.exception.RuleException;
 import com.example.armagyetdon.team.dto.*;
 import com.example.armagyetdon.team.exception.TeamErrorCode;
 import com.example.armagyetdon.team.exception.TeamException;
+import com.example.armagyetdon.user.User;
+import com.example.armagyetdon.user.UserRepository;
+import com.example.armagyetdon.user.exception.UserErrorCode;
+import com.example.armagyetdon.user.exception.UserException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,12 +31,18 @@ public class TeamService {
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final String baseUrl = "http://localhost:8081/";
     private final InvitationRepository invitationRepository;
+    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
+
 
     @Transactional
-    public CreateTeamResponse createTeam(CreateTeamRequest createTeamRequest) {
+    public CreateTeamResponse createTeam(int userId, CreateTeamRequest createTeamRequest) {
+        // 팀을 만든 user
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         //1. 팀
         Team savedTeam;
         TeamDto teamDto = TeamDto.builder()
+                .user(user)
                 .name(createTeamRequest.getName())
                 .category(createTeamRequest.getCategory())
                 .startAt(createTeamRequest.getStartAt())

@@ -4,6 +4,7 @@ import com.example.armagyetdon.team.dto.CreateTeamRequest;
 import com.example.armagyetdon.team.dto.CreateTeamResponse;
 import com.example.armagyetdon.team.dto.SelectTeamResponse;
 import com.example.armagyetdon.team.dto.TeamDto;
+import com.example.armagyetdon.team.dto.*;
 import com.example.common.dto.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/teams")
+//@RequestMapping("/api/teams")
 public class TeamController {
 
     private final TeamService teamService;
@@ -25,9 +26,9 @@ public class TeamController {
     public ApiResponse<TeamDto> getTeam(@PathVariable int id) {
         return new ApiResponse<>(200, true, "팀 정보를 조회했습니다.", new TeamDto());
 
-    @PostMapping()
-    public ApiResponse<CreateTeamResponse> createTeam(@RequestBody CreateTeamRequest createTeamRequest) {
-        CreateTeamResponse createTeamResponse = teamService.createTeam(createTeamRequest);
+    @PostMapping("/api/users/{id}/groups")
+    public ApiResponse<CreateTeamResponse> createTeam(@PathVariable int id, @RequestBody CreateTeamRequest createTeamRequest) {
+        CreateTeamResponse createTeamResponse = teamService.createTeam(id, createTeamRequest);
         return new ApiResponse<>(201, true, "팀을 생성했습니다.", createTeamResponse);
     }
 }
