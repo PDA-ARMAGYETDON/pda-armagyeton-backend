@@ -3,6 +3,7 @@ package com.example.armagyetdon.team;
 import com.example.armagyetdon.enums.Category;
 import com.example.armagyetdon.enums.TeamStatus;
 import com.example.armagyetdon.member.Member;
+import com.example.armagyetdon.team.dto.TeamDto;
 import com.example.armagyetdon.user.User;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import jakarta.persistence.*;
@@ -55,5 +56,17 @@ public class Team {
 
     public Team() {
 
+    }
+
+    public TeamDto fromEntity(Team team) {
+        return TeamDto.builder()
+                .user(team.getUser())
+                .name(team.getName())
+                .category(team.getCategory())
+                .status(team.getStatus())
+                .startAt(team.getStartAt())
+                .endAt(team.getEndAt())
+                .createdAt(team.getCreatedAt())
+                .build();
     }
 }
