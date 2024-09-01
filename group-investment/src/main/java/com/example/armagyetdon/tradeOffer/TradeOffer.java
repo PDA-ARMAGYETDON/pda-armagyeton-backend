@@ -4,6 +4,9 @@ import com.example.armagyetdon.enums.OfferStatus;
 import com.example.armagyetdon.enums.TradeType;
 import com.example.armagyetdon.member.Member;
 import jakarta.persistence.*;
+import lombok.Builder;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +17,7 @@ public class TradeOffer {
     private int id;
 
     @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
-    @JoinColumn(name="member_id")
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @Enumerated(EnumType.STRING)
@@ -23,15 +26,32 @@ public class TradeOffer {
     private int recentPrice;
     private int wantPrice;
     private int quantity;
+
+    @CreationTimestamp
     private LocalDateTime offerAt;
 
     @Enumerated(EnumType.STRING)
-    private OfferStatus offerStatus;
+    @ColumnDefault("PROGRESS")
+    private OfferStatus offerStatus = OfferStatus.PROGRESS;
 
+    @ColumnDefault("0")
     private int upvotes;
-    private int downvotes;
 
+    @ColumnDefault("0")
+    private int downvotes;
 
     private String stockCode;
 
+    public TradeOffer() {
+    }
+
+    @Builder
+    public TradeOffer(Member member, TradeType tradeType, int recentPrice, int wantPrice, int quantity, String stockCode) {
+        this.member = member;
+        this.tradeType = tradeType;
+        this.recentPrice = recentPrice;
+        this.wantPrice = wantPrice;
+        this.quantity = quantity;
+        this.stockCode = stockCode;
+    }
 }

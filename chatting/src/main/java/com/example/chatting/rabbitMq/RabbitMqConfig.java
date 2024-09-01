@@ -26,7 +26,7 @@ public class RabbitMqConfig {
     @Value("${spring.rabbitmq.password}")
     private String rabbitmqPassword;
 
-    @Value("${spring.rabbitmq.recvChatQueue.name.name}")
+    @Value("${spring.rabbitmq.recvChatQueue.name}")
     private String recvChatQueueName;
 
     @Bean
