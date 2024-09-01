@@ -1,18 +1,21 @@
 package com.example.armagyetdon.rule;
 
+import com.example.armagyetdon.rule.dto.RuleDto;
 import com.example.armagyetdon.team.Team;
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.util.Date;
 
+@Getter
 @Entity
 public class Rule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(targetEntity = Team.class, fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Team.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
 
@@ -40,5 +43,19 @@ public class Rule {
 
     public Rule() {
 
+    }
+
+    public RuleDto fromEntity(Rule rule) {
+        return RuleDto.builder()
+                .team(rule.getTeam())
+                .prdyVrssRt(rule.getPrdyVrssRt())
+                .urgentTradeUpvotes(rule.getUrgentTradeUpvotes())
+                .tradeUpvotes(rule.getTradeUpvotes())
+                .depositAmt(rule.getDepositAmt())
+                .period(rule.getPeriod())
+                .payDate(rule.getPayDate())
+                .maxLossRt(rule.getMaxLossRt())
+                .maxProfitRt(rule.getMaxProfitRt())
+                .build();
     }
 }
