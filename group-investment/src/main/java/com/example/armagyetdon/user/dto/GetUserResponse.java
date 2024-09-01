@@ -1,6 +1,11 @@
 package com.example.armagyetdon.user.dto;
 
-public class UserDto {
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder
+public class GetUserResponse {
     private String loginId;
 
     private String email;
