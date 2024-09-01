@@ -31,4 +31,11 @@ public class TeamController {
         CreateTeamResponse createTeamResponse = teamService.createTeam(id, createTeamRequest);
         return new ApiResponse<>(201, true, "팀을 생성했습니다.", createTeamResponse);
     }
+    
+    @GetMapping("/api/groups")
+    public ApiResponse<InsertCodeTeamResponse> insertCode(@RequestParam(value = "inviteCode", required = true) String inviteCode) {
+        InsertCodeTeamResponse insertCodeTeamResponse = teamService.insertCode(inviteCode);
+        return new ApiResponse<>(200, true, "초대받은 팀으로 입장합니다",insertCodeTeamResponse);
+    }
+
 }
