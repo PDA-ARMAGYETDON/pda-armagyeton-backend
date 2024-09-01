@@ -1,15 +1,15 @@
-package com.example.invest_references;
+package com.example.armagyetdon;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.example.common", "com.example.invest_references"})
-public class InvestReferencesApplication {
+@ComponentScan(basePackages = {"com.example.common", "com.example.armagyetdon"})
+public class GroupInvestmentApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(InvestReferencesApplication.class, args);
+        SpringApplication.run(GroupInvestmentApplication.class, args);
     }
 
 }
