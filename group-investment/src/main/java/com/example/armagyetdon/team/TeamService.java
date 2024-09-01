@@ -98,4 +98,11 @@ public class TeamService {
 //        SelectTeamResponse selectTeamResponse = teamRepository.findById(id);
 //        return selectTeamResponse;
 //    }
+    public InsertCodeTeamResponse insertCode(String inviteCode) {
+
+        Invitation invitation = invitationRepository.findByInviteCode(inviteCode).orElseThrow(()
+                -> new TeamException(TeamErrorCode.INVITATION_NOT_FOUND));
+
+        return new InsertCodeTeamResponse(invitation.getId());
+    }
 }
