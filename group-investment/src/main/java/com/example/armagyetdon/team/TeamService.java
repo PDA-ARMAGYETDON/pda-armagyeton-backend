@@ -1,5 +1,6 @@
 package com.example.armagyetdon.team;
 
+import com.example.armagyetdon.member.Member;
 import com.example.armagyetdon.member.MemberRepository;
 import com.example.armagyetdon.rule.Rule;
 import com.example.armagyetdon.rule.RuleRepository;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -105,4 +107,52 @@ public class TeamService {
 
         return new InsertCodeTeamResponse(invitation.getId());
     }
+
+    @Transactional
+    public DetailPendingTeamResponse selectPendingDetails(int groupId, int userId) {
+        //1. 상세 조회 (모임, 규칙, 인원수)
+        //2-1. 모임 조회
+        Team team = teamRepository.findById(groupId).orElseThrow(() -> new TeamException(TeamErrorCode.GROUP_NOT_FOUND));
+        TeamDto teamDto = team.fromEntity(team);
+        //2-2. 규칙 조회
+        Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
+        RuleDto ruleDto = rule.fromEntity(rule);
+        //2-3. is 모임장
+        int isLeader = 0;
+        if (teamDto.getUser().getId() == userId)
+            isLeader = 1;
+        //2-4. is 참여
+        int isParticipating = 0;
+        if (isLeader == 0) {
+            List<Member> members = memberRepository.findByTeam(team);
+            for (Member member : members) {
+                if (member.getUser().getId() == userId) {
+                    isParticipating = 1;
+                    break;
+                }
+            }
+        }
+        //2-5. 인원수 조회
+        // FIXME : 멤버
+        int invitedMembers = memberRepository.countByTeam(team);
+
+        return DetailPendingTeamResponse.builder()
+                .name(teamDto.getName())
+                .category(teamDto.getCategory())
+                .startAt(teamDto.getStartAt())
+                .endAt(teamDto.getEndAt())
+                .prdyVrssRt(ruleDto.getPrdyVrssRt())
+                .urgentTradeUpvotes(ruleDto.getUrgentTradeUpvotes())
+                .tradeUpvotes(ruleDto.getTradeUpvotes())
+                .depositAmt(ruleDto.getDepositAmt())
+                .period(ruleDto.getPeriod())
+                .payDate(ruleDto.getPayDate())
+                .maxLossRt(ruleDto.getMaxLossRt())
+                .maxProfitRt(ruleDto.getMaxProfitRt())
+                .invitedMembers(invitedMembers)
+                .isLeader(isLeader)
+                .isParticipating(isParticipating)
+                .build();
+    }
+
 }
