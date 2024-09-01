@@ -3,6 +3,7 @@ package com.example.armagyetdon.team.dto;
 import com.example.armagyetdon.enums.Category;
 import com.example.armagyetdon.enums.TeamStatus;
 import com.example.armagyetdon.team.Team;
+import com.example.armagyetdon.user.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class TeamDto {
+    private User user;
     private String name;
     private Category category;
     private TeamStatus status;
@@ -18,7 +20,8 @@ public class TeamDto {
     private LocalDateTime createdAt;
 
     @Builder
-    public TeamDto(String name, Category category, TeamStatus status, LocalDateTime startAt, LocalDateTime endAt, LocalDateTime createdAt) {
+    public TeamDto(User user, String name, Category category, TeamStatus status, LocalDateTime startAt, LocalDateTime endAt, LocalDateTime createdAt) {
+        this.user = user;
         this.name = name;
         this.category = category;
         this.status = status;
@@ -29,6 +32,7 @@ public class TeamDto {
 
     public Team toEntity() {
         return Team.builder()
+                .user(this.user)
                 .name(this.name)
                 .category(this.category)
                 .status(this.status)
