@@ -38,4 +38,9 @@ public class TeamController {
         return new ApiResponse<>(200, true, "초대받은 팀으로 입장합니다",insertCodeTeamResponse);
     }
 
+    @GetMapping("/api/groups/{id}/pending/{userId}")
+    public ApiResponse<DetailPendingTeamResponse> selectDetails(@PathVariable int id, @PathVariable int userId) {
+        DetailPendingTeamResponse detailPendingTeamResponse = teamService.selectPendingDetails(id,userId);
+        return new ApiResponse<>(200, true, "초대를 받은 팀 정보를 조회했습니다.", detailPendingTeamResponse);
+    }
 }
