@@ -8,16 +8,6 @@ spring:
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
 
-  rabbitmq:
-    host: 3.38.242.178
-    port: 5672
-    username: test
-    password: test
-    exchange:
-      name: (AMQP default)
-    queue:
-      name: main_to_stock
-
   jpa:
     properties:
       hibernate:

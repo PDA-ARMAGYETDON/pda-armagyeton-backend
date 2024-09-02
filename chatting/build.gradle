@@ -7,6 +7,18 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
+    implementation "org.springframework.boot:spring-boot-starter-reactor-netty";
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    testImplementation 'org.springframework.amqp:spring-rabbit-test'
+
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.webjars:sockjs-client:1.5.1'
+    implementation 'org.webjars:stomp-websocket:2.3.4'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
     implementation project(':common')
 
 }
