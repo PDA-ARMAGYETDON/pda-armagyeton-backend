@@ -54,4 +54,33 @@ public class TradeOfferService {
         }
     }
 
+    public GetAllTradeOffersResponse getAllTradeOffers(TradeType type) {
+        // FIXME: 토큰으로 사용자 아이디와 모임 아이디 가져와야함
+        int userId = 1;
+        int teamId = 1;
+
+        Team team = teamRepository.findById(teamId).orElseThrow(
+                () -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+
+        List<TradeOffer> tradeOffers = tradeOfferRepository.findAllByTeamIdAndTradeType(team.getId(), type).orElseThrow(
+                () -> new TradeOfferException(TradeOfferErrorCode.TRADE_OFFER_NOT_FOUND)
+        );
+
+        List<TradeOfferResponse> tradeOfferResponses = tradeOffers.stream()
+                .map(tradeOffer -> new TradeOfferResponse().builder()
+                        .stockName(getStockNameFromStockSystem(tradeOffer.getStockCode()).getName())
+                        .wantPrice(tradeOffer.getWantPrice())
+                        .quantity(tradeOffer.getQuantity())
+                        .offerAt(tradeOffer.getOfferAt().toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                        .userName(tradeOffer.getMember().getUser().getName())
+                        .upvotes(tradeOffer.getUpvotes())
+                        .downvotes(tradeOffer.getDownvotes())
+                        .build())
+                .toList();
+
+        return new GetAllTradeOffersResponse().builder()
+                .tradeOfferResponses(tradeOfferResponses)
+                .build();
+    }
+
 }
