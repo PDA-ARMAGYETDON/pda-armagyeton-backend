@@ -19,6 +19,8 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    private int userId;
+
     private String accountNumber;
     private int deposit;
     private int totalEvluAmt;
@@ -44,12 +46,14 @@ public class Account {
     public Account() {
     }
 
-    public Account(String accountNumber){
+    public Account(String accountNumber) {
         this.accountNumber = accountNumber;
     }
+
     @Builder
-    public Account(String accountNumber, int deposit, int totalEvluAmt, int totalPchsAmt, int totalEvluPfls, double totalEvluPflsRt) {
+    public Account(String accountNumber, int userId, int deposit, int totalEvluAmt, int totalPchsAmt, int totalEvluPfls, double totalEvluPflsRt) {
         this.accountNumber = accountNumber;
+        this.userId = userId;
         this.deposit = deposit;
         this.totalEvluAmt = totalEvluAmt;
         this.totalPchsAmt = totalPchsAmt;
@@ -57,11 +61,11 @@ public class Account {
         this.totalEvluPflsRt = totalEvluPflsRt;
     }
 
-    public void buyStock(int price){
+    public void buyStock(int price) {
         this.deposit -= price;
     }
 
-    public void sellStock(int price){
+    public void sellStock(int price) {
         this.deposit += price;
     }
 }

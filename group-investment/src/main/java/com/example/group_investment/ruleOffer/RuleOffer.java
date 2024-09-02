@@ -1,6 +1,9 @@
 package com.example.group_investment.ruleOffer;
 
 import com.example.group_investment.enums.OfferStatus;
+import com.example.group_investment.member.Member;
+import com.example.group_investment.rule.Rule;
+import jakarta.persistence.*;
 import com.example.group_investment.enums.RuleType;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.rule.Rule;
