@@ -1,9 +1,6 @@
 package com.example.group_investment.team;
 
 import com.example.group_investment.team.dto.*;
-import com.example.group_investment.team.dto.TeamDto;
-import com.example.group_investment.team.dto.CreateTeamRequest;
-import com.example.group_investment.team.dto.CreateTeamResponse;
 import com.example.common.dto.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +30,7 @@ public class TeamController {
         CreateTeamResponse createTeamResponse = teamService.createTeam(createTeamRequest);
         return new ApiResponse<>(201, true, "팀을 생성했습니다.", createTeamResponse);
     }
-    
+
     @GetMapping()
     public ApiResponse<InsertCodeTeamResponse> insertCode(@RequestParam(value = "inviteCode", required = true) String inviteCode) {
         InsertCodeTeamResponse insertCodeTeamResponse = teamService.insertCode(inviteCode);
