@@ -15,14 +15,14 @@ public class TradeOfferController {
     private final TradeOfferService tradeOfferService;
 
     @Operation(summary = "매매 제안 생성", description = "매매 제안을 생성하는 api입니다.")
-    @PostMapping()
+    @PostMapping
     public ApiResponse createTradeOffer(@RequestBody CreateTradeOfferRequest createTradeOfferRequest) {
         tradeOfferService.createTradeOffer(createTradeOfferRequest);
         return new ApiResponse(201, true, "매매제안을 생성했습니다.", null);
     }
 
     @Operation(summary = "매매 제안 조회", description = "매매 제안 리스트를 조회하는 api입니다.")
-    @GetMapping()
+    @GetMapping
     public ApiResponse<GetAllTradeOffersResponse> getAllTradeOffers(@RequestParam TradeType type) {
         return new ApiResponse(200, true, "매매제안을 조회했습니다.", tradeOfferService.getAllTradeOffers(type));
     }
