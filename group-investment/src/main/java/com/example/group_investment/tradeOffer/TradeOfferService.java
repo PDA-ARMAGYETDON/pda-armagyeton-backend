@@ -13,7 +13,8 @@ import com.example.group_investment.team.exception.TeamException;
 import com.example.group_investment.tradeOffer.dto.*;
 import com.example.group_investment.tradeOffer.exception.TradeOfferErrorCode;
 import com.example.group_investment.tradeOffer.exception.TradeOfferException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,12 +23,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TradeOfferService {
     private final TradeOfferRepository tradeOfferRepository;
     private final MemberRepository memberRepository;
     private final WebClient.Builder webClientBuilder;
     private final TeamRepository teamRepository;
+
+    @Value("${ag.url}")
+    private String AG_URL;
 
     public void createTradeOffer(CreateTradeOfferRequest createTradeOfferRequest) {
         // FIXME: 토큰으로 사용자 아이디와 모임 아이디 가져와야함
@@ -92,7 +96,7 @@ public class TradeOfferService {
         WebClient webClient = webClientBuilder.build();
 
         ApiResponse<StockName> stockName = webClient.get()
-                .uri("http://localhost:8083/api/stocks/names?stockCode=" + stockCode)
+                .uri(AG_URL + ":8083/api/stocks/names?stockCode=" + stockCode)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<StockName>>() {
                 })
