@@ -3,7 +3,9 @@ package com.example.group_investment.tradeOffer.dto;
 import com.example.group_investment.enums.OfferStatus;
 import com.example.group_investment.enums.TradeType;
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 public class TradeOfferResponse {
     private String userName;
     private TradeType tradeType;
