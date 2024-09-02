@@ -187,4 +187,14 @@ public class TeamService {
         }
     }
 
+    public void confirmTeam(ConfirmTeamRequest confirmTeamRequest) {
+        int teamId = 1;
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        team.setStatus(confirmTeamRequest.getStatus());
+        try {
+            teamRepository.save(team);
+        } catch (Exception e) {
+            throw new TeamException(TeamErrorCode.TEAM_SAVE_FAILED);
+        }
+    }
 }
