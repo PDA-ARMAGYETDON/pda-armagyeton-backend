@@ -21,9 +21,8 @@ public class RealTimeStockController {
 
     @PostMapping("/start")
     public String startWebSocketSession() throws IOException {
-            realTimeStockService.start();
-            return "웹 소켓 연결이 시작되었습니다.";
-
+        realTimeStockService.start();
+        return "웹 소켓 연결이 시작되었습니다.";
     }
 
     @PostMapping("/stop")
@@ -54,5 +53,10 @@ public class RealTimeStockController {
     public String stopStreaming() {
         realTimeStockService.stopStreaming();
         return "모든 데이터 스트리밍 중지";
+    }
+
+    @GetMapping(value = "/all", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<Object[]> streamAllData() {
+        return realTimeStockService.getDataOnlyStream();
     }
 }
