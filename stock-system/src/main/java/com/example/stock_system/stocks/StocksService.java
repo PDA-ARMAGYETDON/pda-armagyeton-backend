@@ -7,4 +7,8 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class StocksService {
     private final StocksRepository stocksRepository;
+
+    public StockName getStockNameByCode(String stockCode) {
+        return new StockName().fromEntity(stocksRepository.findByCode(stockCode));
+    }
 }

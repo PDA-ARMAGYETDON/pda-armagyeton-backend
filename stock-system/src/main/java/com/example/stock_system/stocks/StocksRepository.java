@@ -5,4 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StocksRepository extends JpaRepository<Stocks, Integer> {
+    Stocks findByCode(String code);
 }
