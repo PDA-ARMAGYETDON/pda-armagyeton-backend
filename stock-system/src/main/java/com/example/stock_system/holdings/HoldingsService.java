@@ -5,7 +5,6 @@ import com.example.stock_system.account.AccountRepository;
 import com.example.stock_system.account.exception.AccountErrorCode;
 import com.example.stock_system.account.exception.AccountException;
 import com.example.stock_system.holdings.dto.HoldingsDto;
-import com.example.stock_system.realTimeStock.RealTimeStockService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -19,7 +18,6 @@ public class HoldingsService {
 
     private final HoldingsRepository holdingsRepository;
     private final AccountRepository accountRepository;
-    private final RealTimeStockService realTimeStockService;
 
     public List<HoldingsDto> getHoldings(int accountId) {
         Account account = accountRepository.findById(accountId)
@@ -47,7 +45,7 @@ public class HoldingsService {
                     Holdings holding = holdingsList.stream()
                             .filter(h -> h.getStockCode().getCode().equals(stockCode))
                             .findFirst()
-                            .orElseThrow(() -> new IllegalArgumentException("Invalid stock code: " + stockCode));
+                            .orElseThrow(() -> new IllegalArgumentException("조회 되지 않는 코드입니다. " + stockCode));
 
                     int evluAmt = currentPrice * holding.getHldgQty();
                     int evluPfls = evluAmt - holding.getPchsAmt();
