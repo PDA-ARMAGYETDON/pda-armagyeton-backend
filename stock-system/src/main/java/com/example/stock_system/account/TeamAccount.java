@@ -11,14 +11,13 @@ import lombok.NoArgsConstructor;
 public class TeamAccount {
 
     @Id
-    @Column(name = "account_id")
-    private int accountId;
+    private int id;
 
     @OneToOne
     @MapsId
     @JoinColumn(name = "account_id")
     private Account account;
-    
+
     @Column(name = "team_id")
     private int teamId;
 
