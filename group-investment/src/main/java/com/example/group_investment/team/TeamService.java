@@ -170,4 +170,21 @@ public class TeamService {
                 .build();
     }
 
+    public void participateTeam() {
+        int teamId = 1;
+        int userId = 2;
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+        MemberDto memberDto = MemberDto.builder()
+                .team(team)
+                .user(user)
+                .role(MemberRole.MEMBER)
+                .build();
+        try {
+            memberRepository.save(memberDto.toEntity());
+        } catch (Exception e) {
+            throw new MemberException(MemberErrorCode.MEMBER_SAVE_FAILED);
+        }
+    }
+
 }
