@@ -9,12 +9,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class AccountTransferDetailDto {
 
-    private int account;
+    private int accountId;
 
     private LocalDateTime transferAt;
 
     private int transferAmt;
 
-    private int receivingAccount;
+    private int receivingAccountId;
 
 }
