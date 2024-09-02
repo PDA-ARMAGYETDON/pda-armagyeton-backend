@@ -52,8 +52,8 @@ public class TeamController {
 
     @Operation(summary = "팀을 확정하는 API")
     @PutMapping()
-    public ApiResponse confirmTeam(@RequestBody ConfirmTeamRequest confirmTeamRequest) {
-        teamService.confirmTeam(confirmTeamRequest);
+    public ApiResponse confirmTeam() {
+        teamService.confirmTeam();
         return new ApiResponse<>(200, true, "모임을 확정했습니다.", null);
     }
 

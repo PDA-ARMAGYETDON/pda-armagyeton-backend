@@ -1,6 +1,7 @@
 package com.example.group_investment.team;
 
 import com.example.group_investment.enums.MemberRole;
+import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.dto.MemberDto;
@@ -187,10 +188,10 @@ public class TeamService {
         }
     }
 
-    public void confirmTeam(ConfirmTeamRequest confirmTeamRequest) {
-        int teamId = 1;
+    public void confirmTeam() {
+        int teamId = 2;
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
-        team.setStatus(confirmTeamRequest.getStatus());
+        team.setStatus(TeamStatus.ACTIVE);
         try {
             teamRepository.save(team);
         } catch (Exception e) {
