@@ -43,4 +43,11 @@ public class TeamController {
         teamService.participateTeam();
         return new ApiResponse<>(201, true, "모임에 참가했습니다.", null);
     }
+
+    @PutMapping()
+    public ApiResponse confirmTeam(@RequestBody ConfirmTeamRequest confirmTeamRequest) {
+        teamService.confirmTeam(confirmTeamRequest);
+        return new ApiResponse<>(200, true, "모임을 확정했습니다.", null);
+    }
+
 }
