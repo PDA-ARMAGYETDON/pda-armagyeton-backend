@@ -2,7 +2,9 @@ package com.example.group_investment.team;
 
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 @Entity
 public class Invitation {
 
