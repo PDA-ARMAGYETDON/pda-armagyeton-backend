@@ -38,4 +38,9 @@ public class TeamController {
         return new ApiResponse<>(200, true, "초대를 받은 팀 정보를 조회했습니다.", detailPendingTeamResponse);
     }
 
+    @GetMapping("/participate")
+    public ApiResponse participateTeam() {
+        teamService.participateTeam();
+        return new ApiResponse<>(201, true, "모임에 참가했습니다.", null);
+    }
 }
