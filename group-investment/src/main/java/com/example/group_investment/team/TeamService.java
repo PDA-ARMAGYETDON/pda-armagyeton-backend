@@ -3,7 +3,6 @@ package com.example.group_investment.team;
 import com.example.group_investment.enums.MemberRole;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
-import com.example.group_investment.member.dto.MemberDto;
 import com.example.group_investment.member.exception.MemberErrorCode;
 import com.example.group_investment.member.exception.MemberException;
 import com.example.group_investment.rule.Rule;
@@ -46,11 +45,14 @@ public class TeamService {
     public CreateTeamResponse createTeam(CreateTeamRequest createTeamRequest) {
         // 팀을 만든 user
         int userId = 2;
+
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         //1. 팀
         Team savedTeam;
         TeamDto teamDto = TeamDto.builder()
                 .name(createTeamRequest.getName())
+                .baseAmt(createTeamRequest.getBaseAmt())
+                .headCount(createTeamRequest.getHeadCount())
                 .category(createTeamRequest.getCategory())
                 .startAt(createTeamRequest.getStartAt())
                 .endAt(createTeamRequest.getEndAt())
@@ -148,6 +150,8 @@ public class TeamService {
 
         return DetailPendingTeamResponse.builder()
                 .name(teamDto.getName())
+                .baseAmt(teamDto.getBaseAmt())
+                .headCount(teamDto.getHeadCount())
                 .category(teamDto.getCategory())
                 .startAt(teamDto.getStartAt())
                 .endAt(teamDto.getEndAt())

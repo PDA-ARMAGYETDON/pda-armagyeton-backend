@@ -12,6 +12,8 @@ import java.util.Date;
 @Getter
 public class DetailPendingTeamResponse {
     private String name;
+    private int baseAmt;
+    private int headCount;
     private Category category;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
@@ -28,8 +30,10 @@ public class DetailPendingTeamResponse {
     private int isParticipating;
 
     @Builder
-    public DetailPendingTeamResponse(String name, Category category, LocalDateTime startAt, LocalDateTime endAt, float prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, RulePeriod period, Date payDate, float maxLossRt, float maxProfitRt, int invitedMembers, int isLeader, int isParticipating) {
+    public DetailPendingTeamResponse(String name, int baseAmt, int headCount, Category category, LocalDateTime startAt, LocalDateTime endAt, float prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, RulePeriod period, Date payDate, float maxLossRt, float maxProfitRt, int invitedMembers, int isLeader, int isParticipating) {
         this.name = name;
+        this.baseAmt = baseAmt;
+        this.headCount = headCount;
         this.category = category;
         this.startAt = startAt;
         this.endAt = endAt;
