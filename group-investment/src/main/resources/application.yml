@@ -1,13 +1,13 @@
 spring:
   application:
-    name: armagyetdon
+    name: group-investment
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${RDS_URL}
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
-
+  
   jpa:
     properties:
       hibernate:
@@ -15,6 +15,9 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: true
+
+  ag:
+    url: ${AG_URL}
 
 server:
   port: 8081
