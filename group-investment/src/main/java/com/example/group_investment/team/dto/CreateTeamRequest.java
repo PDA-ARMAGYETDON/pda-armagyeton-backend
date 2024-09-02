@@ -13,6 +13,8 @@ import java.util.Date;
 @Getter
 public class CreateTeamRequest {
     private String name;
+    private int baseAmt;
+    private int headCount;
     private Category category;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
