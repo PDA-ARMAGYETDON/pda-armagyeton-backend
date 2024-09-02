@@ -24,7 +24,7 @@ public class Member {
     private int id;
 
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(targetEntity = Team.class, fetch = FetchType.LAZY)

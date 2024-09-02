@@ -12,7 +12,7 @@ public class TradeOfferVote {
     private int id;
 
     @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
-    @JoinColumn(name="member_id")
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @ManyToOne(targetEntity = TradeOffer.class, fetch = FetchType.LAZY)

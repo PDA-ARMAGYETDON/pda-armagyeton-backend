@@ -6,10 +6,12 @@ import com.example.stock_system.trade.Trade;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import lombok.Getter;
 
 import java.util.List;
 
 @Entity
+@Getter
 public class Stocks {
     @Id
     private String code;

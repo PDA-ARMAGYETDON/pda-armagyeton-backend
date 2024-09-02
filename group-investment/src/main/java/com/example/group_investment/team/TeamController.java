@@ -3,6 +3,7 @@ package com.example.group_investment.team;
 import com.example.group_investment.team.dto.*;
 import com.example.group_investment.team.dto.CreateTeamRequest;
 import com.example.group_investment.team.dto.CreateTeamResponse;
+
 import com.example.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,7 @@ public class TeamController {
         CreateTeamResponse createTeamResponse = teamService.createTeam(createTeamRequest);
         return new ApiResponse<>(201, true, "팀을 생성했습니다.", createTeamResponse);
     }
+
 
     @Operation(summary = "초대 코드 입력 API")
     @GetMapping()
