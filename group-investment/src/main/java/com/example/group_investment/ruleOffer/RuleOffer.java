@@ -35,6 +35,8 @@ public class RuleOffer {
     @JoinColumn(name="member_id")
     private Member member;
 
+//    private RuleType rule_type;
+
     @Builder.Default
     private int upvotes = 0;
     @Builder.Default
@@ -49,4 +51,5 @@ public class RuleOffer {
     @Builder.Default
     @Enumerated(EnumType.STRING)
     private OfferStatus status = OfferStatus.PROGRESS;
+
 }

@@ -1,6 +1,7 @@
 package com.example.group_investment.team.dto;
 
 import com.example.group_investment.enums.Category;
+import com.example.group_investment.enums.RulePeriod;
 import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.rule.dto.RuleDto;
 import com.example.group_investment.team.Team;
@@ -19,7 +20,7 @@ public class CreateTeamRequest {
     private int urgentTradeUpvotes;
     private int tradeUpvotes;
     private int depositAmt;
-    private Date period;
+    private RulePeriod period;
     private Date payDate;
     private float maxLossRt;
     private float maxProfitRt;
