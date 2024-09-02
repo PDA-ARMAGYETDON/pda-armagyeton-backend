@@ -18,9 +18,10 @@ public class TeamController {
     public ApiResponse<TeamDto> getTeam(@PathVariable int id) {
         return new ApiResponse<>(200, true, "팀 정보를 조회했습니다.", new TeamDto());
 
-    @PostMapping("/api/users/{id}/groups")
-    public ApiResponse<CreateTeamResponse> createTeam(@PathVariable int id, @RequestBody CreateTeamRequest createTeamRequest) {
-        CreateTeamResponse createTeamResponse = teamService.createTeam(id, createTeamRequest);
+
+    @PostMapping("")
+    public ApiResponse<CreateTeamResponse> createTeam(@RequestBody CreateTeamRequest createTeamRequest) {
+        CreateTeamResponse createTeamResponse = teamService.createTeam(createTeamRequest);
         return new ApiResponse<>(201, true, "팀을 생성했습니다.", createTeamResponse);
     }
     
