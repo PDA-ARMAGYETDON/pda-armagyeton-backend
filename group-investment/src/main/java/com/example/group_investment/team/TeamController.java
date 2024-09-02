@@ -1,8 +1,16 @@
 package com.example.group_investment.team;
 
 import com.example.group_investment.team.dto.*;
+import com.example.group_investment.team.dto.TeamDto;
+import com.example.group_investment.team.dto.CreateTeamRequest;
+import com.example.group_investment.team.dto.CreateTeamResponse;
+import com.example.group_investment.team.dto.SelectTeamResponse;
 import com.example.common.dto.ApiResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,6 +25,8 @@ public class TeamController {
     @GetMapping("/{id}")
     public ApiResponse<TeamDto> getTeam(@PathVariable int id) {
         return new ApiResponse<>(200, true, "팀 정보를 조회했습니다.", new TeamDto());
+    }
+
 
     @PostMapping("/api/users/{id}/groups")
     public ApiResponse<CreateTeamResponse> createTeam(@PathVariable int id, @RequestBody CreateTeamRequest createTeamRequest) {
@@ -35,4 +45,5 @@ public class TeamController {
         DetailPendingTeamResponse detailPendingTeamResponse = teamService.selectPendingDetails();
         return new ApiResponse<>(200, true, "초대를 받은 팀 정보를 조회했습니다.", detailPendingTeamResponse);
     }
+
 }

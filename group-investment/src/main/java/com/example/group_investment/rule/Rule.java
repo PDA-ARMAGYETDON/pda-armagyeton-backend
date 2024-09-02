@@ -1,5 +1,4 @@
 package com.example.group_investment.rule;
-
 import com.example.group_investment.rule.dto.RuleDto;
 import com.example.group_investment.team.Team;
 import jakarta.persistence.*;
