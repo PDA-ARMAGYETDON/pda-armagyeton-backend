@@ -77,6 +77,17 @@ public class TeamService {
         } catch (Exception e) {
             throw new RuleException(RuleErrorCode.RULE_SAVE_FAILED);
         }
+        // 팀장 멤버
+        MemberDto memberDto = MemberDto.builder()
+                .team(savedTeam)
+                .user(user)
+                .role(MemberRole.LEADER)
+                .build();
+        try {
+            memberRepository.save(memberDto.toEntity());
+        } catch (Exception e) {
+            throw new MemberException(MemberErrorCode.MEMBER_SAVE_FAILED);
+        }
         //3 초대코드 생성
         StringBuilder code = new StringBuilder(CODE_LENGTH);
         for (int i = 0; i < CODE_LENGTH; i++) {
