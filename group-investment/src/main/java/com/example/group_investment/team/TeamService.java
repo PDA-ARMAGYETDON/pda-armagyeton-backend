@@ -204,6 +204,8 @@ public class TeamService {
 
         TeamDto updatedTeamDto = TeamDto.builder()
                 .name(team.getName())
+                .baseAmt(team.getBaseAmt())
+                .headCount(team.getHeadCount())
                 .category(team.getCategory())
                 .startAt(team.getStartAt())
                 .endAt(team.getEndAt())
