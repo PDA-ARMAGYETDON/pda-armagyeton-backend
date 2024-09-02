@@ -36,7 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Service
 public class RealTimeStockService {
 
-    private enum StreamMode { STOCK_DATA, TOTAL_SUM }
+    private enum StreamMode {STOCK_DATA, TOTAL_SUM}
 
     @Value("${HANTU_APP_KEY_REALTIME}")
     private String appKeyRaw;
@@ -124,7 +124,8 @@ public class RealTimeStockService {
 
         String jsonContent = Files.readString(path);
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {});
+        return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {
+        });
     }
 
     private String getApprovalKey(String appKey, String appSecretKey) {
@@ -159,7 +160,6 @@ public class RealTimeStockService {
                 .doOnError(this::handleError)
         ).then();
     }
-
 
 
     private String createSubscribeMessage(String stockCode, String approvalKey) {
@@ -302,7 +302,6 @@ public class RealTimeStockService {
         // 실시간 합계 전송
         userTotalSumSinks.values().forEach(sink -> sink.tryEmitNext(totalSum));
     }
-
 
 
     public Flux<Integer> getTotalSumStream() {
