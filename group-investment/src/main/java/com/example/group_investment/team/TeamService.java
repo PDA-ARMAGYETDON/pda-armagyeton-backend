@@ -107,15 +107,18 @@ public class TeamService {
 
         Invitation invitation = invitationRepository.findByInviteCode(inviteCode).orElseThrow(()
                 -> new TeamException(TeamErrorCode.INVITATION_NOT_FOUND));
-
-        return new InsertCodeTeamResponse(invitation.getId());
+        Team team = teamRepository.findById(invitation.getId()).orElseThrow(() -> new TeamException(TeamErrorCode.GROUP_NOT_FOUND));
+        int invitedMembers = memberRepository.countByTeam(team);
+        return new InsertCodeTeamResponse(invitation.getId(), invitedMembers);
     }
 
     @Transactional
-    public DetailPendingTeamResponse selectPendingDetails(int groupId, int userId) {
+    public DetailPendingTeamResponse selectPendingDetails() {
         //1. 상세 조회 (모임, 규칙, 인원수)
+        int teamId = 2;
+        int userId = 3;
         //2-1. 모임 조회
-        Team team = teamRepository.findById(groupId).orElseThrow(() -> new TeamException(TeamErrorCode.GROUP_NOT_FOUND));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.GROUP_NOT_FOUND));
         TeamDto teamDto = team.fromEntity(team);
         //2-2. 규칙 조회
         Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
