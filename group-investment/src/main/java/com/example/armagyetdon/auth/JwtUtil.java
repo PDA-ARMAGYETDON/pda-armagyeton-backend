@@ -41,7 +41,7 @@ public class JwtUtil {
                 .getExpiration().before(new Date());
     }
 
-    public String createJwt(String loginId, String role, Set<Integer> teams, Long expiredMs){
+    public String createJwt(String loginId, String role, boolean teams, Long expiredMs){
         return Jwts.builder()
                 .claim("username", loginId)
                 .claim("role", role)

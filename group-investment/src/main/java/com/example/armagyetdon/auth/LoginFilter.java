@@ -24,6 +24,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final AgUserDetailsService userDetailsService;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -61,7 +62,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         AgUserDetails userDetails = (AgUserDetails) authentication.getPrincipal();
 
         String loginId = userDetails.getUsername();
-        Set<Integer> teams = userDetails.getTeams();
+//        Set<Integer> teams = userDetails.getTeams();
+        boolean teams = userDetailsService.isTeamExist(userDetails.getId());
 
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
