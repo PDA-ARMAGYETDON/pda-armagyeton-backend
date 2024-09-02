@@ -59,6 +59,7 @@ public class RealTimeStockService {
     private final StocksRepository stocksRepository;
 
     private Sinks.Many<Object[]> allStockDataSink;
+    private Sinks.Many<Object[]> dataOnlySink;
     private final Map<String, Sinks.Many<Object[]>> individualStockSinks = new ConcurrentHashMap<>();
     private Sinks.Many<Integer> totalSumSink;
     private final Map<String, Boolean> isStreamingActiveMap = new ConcurrentHashMap<>();
@@ -82,6 +83,7 @@ public class RealTimeStockService {
         }
 
         allStockDataSink = Sinks.many().multicast().onBackpressureBuffer();
+        dataOnlySink = Sinks.many().multicast().onBackpressureBuffer();
 
         List<String> appKeys = List.of(appKeyRaw.split(","));
         List<String> appSecretKeys = List.of(appSecretKeyRaw.split(","));
@@ -107,14 +109,20 @@ public class RealTimeStockService {
             stockCodeIndex += 40;
         }
 
-        //매매 로직
+        // 매매 로직
         allStockDataSink.asFlux().subscribe(stockData -> {
             String stockCode = (String) stockData[0];
             int price = (Integer) stockData[1];
             processPendingTrades(stockCode, price);
         });
-    }
 
+        // 데이터만 처리하는 로직
+        allStockDataSink.asFlux().subscribe(stockData -> {
+            if (dataOnlySink != null) {
+                dataOnlySink.tryEmitNext(stockData);
+            }
+        });
+    }
 
     public void stop() {
         for (Disposable connection : connections) {
@@ -125,6 +133,7 @@ public class RealTimeStockService {
         }
         connections.clear();
         allStockDataSink = null;
+        dataOnlySink = null;
         individualStockSinks.clear();
         totalSumSink = null;
         isStreamingActiveMap.clear();
@@ -228,6 +237,11 @@ public class RealTimeStockService {
         }
 
 
+        if (dataOnlySink != null) {
+            dataOnlySink.tryEmitNext(stockArray);
+        }
+
+
         Sinks.Many<Object[]> stockSink = individualStockSinks.get(stockCode);
         if (stockSink != null && Boolean.TRUE.equals(isStreamingActiveMap.get(stockCode))) {
             stockSink.tryEmitNext(stockArray);
@@ -288,6 +302,13 @@ public class RealTimeStockService {
                 .delayElements(Duration.ofMillis(100));
     }
 
+    public Flux<Object[]> getDataOnlyStream() {
+        if (dataOnlySink == null) {
+            throw new IllegalStateException("데이터 스트림이 초기화x 웹소켓 연결 필요");
+        }
+        return dataOnlySink.asFlux().delayElements(Duration.ofMillis(100));
+    }
+
     public void stopStreamingByStockCode(String stockCode) {
         isStreamingActiveMap.put(stockCode, false);
         System.out.println("스트리밍 중지됨 - 주식 코드: " + stockCode);
@@ -297,7 +318,7 @@ public class RealTimeStockService {
         System.out.println("특정 주식 코드 리스트로 스트리밍 시작 - 코드들: " + stockCodes);
 
         if (totalSumSink != null) {
-            totalSumSink.tryEmitComplete(); // 기존 스트림 종료
+            totalSumSink.tryEmitComplete();
         }
         totalSumSink = Sinks.many().multicast().onBackpressureBuffer();
 
