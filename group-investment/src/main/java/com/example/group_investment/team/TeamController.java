@@ -1,9 +1,16 @@
 package com.example.group_investment.team;
 
-import com.example.common.dto.ApiResponse;
+
+import com.example.group_investment.team.dto.TeamDto;
 import com.example.group_investment.team.dto.CreateTeamRequest;
 import com.example.group_investment.team.dto.CreateTeamResponse;
-import com.example.group_investment.team.dto.TeamDto;
+import com.example.group_investment.team.dto.SelectTeamResponse;
+import com.example.common.dto.ApiResponse;
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

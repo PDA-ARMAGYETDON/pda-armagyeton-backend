@@ -4,6 +4,7 @@ import com.example.group_investment.enums.Category;
 import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.user.User;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,6 +37,9 @@ public class Team {
     @OneToMany(mappedBy = "team")
     private List<Member> members = new ArrayList<>();
 
+    public int getSizeOfMembers() {
+        return members.size();
+    }
 
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -53,6 +57,5 @@ public class Team {
     }
 
     public Team() {
-
     }
 }
