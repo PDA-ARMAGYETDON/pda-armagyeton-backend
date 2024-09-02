@@ -12,9 +12,9 @@ public class TransferHistoryController {
     private final TransferHistoryService transferHistoryService;
 
     @PostMapping("accounts/{id}/transactions")
-    public AccountTransferDetailDto getAccountTransferDetail(@PathVariable int userId) {
+    public AccountTransferDetailDto getAccountTransferDetail(@PathVariable int id) {
 
-        return transferHistoryService.getAccountTransferDetail(userId);
+        return transferHistoryService.getAccountTransferDetail(id);
 
     }
 }
