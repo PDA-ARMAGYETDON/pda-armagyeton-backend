@@ -55,6 +55,10 @@ public class Team {
 
     }
 
+    public void setStatus(TeamStatus status) {
+        this.status = status;
+    }
+
     public TeamDto fromEntity(Team team) {
         return TeamDto.builder()
                 .name(team.getName())

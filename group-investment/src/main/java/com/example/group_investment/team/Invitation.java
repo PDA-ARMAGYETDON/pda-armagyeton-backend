@@ -9,10 +9,10 @@ import lombok.Getter;
 public class Invitation {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
+    @OneToOne(targetEntity = Team.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
 

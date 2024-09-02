@@ -1,6 +1,7 @@
 package com.example.group_investment.team;
 
 import com.example.group_investment.enums.MemberRole;
+import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.dto.MemberDto;
@@ -28,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.util.List;
 
-
 @Service
 @AllArgsConstructor
 public class TeamService {
@@ -37,7 +37,7 @@ public class TeamService {
     private final RuleRepository ruleRepository;
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    private static final int CODE_LENGTH = 8;
+    private static final int CODE_LENGTH = 6;
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final String baseUrl = "http://localhost:8081/";
     private final InvitationRepository invitationRepository;
@@ -48,7 +48,7 @@ public class TeamService {
     @Transactional
     public CreateTeamResponse createTeam(CreateTeamRequest createTeamRequest) {
         // 팀을 만든 user
-        int userId = 2;
+        int userId = 1;
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         //1. 팀
         Team savedTeam;
@@ -80,6 +80,17 @@ public class TeamService {
         } catch (Exception e) {
             throw new RuleException(RuleErrorCode.RULE_SAVE_FAILED);
         }
+        // 팀장 멤버
+        MemberDto memberDto = MemberDto.builder()
+                .team(savedTeam)
+                .user(user)
+                .role(MemberRole.LEADER)
+                .build();
+        try {
+            memberRepository.save(memberDto.toEntity());
+        } catch (Exception e) {
+            throw new MemberException(MemberErrorCode.MEMBER_SAVE_FAILED);
+        }
         //3 초대코드 생성
         StringBuilder code = new StringBuilder(CODE_LENGTH);
         for (int i = 0; i < CODE_LENGTH; i++) {
@@ -104,25 +115,20 @@ public class TeamService {
         return new CreateTeamResponse(inviteCode, inviteUrl);
     }
 
-//    public SelectTeamResponse selectTeam(int id) {
-//        SelectTeamResponse selectTeamResponse = teamRepository.findById(id);
-//        return selectTeamResponse;
-//    }
-
     public InsertCodeTeamResponse insertCode(String inviteCode) {
 
         Invitation invitation = invitationRepository.findByInviteCode(inviteCode).orElseThrow(()
                 -> new TeamException(TeamErrorCode.INVITATION_NOT_FOUND));
-        Team team = teamRepository.findById(invitation.getId()).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        Team team = teamRepository.findById(invitation.getTeam().getId()).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         int invitedMembers = memberRepository.countByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-        return new InsertCodeTeamResponse(invitation.getId(), invitedMembers);
+        return new InsertCodeTeamResponse(invitation.getTeam().getId(), invitedMembers);
     }
 
     @Transactional
     public DetailPendingTeamResponse selectPendingDetails() {
         //1. 상세 조회 (모임, 규칙, 인원수)
-        int teamId = 2;
-        int userId = 3;
+        int teamId = 1;
+        int userId = 1;
         //2-1. 모임 조회
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         TeamDto teamDto = team.fromEntity(team);
@@ -168,4 +174,38 @@ public class TeamService {
                 .build();
     }
 
+    public void participateTeam() {
+        int teamId = 1;
+        int userId = 2;
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+        MemberDto memberDto = MemberDto.builder()
+                .team(team)
+                .user(user)
+                .role(MemberRole.MEMBER)
+                .build();
+        try {
+            memberRepository.save(memberDto.toEntity());
+        } catch (Exception e) {
+            throw new MemberException(MemberErrorCode.MEMBER_SAVE_FAILED);
+        }
+    }
+
+    public void confirmTeam() {
+        int teamId = 3;
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+
+        TeamDto updatedTeamDto = TeamDto.builder()
+                .name(team.getName())
+                .category(team.getCategory())
+                .startAt(team.getStartAt())
+                .endAt(team.getEndAt())
+                .status(TeamStatus.ACTIVE)
+                .build();
+        try {
+            teamRepository.save(updatedTeamDto.toEntity());
+        } catch (Exception e) {
+            throw new TeamException(TeamErrorCode.TEAM_SAVE_FAILED);
+        }
+    }
 }
