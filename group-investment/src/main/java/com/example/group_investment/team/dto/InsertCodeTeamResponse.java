@@ -6,5 +6,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class InsertCodeTeamResponse {
-    private int groupId;
+    private int teamId;
+    private int invitedMembers;
 }
