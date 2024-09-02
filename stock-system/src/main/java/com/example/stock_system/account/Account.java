@@ -56,4 +56,12 @@ public class Account {
         this.totalEvluPfls = totalEvluPfls;
         this.totalEvluPflsRt = totalEvluPflsRt;
     }
+
+    public void buyStock(int price){
+        this.deposit -= price;
+    }
+
+    public void sellStock(int price){
+        this.deposit += price;
+    }
 }

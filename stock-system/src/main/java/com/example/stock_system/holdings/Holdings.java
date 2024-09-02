@@ -10,7 +10,7 @@ public class Holdings {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(targetEntity = Account.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = Account.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "account_id")
     private Account account;
 
@@ -22,5 +22,28 @@ public class Holdings {
 
     @ManyToOne(targetEntity = Stocks.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "stock_code")
-    private Stocks stocks;
+    private Stocks stockCode;
+
+
+    public Holdings(Account account, Stocks stockCode,int hldgQty,int pchsAmt) {
+        this.account = account;
+        this.hldgQty = hldgQty;     //보유수량
+        this.pchsAmt = pchsAmt;     //매입 금액
+        this.stockCode = stockCode;
+    }
+
+    public Holdings() {
+    }
+
+    public void addData(int quantity,int amount) {
+        this.hldgQty += quantity;
+        this.pchsAmt += amount;
+    }
+
+    public void subtractData(int quantity,int amount) {
+        this.hldgQty -= quantity;
+        this.pchsAmt -= amount;
+    }
+
+
 }
