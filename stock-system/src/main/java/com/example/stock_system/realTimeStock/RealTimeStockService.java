@@ -111,8 +111,8 @@ public class RealTimeStockService {
 
         // 매매 로직
         allStockDataSink.asFlux().subscribe(stockData -> {
-            String stockCode = (String) stockData[0];
-            int price = (Integer) stockData[1];
+            String stockCode = stockData[0].toString();
+            int price = Integer.parseInt(stockData[1].toString());
             processPendingTrades(stockCode, price);
         });
 
@@ -160,7 +160,7 @@ public class RealTimeStockService {
                 ))
                 .retrieve()
                 .bodyToMono(Map.class)
-                .map(response -> (String) response.get("approval_key"))
+                .map(response ->  response.get("approval_key").toString())
                 .block();
     }
 
@@ -329,7 +329,7 @@ public class RealTimeStockService {
 
             allStockDataSink.asFlux()
                     .filter(data -> stockCode.equals(data[0]))
-                    .map(data -> (Integer) data[1])
+                    .map(data -> Integer.parseInt(data[1].toString()))
                     .subscribe(price -> {
                         stockPrices.put(stockCode, price);
                         calculateTotalSum(stockPrices);
