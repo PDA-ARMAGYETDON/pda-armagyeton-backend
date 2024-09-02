@@ -1,7 +1,9 @@
 package com.example.armagyetdon.auth;
 
 import com.example.armagyetdon.user.User;
+import com.example.armagyetdon.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,7 @@ public class AgUserDetails implements UserDetails {
 
     private final User user;
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
@@ -24,7 +27,7 @@ public class AgUserDetails implements UserDetails {
         collection.add(new GrantedAuthority() {
             @Override
             public String getAuthority() {
-                return user.getRole();
+                return user.getMembers().getRole();
             }
         });
 
@@ -41,8 +44,13 @@ public class AgUserDetails implements UserDetails {
         return user.getLoginId();
     }
 
-    public Set<Integer> getTeams() {
-        return null;
+    public int getId(){
+        return user.getId();
+    }
+
+//    public Set<Integer> getTeams() {
+////        return null;
+//
 //        if (user.getMembers().isEmpty()) {
 //            return null;
 //        }
@@ -53,7 +61,7 @@ public class AgUserDetails implements UserDetails {
 //                        .getTeam()
 //                        .getId())
 //                .collect(Collectors.toSet());
-    }
+//    }
 
     @Override
     public boolean isAccountNonExpired() {
