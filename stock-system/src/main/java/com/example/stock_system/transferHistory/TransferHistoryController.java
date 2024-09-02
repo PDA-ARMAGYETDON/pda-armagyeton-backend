@@ -4,6 +4,7 @@ import com.example.common.dto.ApiResponse;
 import com.example.stock_system.transferHistory.dto.AccountTransferDetailDto;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
