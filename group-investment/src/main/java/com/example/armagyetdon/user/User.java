@@ -30,11 +30,12 @@ public class User {
 
     private String address;
 
-    private String role;
+//    private String role;
 
     @OneToMany(mappedBy = "user")
     private List<Member> members = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private UserPInfo userPInfo;
+
 }

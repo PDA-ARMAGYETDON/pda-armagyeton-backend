@@ -1,5 +1,6 @@
 package com.example.armagyetdon.user;
 
+import com.example.armagyetdon.member.Member;
 import com.example.armagyetdon.user.dto.GetUserResponse;
 import com.example.armagyetdon.user.dto.SignInRequest;
 import com.example.armagyetdon.user.dto.SignInResponse;
@@ -8,6 +9,9 @@ import com.example.armagyetdon.user.exception.UserErrorCode;
 import com.example.armagyetdon.user.exception.UserException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -45,6 +49,7 @@ public class UserService {
         userPInfoService.savePInfo(createdUser, request.getPassword());
 
     }
+
 
 //    public SignInResponse signIn(SignInRequest request) {
 //        User user = userRepository.findByLoginId(request.getLoginId())
