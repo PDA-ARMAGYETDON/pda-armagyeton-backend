@@ -83,4 +83,14 @@ public class TradeOfferService {
                 .build();
     }
 
+    private StockName getStockNameFromStockSystem(String stockCode) {
+        WebClient webClient = webClientBuilder.build();
+
+        return webClient.post()
+                .uri("http://localhost:8083/api/stocks/names")
+                .bodyValue(stockCode)
+                .retrieve()
+                .bodyToMono(StockName.class)
+                .block();
+    }
 }
