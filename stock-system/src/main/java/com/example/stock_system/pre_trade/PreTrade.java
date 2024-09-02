@@ -39,10 +39,10 @@ public class PreTrade {
 
     @ManyToOne(targetEntity = Stocks.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "stock_code")
-    private Stocks stocks;
+    private Stocks stockCode;
 
     @Builder
-    public PreTrade(Account account, LocalDate startAt, LocalDate endAt, TradeStatus status, int price, int quantity, LocalDateTime createdAt, Stocks stocks) {
+    public PreTrade(Account account, LocalDate startAt, LocalDate endAt, TradeStatus status, int price, int quantity, LocalDateTime createdAt, Stocks stockCode) {
         this.account = account;
         this.startAt = startAt;
         this.endAt = endAt;
@@ -50,6 +50,6 @@ public class PreTrade {
         this.price = price;
         this.quantity = quantity;
         this.createdAt = createdAt;
-        this.stocks = stocks;
+        this.stockCode = stockCode;
     }
 }

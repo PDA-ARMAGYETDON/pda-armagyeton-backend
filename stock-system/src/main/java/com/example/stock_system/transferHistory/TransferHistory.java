@@ -23,8 +23,6 @@ public class TransferHistory {
 
     private int transferAmt;
 
-    @ManyToOne(targetEntity = Account.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiving_account_id")
-    private Account receivingAccount;
+    private int receivingAccountId;
 
 }
