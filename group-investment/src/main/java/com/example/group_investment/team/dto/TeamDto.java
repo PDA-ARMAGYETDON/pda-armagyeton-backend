@@ -3,7 +3,6 @@ package com.example.group_investment.team.dto;
 import com.example.group_investment.enums.Category;
 import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.team.Team;
-import com.example.group_investment.user.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

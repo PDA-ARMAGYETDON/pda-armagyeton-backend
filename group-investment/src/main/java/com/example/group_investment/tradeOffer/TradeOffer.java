@@ -3,14 +3,17 @@ package com.example.group_investment.tradeOffer;
 import com.example.group_investment.enums.OfferStatus;
 import com.example.group_investment.enums.TradeType;
 import com.example.group_investment.member.Member;
+import com.example.group_investment.team.Team;
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
 public class TradeOffer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +22,10 @@ public class TradeOffer {
     @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @ManyToOne(targetEntity = Team.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
 
     @Enumerated(EnumType.STRING)
     private TradeType tradeType;
@@ -31,7 +38,6 @@ public class TradeOffer {
     private LocalDateTime offerAt;
 
     @Enumerated(EnumType.STRING)
-    @ColumnDefault("PROGRESS")
     private OfferStatus offerStatus = OfferStatus.PROGRESS;
 
     @ColumnDefault("0")
@@ -46,8 +52,9 @@ public class TradeOffer {
     }
 
     @Builder
-    public TradeOffer(Member member, TradeType tradeType, int recentPrice, int wantPrice, int quantity, String stockCode) {
+    public TradeOffer(Member member, Team team, TradeType tradeType, int recentPrice, int wantPrice, int quantity, String stockCode) {
         this.member = member;
+        this.team = team;
         this.tradeType = tradeType;
         this.recentPrice = recentPrice;
         this.wantPrice = wantPrice;

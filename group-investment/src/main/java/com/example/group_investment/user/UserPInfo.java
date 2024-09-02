@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public class UserPInfo {
     @Id
     @OneToOne
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     private String pInfo;

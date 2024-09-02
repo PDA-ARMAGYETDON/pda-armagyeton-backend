@@ -4,7 +4,6 @@ import com.example.stock_system.account.Account;
 import com.example.stock_system.enums.TradeStatus;
 import com.example.stock_system.pre_trade.PreTrade;
 import com.example.stock_system.stocks.Stocks;
-import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
@@ -21,7 +20,7 @@ public class PreTradeDto {
     private LocalDateTime createdAt;
     private String stockCode;
 
-    public PreTrade toEntity(Account account, Stocks stocks) {
+    public PreTrade toEntity(Account account, Stocks stockCode) {
         return PreTrade.builder()
                 .account(account)
                 .startAt(this.startAt)
@@ -30,7 +29,7 @@ public class PreTradeDto {
                 .price(this.price)
                 .quantity(this.quantity)
                 .createdAt(this.createdAt)
-                .stockCode(stocks)
+                .stockCode(stockCode)
                 .build();
     }
 }
