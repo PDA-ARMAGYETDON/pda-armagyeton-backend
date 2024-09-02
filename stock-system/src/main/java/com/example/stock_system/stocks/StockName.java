@@ -1,7 +1,9 @@
 package com.example.stock_system.stocks;
 
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 public class StockName {
     private String code;
     private String name;

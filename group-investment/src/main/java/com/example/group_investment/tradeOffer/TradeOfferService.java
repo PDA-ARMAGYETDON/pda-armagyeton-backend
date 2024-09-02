@@ -1,5 +1,6 @@
 package com.example.group_investment.tradeOffer;
 
+import com.example.common.dto.ApiResponse;
 import com.example.group_investment.enums.TradeType;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
@@ -13,6 +14,7 @@ import com.example.group_investment.tradeOffer.dto.*;
 import com.example.group_investment.tradeOffer.exception.TradeOfferErrorCode;
 import com.example.group_investment.tradeOffer.exception.TradeOfferException;
 import lombok.AllArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -68,7 +70,10 @@ public class TradeOfferService {
 
         List<TradeOfferResponse> tradeOfferResponses = tradeOffers.stream()
                 .map(tradeOffer -> new TradeOfferResponse().builder()
+                        .userName(tradeOffer.getMember().getUser().getName())
                         .stockName(getStockNameFromStockSystem(tradeOffer.getStockCode()).getName())
+                        .tradeType(tradeOffer.getTradeType())
+                        .offerStatus(tradeOffer.getOfferStatus())
                         .wantPrice(tradeOffer.getWantPrice())
                         .quantity(tradeOffer.getQuantity())
                         .offerAt(tradeOffer.getOfferAt().toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
@@ -86,11 +91,17 @@ public class TradeOfferService {
     private StockName getStockNameFromStockSystem(String stockCode) {
         WebClient webClient = webClientBuilder.build();
 
-        return webClient.post()
-                .uri("http://localhost:8083/api/stocks/names")
-                .bodyValue(stockCode)
+        ApiResponse<StockName> stockName = webClient.get()
+                .uri("http://localhost:8083/api/stocks/names?stockCode=" + stockCode)
                 .retrieve()
-                .bodyToMono(StockName.class)
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<StockName>>() {
+                })
                 .block();
+
+        if (stockName.isSuccess()) {
+            throw new TradeOfferException(TradeOfferErrorCode.STOCKS_SERVER_BAD_REQUEST);
+        }
+
+        return stockName.getData();
     }
 }
