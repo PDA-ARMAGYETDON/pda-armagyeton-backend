@@ -189,11 +189,18 @@ public class TeamService {
     }
 
     public void confirmTeam() {
-        int teamId = 2;
+        int teamId = 3;
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
-        team.setStatus(TeamStatus.ACTIVE);
+
+        TeamDto updatedTeamDto = TeamDto.builder()
+                .name(team.getName())
+                .category(team.getCategory())
+                .startAt(team.getStartAt())
+                .endAt(team.getEndAt())
+                .status(TeamStatus.ACTIVE)
+                .build();
         try {
-            teamRepository.save(team);
+            teamRepository.save(updatedTeamDto.toEntity());
         } catch (Exception e) {
             throw new TeamException(TeamErrorCode.TEAM_SAVE_FAILED);
         }
