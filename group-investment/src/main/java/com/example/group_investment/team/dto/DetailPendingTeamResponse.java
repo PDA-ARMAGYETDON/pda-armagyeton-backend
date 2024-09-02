@@ -1,6 +1,8 @@
 package com.example.group_investment.team.dto;
 
 import com.example.group_investment.enums.Category;
+import com.example.group_investment.enums.RulePeriod;
+import com.example.group_investment.enums.RuleType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,7 +19,7 @@ public class DetailPendingTeamResponse {
     private int urgentTradeUpvotes;
     private int tradeUpvotes;
     private int depositAmt;
-    private Date period;
+    private RulePeriod period;
     private Date payDate;
     private float maxLossRt;
     private float maxProfitRt;
@@ -26,7 +28,7 @@ public class DetailPendingTeamResponse {
     private int isParticipating;
 
     @Builder
-    public DetailPendingTeamResponse(String name, Category category, LocalDateTime startAt, LocalDateTime endAt, float prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, Date period, Date payDate, float maxLossRt, float maxProfitRt, int invitedMembers, int isLeader, int isParticipating) {
+    public DetailPendingTeamResponse(String name, Category category, LocalDateTime startAt, LocalDateTime endAt, float prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, RulePeriod period, Date payDate, float maxLossRt, float maxProfitRt, int invitedMembers, int isLeader, int isParticipating) {
         this.name = name;
         this.category = category;
         this.startAt = startAt;
