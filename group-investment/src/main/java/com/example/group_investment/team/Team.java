@@ -1,4 +1,4 @@
-package com.example.armagyetdon.team;
+package com.example.group_investment.team;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.example.group_investment.enums.Category;
