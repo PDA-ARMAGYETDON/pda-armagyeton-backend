@@ -1,6 +1,7 @@
 package com.example.group_investment.rule.dto;
 
 
+import com.example.group_investment.enums.RulePeriod;
 import com.example.group_investment.rule.Rule;
 import com.example.group_investment.team.Team;
 
@@ -16,13 +17,13 @@ public class RuleDto {
     private int urgentTradeUpvotes;
     private int tradeUpvotes;
     private int depositAmt;
-    private Date period;
+    private RulePeriod period;
     private Date payDate;
     private float maxLossRt;
     private float maxProfitRt;
 
     @Builder
-    public RuleDto(Team team, float prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, Date period, Date payDate, float maxLossRt, float maxProfitRt) {
+    public RuleDto(Team team, float prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, RulePeriod period, Date payDate, float maxLossRt, float maxProfitRt) {
         this.team = team;
         this.prdyVrssRt = prdyVrssRt;
         this.urgentTradeUpvotes = urgentTradeUpvotes;
