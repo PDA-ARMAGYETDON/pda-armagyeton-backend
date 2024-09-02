@@ -41,8 +41,9 @@ public class TeamService {
 
 
     @Transactional
-    public CreateTeamResponse createTeam(int userId, CreateTeamRequest createTeamRequest) {
+    public CreateTeamResponse createTeam(CreateTeamRequest createTeamRequest) {
         // 팀을 만든 user
+        int userId = 2;
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         //1. 팀
         Team savedTeam;
@@ -107,8 +108,8 @@ public class TeamService {
 
         Invitation invitation = invitationRepository.findByInviteCode(inviteCode).orElseThrow(()
                 -> new TeamException(TeamErrorCode.INVITATION_NOT_FOUND));
-        Team team = teamRepository.findById(invitation.getId()).orElseThrow(() -> new TeamException(TeamErrorCode.GROUP_NOT_FOUND));
-        int invitedMembers = memberRepository.countByTeam(team);
+        Team team = teamRepository.findById(invitation.getId()).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        int invitedMembers = memberRepository.countByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
         return new InsertCodeTeamResponse(invitation.getId(), invitedMembers);
     }
 
@@ -118,7 +119,7 @@ public class TeamService {
         int teamId = 2;
         int userId = 3;
         //2-1. 모임 조회
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.GROUP_NOT_FOUND));
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         TeamDto teamDto = team.fromEntity(team);
         //2-2. 규칙 조회
         Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
@@ -130,7 +131,7 @@ public class TeamService {
         //2-4. is 참여
         int isParticipating = 0;
         if (isLeader == 0) {
-            List<Member> members = memberRepository.findByTeam(team);
+            List<Member> members = memberRepository.findByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
             for (Member member : members) {
                 if (member.getUser().getId() == userId) {
                     isParticipating = 1;
@@ -140,7 +141,7 @@ public class TeamService {
         }
         //2-5. 인원수 조회
         // FIXME : 멤버
-        int invitedMembers = memberRepository.countByTeam(team);
+        int invitedMembers = memberRepository.countByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         return DetailPendingTeamResponse.builder()
                 .name(teamDto.getName())
