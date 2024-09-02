@@ -43,20 +43,14 @@ public class Team {
         return members.size();
     }
 
-
-    @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
     @Builder
-    public Team(String name, Category category, TeamStatus status, LocalDateTime startAt, LocalDateTime endAt, LocalDateTime createdAt, User user) {
+    public Team(String name, Category category, TeamStatus status, LocalDateTime startAt, LocalDateTime endAt, LocalDateTime createdAt) {
         this.name = name;
         this.category = category;
         this.status = status;
         this.startAt = startAt;
         this.endAt = endAt;
         this.createdAt = createdAt;
-        this.user = user;
     }
 
     public Team() {
@@ -65,7 +59,6 @@ public class Team {
 
     public TeamDto fromEntity(Team team) {
         return TeamDto.builder()
-                .user(team.getUser())
                 .name(team.getName())
                 .category(team.getCategory())
                 .status(team.getStatus())

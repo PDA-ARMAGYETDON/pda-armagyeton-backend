@@ -1,5 +1,6 @@
 package com.example.group_investment.team;
 
+import com.example.group_investment.enums.MemberRole;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.dto.MemberDto;
@@ -49,7 +50,6 @@ public class TeamService {
         //1. 팀
         Team savedTeam;
         TeamDto teamDto = TeamDto.builder()
-                .user(user)
                 .name(createTeamRequest.getName())
                 .category(createTeamRequest.getCategory())
                 .startAt(createTeamRequest.getStartAt())
@@ -128,7 +128,8 @@ public class TeamService {
         RuleDto ruleDto = rule.fromEntity(rule);
         //2-3. is 모임장
         int isLeader = 0;
-        if (teamDto.getUser().getId() == userId)
+        if (memberRepository.findById(userId).orElseThrow(()->new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
+                .getRole() == MemberRole.LEADER)
             isLeader = 1;
         //2-4. is 참여
         int isParticipating = 0;

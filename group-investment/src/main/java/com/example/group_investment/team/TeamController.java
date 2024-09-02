@@ -4,7 +4,6 @@ import com.example.group_investment.team.dto.*;
 import com.example.group_investment.team.dto.TeamDto;
 import com.example.group_investment.team.dto.CreateTeamRequest;
 import com.example.group_investment.team.dto.CreateTeamResponse;
-import com.example.group_investment.team.dto.SelectTeamResponse;
 import com.example.common.dto.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

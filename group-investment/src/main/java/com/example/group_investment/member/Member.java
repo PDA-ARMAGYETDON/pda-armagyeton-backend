@@ -1,5 +1,6 @@
 package com.example.group_investment.member;
 
+import com.example.group_investment.enums.MemberRole;
 import com.example.group_investment.ruleOffer.RuleOffer;
 import com.example.group_investment.ruleOfferVote.RuleOfferVote;
 import com.example.group_investment.team.Team;
@@ -31,9 +32,11 @@ public class Member {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @Enumerated(EnumType.STRING)
+    private MemberRole role;
+
     @CreatedDate
     private LocalDateTime createdAt;
-
 
     @OneToMany(mappedBy = "member")
     private List<TradeOffer> tradeOffers;
