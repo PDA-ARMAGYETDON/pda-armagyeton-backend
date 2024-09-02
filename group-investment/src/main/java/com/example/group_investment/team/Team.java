@@ -31,7 +31,8 @@ public class Team {
     private Category category;
 
     @Enumerated(EnumType.STRING)
-    private TeamStatus status;
+    @ColumnDefault("'PENDING'")
+    private TeamStatus status = TeamStatus.PENDING;
 
     private LocalDateTime startAt;
     private LocalDateTime endAt;
