@@ -1,6 +1,5 @@
 package com.example.group_investment.team;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.example.group_investment.enums.Category;
 import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.member.Member;
@@ -55,6 +54,10 @@ public class Team {
 
     public Team() {
 
+    }
+
+    public void setStatus(TeamStatus status) {
+        this.status = status;
     }
 
     public TeamDto fromEntity(Team team) {
