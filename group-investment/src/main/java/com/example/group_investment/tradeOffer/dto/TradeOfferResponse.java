@@ -10,7 +10,6 @@ public class TradeOfferResponse {
     private String userName;
     private TradeType tradeType;
     private String stockName;
-    private int recentPrice;
     private int wantPrice;
     private int quantity;
     private String offerAt;
@@ -22,11 +21,10 @@ public class TradeOfferResponse {
     }
 
     @Builder
-    public TradeOfferResponse(String userName, TradeType tradeType, String stockName, int recentPrice, int wantPrice, int quantity, String offerAt, OfferStatus offerStatus, int upvotes, int downvotes) {
+    public TradeOfferResponse(String userName, TradeType tradeType, String stockName, int wantPrice, int quantity, String offerAt, OfferStatus offerStatus, int upvotes, int downvotes) {
         this.userName = userName;
         this.tradeType = tradeType;
         this.stockName = stockName;
-        this.recentPrice = recentPrice;
         this.wantPrice = wantPrice;
         this.quantity = quantity;
         this.offerAt = offerAt;
