@@ -1,6 +1,5 @@
 package com.example.group_investment.tradeOffer;
 
-import com.example.group_investment.tradeOffer.dto.CreateTradeOfferRequest;
 import com.example.common.dto.ApiResponse;
 import com.example.group_investment.enums.TradeType;
 import com.example.group_investment.tradeOffer.dto.CreateTradeOfferRequest;
