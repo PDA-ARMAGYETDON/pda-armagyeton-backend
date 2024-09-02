@@ -1,5 +1,14 @@
 package com.example.stock_system.realTimeStock;
 
+import com.example.stock_system.account.Account;
+import com.example.stock_system.account.AccountRepository;
+import com.example.stock_system.enums.TradeStatus;
+import com.example.stock_system.holdings.Holdings;
+import com.example.stock_system.holdings.HoldingsRepository;
+import com.example.stock_system.stocks.Stocks;
+import com.example.stock_system.stocks.StocksRepository;
+import com.example.stock_system.trade.Trade;
+import com.example.stock_system.trade.TradeRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,16 +16,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +35,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 public class RealTimeStockService {
+
+    private enum StreamMode { STOCK_DATA, TOTAL_SUM }
 
     @Value("${HANTU_APP_KEY_REALTIME}")
     private String appKeyRaw;
@@ -41,20 +54,31 @@ public class RealTimeStockService {
     private String stockFilePath;
 
     private final List<Disposable> connections = new CopyOnWriteArrayList<>();
-    private final Map<String, String> stockDataMap = new ConcurrentHashMap<>();
     private final WebClient webClient;
-    private final ObjectMapper objectMapper;
+    private final TradeRepository tradeRepository;
+    private final HoldingsRepository holdingsRepository;
+    private final AccountRepository accountRepository;
+    private final StocksRepository stocksRepository;
+
+    private final Map<String, Sinks.Many<Object[]>> stockDataSinks = new ConcurrentHashMap<>();
+    private final Map<String, Integer> stockPrices = new ConcurrentHashMap<>();
+    private final Map<String, Sinks.Many<Integer>> userTotalSumSinks = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> isStreamingActiveMap = new ConcurrentHashMap<>();
+
+    private StreamMode currentMode = StreamMode.STOCK_DATA;
 
     @Autowired
-    public RealTimeStockService(WebClient.Builder webClientBuilder, ObjectMapper objectMapper) {
+    public RealTimeStockService(WebClient.Builder webClientBuilder, TradeRepository tradeRepository, HoldingsRepository holdingsRepository, AccountRepository accountRepository, StocksRepository stocksRepository) {
         this.webClient = webClientBuilder.build();
-        this.objectMapper = objectMapper;
+        this.tradeRepository = tradeRepository;
+        this.holdingsRepository = holdingsRepository;
+        this.accountRepository = accountRepository;
+        this.stocksRepository = stocksRepository;
     }
 
-    // 웹소켓 연결 시작
     public void start() throws IOException {
         if (!connections.isEmpty()) {
-            System.out.println("웹 소켓이 이미 연결되어 있습니다.");
+            System.out.println("WebSocket이 이미 연결되어 있습니다.");
             return;
         }
 
@@ -67,9 +91,7 @@ public class RealTimeStockService {
 
         List<String> stockCodes = getStockCodes();
 
-        // 최대 처리 가능한 stockCode의 개수는 appKey의 개수 * 40
         int maxProcessableCodes = Math.min(stockCodes.size(), appKeys.size() * 40);
-
         int stockCodeIndex = 0;
 
         for (int i = 0; i < appKeys.size() && stockCodeIndex < maxProcessableCodes; i++) {
@@ -77,7 +99,6 @@ public class RealTimeStockService {
             String appSecretKey = appSecretKeys.get(i).trim();
             String approvalKey = getApprovalKey(appKey, appSecretKey);
 
-            // 각 appKey는 최대 40개의 stockCode를 처리
             int endIdx = Math.min(stockCodeIndex + 40, maxProcessableCodes);
             List<String> batch = stockCodes.subList(stockCodeIndex, endIdx);
             connectToWebSocket(batch, approvalKey);
@@ -86,29 +107,26 @@ public class RealTimeStockService {
         }
     }
 
-
-    // 모든 웹소켓 연결 종료
     public void stop() {
         for (Disposable connection : connections) {
             if (connection != null && !connection.isDisposed()) {
                 connection.dispose();
+                System.out.println("연결 해제됨: " + connection);
             }
         }
         connections.clear();
-        System.out.println("모든 웹소켓 연결 종료");
+        System.out.println("모든 WebSocket 연결 종료.");
     }
 
-    // 주식 코드를 파일에서 JSON 배열로 가져오는 메서드
     private List<String> getStockCodes() throws IOException {
         ClassPathResource resource = new ClassPathResource(stockFilePath);
         Path path = resource.getFile().toPath();
 
         String jsonContent = Files.readString(path);
-        return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {
-        });
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {});
     }
 
-    // 웹소켓 연결 키를 발급받는 메서드
     private String getApprovalKey(String appKey, String appSecretKey) {
         return webClient.post()
                 .uri(socketConnectUrl)
@@ -123,7 +141,6 @@ public class RealTimeStockService {
                 .block();
     }
 
-    // 웹소켓 연결
     private void connectToWebSocket(List<String> stockCodes, String approvalKey) {
         ReactorNettyWebSocketClient client = new ReactorNettyWebSocketClient();
         Disposable connection = client.execute(URI.create(realTimeStockUrl), session ->
@@ -138,11 +155,12 @@ public class RealTimeStockService {
                         .map(stockCode -> session.send(Mono.just(session.textMessage(createSubscribeMessage(stockCode, approvalKey)))))
                         .toArray(Mono[]::new)
         ).thenMany(session.receive()
-                .map(WebSocketMessage::getPayloadAsText)
-                .doOnNext(this::processStockData)
+                .doOnNext(message -> processStockData(message.getPayloadAsText()))
                 .doOnError(this::handleError)
         ).then();
     }
+
+
 
     private String createSubscribeMessage(String stockCode, String approvalKey) {
         return "{\n" +
@@ -162,22 +180,20 @@ public class RealTimeStockService {
     }
 
     private void processStockData(String data) {
-        try {
-            if (data.trim().startsWith("{")) {
-                System.out.println("수신 된 JSON형식 데이터 " + data);
-                return;
-            }
+        if (!isStreamingActiveMap.containsValue(true)) {
+            return;
+        }
 
-            String[] parts = data.split("\\|");
+        if (data.trim().startsWith("{")) {
+            System.out.println("수신된 JSON 데이터: " + data);
+            return;
+        }
 
-            if (parts.length >= 4) {
-                String stockData = parts[3];
-                parseStockData(stockData);
-            } else {
-                System.err.println("원하지 않는 데이터 형식입니다. 해당 데이터: " + data);
-            }
-        } catch (Exception e) {
-            System.err.println("데이터 가공 실패: " + e.getMessage());
+        String[] parts = data.split("\\|");
+
+        if (parts.length >= 4) {
+            String stockData = parts[3];
+            parseStockData(stockData);
         }
     }
 
@@ -185,30 +201,122 @@ public class RealTimeStockService {
         String[] fields = data.split("\\^");
 
         if (fields.length < 3) {
-            System.err.println("데이터 형식이 올바르지 않습니다: " + data);
+            System.err.println("올바르지 않은 데이터 형식: " + data);
             return;
         }
 
         String stockCode = fields[0];
-        String tradingTime = fields[1];
-        String price = fields[2];
+        Object[] stockArray = new Object[2];
+        stockArray[0] = stockCode;  // 주식 코드
+        stockArray[1] = fields[2];  // 가격
 
-        stockDataMap.put(stockCode, String.format("체결 시간: %s, 체결 가격: %s", tradingTime, price));
+        Sinks.Many<Object[]> stockSink = stockDataSinks.get(stockCode);
+        if (stockSink != null && Boolean.TRUE.equals(isStreamingActiveMap.get(stockCode))) {
+            stockSink.tryEmitNext(stockArray);
+        }
+
+        if (currentMode == StreamMode.STOCK_DATA) {
+            processPendingTrades(stockCode, Integer.parseInt(fields[2]));
+        } else if (currentMode == StreamMode.TOTAL_SUM) {
+            stockPrices.put(stockCode, Integer.parseInt(fields[2]));
+            calculateTotalSum();
+        }
+    }
+
+    protected void processPendingTrades(String stockCode, int price) {
+        Stocks findStock = stocksRepository.findByCode(stockCode);
+        List<Trade> pendingTrades = tradeRepository.findByStatusAndStockCodeAndPrice(TradeStatus.PENDING, findStock, price);
+
+        for (Trade trade : pendingTrades) {
+            Account account = trade.getAccount();
+            int requiredAmount = trade.getPrice() * trade.getQuantity();
+
+            if (account.getDeposit() >= requiredAmount) {
+                System.out.println("거래 완료 - 주식 코드: " + stockCode + ", 거래 ID: " + trade.getId());
+
+                trade.setStatus(TradeStatus.COMPLETED);
+                tradeRepository.save(trade);
+
+                Holdings existingHolding = holdingsRepository.findByAccountAndStockCode(account, findStock);
+
+                if (existingHolding != null) {
+                    existingHolding.addData(trade.getQuantity(), requiredAmount);
+                    holdingsRepository.save(existingHolding);
+                } else {
+                    Holdings newHolding = new Holdings(account, findStock, trade.getQuantity(), requiredAmount);
+                    holdingsRepository.save(newHolding);
+                }
+
+                account.buyStock(requiredAmount);
+                accountRepository.save(account);
+            } else {
+                System.out.println("거래 실패 - 예치금 부족, 거래 ID: " + trade.getId());
+            }
+        }
+    }
+
+    public void streamByStockCode(String stockCode) {
+        currentMode = StreamMode.STOCK_DATA;
+        isStreamingActiveMap.put(stockCode, true);
+        System.out.println("특정 주식 코드로 스트리밍 시작 - 코드: " + stockCode);
+
+        Sinks.Many<Object[]> stockSink = stockDataSinks.computeIfAbsent(stockCode, k -> Sinks.many().multicast().onBackpressureBuffer());
+    }
+
+    public Flux<Object[]> getStockDataStream(String stockCode) {
+        Sinks.Many<Object[]> stockSink = stockDataSinks.computeIfAbsent(stockCode, k -> Sinks.many().multicast().onBackpressureBuffer());
+        return stockSink.asFlux()
+                .filter(data -> Boolean.TRUE.equals(isStreamingActiveMap.get(stockCode)))
+                .delayElements(Duration.ofMillis(100));
+    }
+
+    public void stopStreamingByStockCode(String stockCode) {
+        isStreamingActiveMap.put(stockCode, false);
+        System.out.println("스트리밍 중지됨 - 주식 코드: " + stockCode);
+    }
+
+    public void streamByStockCodes(List<String> stockCodes) {
+        currentMode = StreamMode.TOTAL_SUM;
+        System.out.println("특정 주식 코드 리스트로 스트리밍 시작 - 코드들: " + stockCodes);
+
+        stockCodes.forEach(stockCode -> {
+            Sinks.Many<Object[]> stockSink = stockDataSinks.computeIfAbsent(stockCode, k -> Sinks.many().multicast().onBackpressureBuffer());
+            isStreamingActiveMap.put(stockCode, true);
+            stockSink.asFlux().subscribe(data -> {
+                if (Boolean.TRUE.equals(isStreamingActiveMap.get(stockCode))) {
+                    // 각 주식 코드에 대한 실시간 값을 갱신
+                    stockPrices.put((String) data[0], Integer.parseInt((String) data[1]));
+                    calculateTotalSum(); // 갱신된 값을 이용해 합계를 계산
+                }
+            });
+        });
+    }
+
+    private void calculateTotalSum() {
+        // 각 호출마다 총합을 다시 계산
+        int totalSum = stockPrices.entrySet().stream()
+                .filter(entry -> Boolean.TRUE.equals(isStreamingActiveMap.get(entry.getKey())))
+                .mapToInt(Map.Entry::getValue)
+                .sum();
+
+        // 실시간 합계 전송
+        userTotalSumSinks.values().forEach(sink -> sink.tryEmitNext(totalSum));
+    }
+
+
+
+    public Flux<Integer> getTotalSumStream() {
+        String userId = Thread.currentThread().getName();
+        Sinks.Many<Integer> totalSumSink = userTotalSumSinks.computeIfAbsent(userId, k -> Sinks.many().multicast().onBackpressureBuffer());
+        return totalSumSink.asFlux().delayElements(Duration.ofMillis(100));
+    }
+
+    public void stopStreaming() {
+        isStreamingActiveMap.clear();
+        System.out.println("모든 스트리밍 중지됨.");
     }
 
     private void handleError(Throwable error) {
-        System.err.println("웹 소켓 에러: " + error.getMessage());
-
-
-    }
-
-    // 특정 종목 코드에 대한 데이터 조회
-    public String getStockData(String stockCode) {
-        return stockDataMap.get(stockCode);
-    }
-
-    // 모든 종목 코드에 대한 데이터 조회
-    public Map<String, String> getAllStockData() {
-        return stockDataMap;
+        System.err.println("웹 소켓 에러 발생: " + error.getMessage());
     }
 }

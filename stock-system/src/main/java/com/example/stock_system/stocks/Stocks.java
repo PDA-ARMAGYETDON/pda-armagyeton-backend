@@ -18,12 +18,12 @@ public class Stocks {
 
     private String name;
 
-    @OneToMany(mappedBy = "stocks")
+    @OneToMany(mappedBy = "stockCode")
     private List<Trade> trades;
 
-    @OneToMany(mappedBy = "stocks")
+    @OneToMany(mappedBy = "stockCode")
     private List<PreTrade> preTrades;
 
-    @OneToMany(mappedBy = "stocks")
+    @OneToMany(mappedBy = "stockCode")
     private List<Holdings> holdings;
 }
