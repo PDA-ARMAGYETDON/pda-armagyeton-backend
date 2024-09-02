@@ -30,7 +30,7 @@ public class PreTradeDto {
                 .price(this.price)
                 .quantity(this.quantity)
                 .createdAt(this.createdAt)
-                .stocks(stocks)
+                .stockCode(stocks)
                 .build();
     }
 }

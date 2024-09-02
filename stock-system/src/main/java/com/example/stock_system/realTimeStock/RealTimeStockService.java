@@ -36,8 +36,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Service
 public class RealTimeStockService {
 
-    private enum StreamMode { STOCK_DATA, TOTAL_SUM }
-
     @Value("${HANTU_APP_KEY_REALTIME}")
     private String appKeyRaw;
 
@@ -60,15 +58,16 @@ public class RealTimeStockService {
     private final AccountRepository accountRepository;
     private final StocksRepository stocksRepository;
 
-    private final Map<String, Sinks.Many<Object[]>> stockDataSinks = new ConcurrentHashMap<>();
-    private final Map<String, Integer> stockPrices = new ConcurrentHashMap<>();
-    private final Map<String, Sinks.Many<Integer>> userTotalSumSinks = new ConcurrentHashMap<>();
+    private Sinks.Many<Object[]> allStockDataSink;
+    private Sinks.Many<Object[]> dataOnlySink;
+    private final Map<String, Sinks.Many<Object[]>> individualStockSinks = new ConcurrentHashMap<>();
+    private Sinks.Many<Integer> totalSumSink;
     private final Map<String, Boolean> isStreamingActiveMap = new ConcurrentHashMap<>();
 
-    private StreamMode currentMode = StreamMode.STOCK_DATA;
-
     @Autowired
-    public RealTimeStockService(WebClient.Builder webClientBuilder, TradeRepository tradeRepository, HoldingsRepository holdingsRepository, AccountRepository accountRepository, StocksRepository stocksRepository) {
+    public RealTimeStockService(WebClient.Builder webClientBuilder, TradeRepository tradeRepository,
+                                HoldingsRepository holdingsRepository, AccountRepository accountRepository,
+                                StocksRepository stocksRepository) {
         this.webClient = webClientBuilder.build();
         this.tradeRepository = tradeRepository;
         this.holdingsRepository = holdingsRepository;
@@ -76,11 +75,15 @@ public class RealTimeStockService {
         this.stocksRepository = stocksRepository;
     }
 
+
     public void start() throws IOException {
-        if (!connections.isEmpty()) {
+        if (allStockDataSink != null) {
             System.out.println("WebSocket이 이미 연결되어 있습니다.");
             return;
         }
+
+        allStockDataSink = Sinks.many().multicast().onBackpressureBuffer();
+        dataOnlySink = Sinks.many().multicast().onBackpressureBuffer();
 
         List<String> appKeys = List.of(appKeyRaw.split(","));
         List<String> appSecretKeys = List.of(appSecretKeyRaw.split(","));
@@ -105,6 +108,20 @@ public class RealTimeStockService {
 
             stockCodeIndex += 40;
         }
+
+        // 매매 로직
+        allStockDataSink.asFlux().subscribe(stockData -> {
+            String stockCode = stockData[0].toString();
+            int price = Integer.parseInt(stockData[1].toString());
+            processPendingTrades(stockCode, price);
+        });
+
+        // 데이터만 처리하는 로직
+        allStockDataSink.asFlux().subscribe(stockData -> {
+            if (dataOnlySink != null) {
+                dataOnlySink.tryEmitNext(stockData);
+            }
+        });
     }
 
     public void stop() {
@@ -115,7 +132,12 @@ public class RealTimeStockService {
             }
         }
         connections.clear();
-        System.out.println("모든 WebSocket 연결 종료.");
+        allStockDataSink = null;
+        dataOnlySink = null;
+        individualStockSinks.clear();
+        totalSumSink = null;
+        isStreamingActiveMap.clear();
+        System.out.println("모든 WebSocket 연결 종료 및 스트림 정리.");
     }
 
     private List<String> getStockCodes() throws IOException {
@@ -124,7 +146,8 @@ public class RealTimeStockService {
 
         String jsonContent = Files.readString(path);
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {});
+        return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {
+        });
     }
 
     private String getApprovalKey(String appKey, String appSecretKey) {
@@ -137,7 +160,7 @@ public class RealTimeStockService {
                 ))
                 .retrieve()
                 .bodyToMono(Map.class)
-                .map(response -> (String) response.get("approval_key"))
+                .map(response ->  response.get("approval_key").toString())
                 .block();
     }
 
@@ -161,7 +184,6 @@ public class RealTimeStockService {
     }
 
 
-
     private String createSubscribeMessage(String stockCode, String approvalKey) {
         return "{\n" +
                 "  \"header\": {\n" +
@@ -180,12 +202,7 @@ public class RealTimeStockService {
     }
 
     private void processStockData(String data) {
-        if (!isStreamingActiveMap.containsValue(true)) {
-            return;
-        }
-
         if (data.trim().startsWith("{")) {
-            System.out.println("수신된 JSON 데이터: " + data);
             return;
         }
 
@@ -206,25 +223,34 @@ public class RealTimeStockService {
         }
 
         String stockCode = fields[0];
-        Object[] stockArray = new Object[2];
-        stockArray[0] = stockCode;  // 주식 코드
-        stockArray[1] = fields[2];  // 가격
+        int price;
 
-        Sinks.Many<Object[]> stockSink = stockDataSinks.get(stockCode);
-        if (stockSink != null && Boolean.TRUE.equals(isStreamingActiveMap.get(stockCode))) {
-            stockSink.tryEmitNext(stockArray);
+        price = Integer.parseInt(fields[2]);
+
+        Object[] stockArray = new Object[2];
+        stockArray[0] = stockCode;
+        stockArray[1] = price;
+
+
+        if (allStockDataSink != null) {
+            allStockDataSink.tryEmitNext(stockArray);
         }
 
-        if (currentMode == StreamMode.STOCK_DATA) {
-            processPendingTrades(stockCode, Integer.parseInt(fields[2]));
-        } else if (currentMode == StreamMode.TOTAL_SUM) {
-            stockPrices.put(stockCode, Integer.parseInt(fields[2]));
-            calculateTotalSum();
+
+        if (dataOnlySink != null) {
+            dataOnlySink.tryEmitNext(stockArray);
+        }
+
+
+        Sinks.Many<Object[]> stockSink = individualStockSinks.get(stockCode);
+        if (stockSink != null && Boolean.TRUE.equals(isStreamingActiveMap.get(stockCode))) {
+            stockSink.tryEmitNext(stockArray);
         }
     }
 
     protected void processPendingTrades(String stockCode, int price) {
         Stocks findStock = stocksRepository.findByCode(stockCode);
+
         List<Trade> pendingTrades = tradeRepository.findByStatusAndStockCodeAndPrice(TradeStatus.PENDING, findStock, price);
 
         for (Trade trade : pendingTrades) {
@@ -249,25 +275,38 @@ public class RealTimeStockService {
 
                 account.buyStock(requiredAmount);
                 accountRepository.save(account);
-            } else {
+            }
+            else {
                 System.out.println("거래 실패 - 예치금 부족, 거래 ID: " + trade.getId());
             }
         }
     }
 
-    public void streamByStockCode(String stockCode) {
-        currentMode = StreamMode.STOCK_DATA;
-        isStreamingActiveMap.put(stockCode, true);
-        System.out.println("특정 주식 코드로 스트리밍 시작 - 코드: " + stockCode);
 
-        Sinks.Many<Object[]> stockSink = stockDataSinks.computeIfAbsent(stockCode, k -> Sinks.many().multicast().onBackpressureBuffer());
+    public void streamByStockCode(String stockCode) {
+        isStreamingActiveMap.put(stockCode, true);
+        System.out.println("해당 코드 시세 조회 - 코드: " + stockCode);
+
+        Sinks.Many<Object[]> stockSink = individualStockSinks.computeIfAbsent(stockCode, k -> Sinks.many().multicast().onBackpressureBuffer());
+
+        allStockDataSink.asFlux()
+                .filter(data -> stockCode.equals(data[0]))
+                .map(data -> new Object[]{data[0], data[1]})
+                .subscribe(stockSink::tryEmitNext);
     }
 
     public Flux<Object[]> getStockDataStream(String stockCode) {
-        Sinks.Many<Object[]> stockSink = stockDataSinks.computeIfAbsent(stockCode, k -> Sinks.many().multicast().onBackpressureBuffer());
+        Sinks.Many<Object[]> stockSink = individualStockSinks.computeIfAbsent(stockCode, k -> Sinks.many().multicast().onBackpressureBuffer());
         return stockSink.asFlux()
                 .filter(data -> Boolean.TRUE.equals(isStreamingActiveMap.get(stockCode)))
                 .delayElements(Duration.ofMillis(100));
+    }
+
+    public Flux<Object[]> getDataOnlyStream() {
+        if (dataOnlySink == null) {
+            throw new IllegalStateException("데이터 스트림이 초기화x 웹소켓 연결 필요");
+        }
+        return dataOnlySink.asFlux().delayElements(Duration.ofMillis(100));
     }
 
     public void stopStreamingByStockCode(String stockCode) {
@@ -276,38 +315,38 @@ public class RealTimeStockService {
     }
 
     public void streamByStockCodes(List<String> stockCodes) {
-        currentMode = StreamMode.TOTAL_SUM;
         System.out.println("특정 주식 코드 리스트로 스트리밍 시작 - 코드들: " + stockCodes);
 
+        if (totalSumSink != null) {
+            totalSumSink.tryEmitComplete();
+        }
+        totalSumSink = Sinks.many().multicast().onBackpressureBuffer();
+
+        Map<String, Integer> stockPrices = new ConcurrentHashMap<>();
+
         stockCodes.forEach(stockCode -> {
-            Sinks.Many<Object[]> stockSink = stockDataSinks.computeIfAbsent(stockCode, k -> Sinks.many().multicast().onBackpressureBuffer());
             isStreamingActiveMap.put(stockCode, true);
-            stockSink.asFlux().subscribe(data -> {
-                if (Boolean.TRUE.equals(isStreamingActiveMap.get(stockCode))) {
-                    // 각 주식 코드에 대한 실시간 값을 갱신
-                    stockPrices.put((String) data[0], Integer.parseInt((String) data[1]));
-                    calculateTotalSum(); // 갱신된 값을 이용해 합계를 계산
-                }
-            });
+
+            allStockDataSink.asFlux()
+                    .filter(data -> stockCode.equals(data[0]))
+                    .map(data -> Integer.parseInt(data[1].toString()))
+                    .subscribe(price -> {
+                        stockPrices.put(stockCode, price);
+                        calculateTotalSum(stockPrices);
+                    });
         });
     }
 
-    private void calculateTotalSum() {
-        // 각 호출마다 총합을 다시 계산
-        int totalSum = stockPrices.entrySet().stream()
-                .filter(entry -> Boolean.TRUE.equals(isStreamingActiveMap.get(entry.getKey())))
-                .mapToInt(Map.Entry::getValue)
-                .sum();
-
-        // 실시간 합계 전송
-        userTotalSumSinks.values().forEach(sink -> sink.tryEmitNext(totalSum));
+    private void calculateTotalSum(Map<String, Integer> stockPrices) {
+        int totalSum = stockPrices.values().stream().mapToInt(Integer::intValue).sum();
+        if (totalSumSink != null) {
+            totalSumSink.tryEmitNext(totalSum);
+        }
     }
 
 
 
     public Flux<Integer> getTotalSumStream() {
-        String userId = Thread.currentThread().getName();
-        Sinks.Many<Integer> totalSumSink = userTotalSumSinks.computeIfAbsent(userId, k -> Sinks.many().multicast().onBackpressureBuffer());
         return totalSumSink.asFlux().delayElements(Duration.ofMillis(100));
     }
 
