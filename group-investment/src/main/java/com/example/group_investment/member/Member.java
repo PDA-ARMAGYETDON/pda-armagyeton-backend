@@ -7,7 +7,10 @@ import com.example.group_investment.tradeOffer.TradeOffer;
 import com.example.group_investment.tradeOfferVote.TradeOfferVote;
 import com.example.group_investment.user.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;

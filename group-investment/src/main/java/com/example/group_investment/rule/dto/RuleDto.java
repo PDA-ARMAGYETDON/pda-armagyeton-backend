@@ -1,7 +1,9 @@
 package com.example.group_investment.rule.dto;
 
-import com.example.armagyetdon.rule.Rule;
-import com.example.armagyetdon.team.Team;
+
+import com.example.group_investment.rule.Rule;
+import com.example.group_investment.team.Team;
+
 import lombok.Builder;
 import lombok.Getter;
 
