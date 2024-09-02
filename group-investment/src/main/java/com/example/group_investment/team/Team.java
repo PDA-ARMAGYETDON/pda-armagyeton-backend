@@ -1,11 +1,9 @@
 package com.example.group_investment.team;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.example.group_investment.enums.Category;
 import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.team.dto.TeamDto;
-import com.example.group_investment.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,8 +13,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
 @Entity
+@Getter
 public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

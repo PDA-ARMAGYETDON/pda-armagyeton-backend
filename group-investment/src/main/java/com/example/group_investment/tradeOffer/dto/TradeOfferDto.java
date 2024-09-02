@@ -2,11 +2,13 @@ package com.example.group_investment.tradeOffer.dto;
 
 import com.example.group_investment.enums.TradeType;
 import com.example.group_investment.member.Member;
+import com.example.group_investment.team.Team;
 import com.example.group_investment.tradeOffer.TradeOffer;
 import lombok.Builder;
 
 public class TradeOfferDto {
     private Member member;
+    private Team team;
     private TradeType tradeType;
     private String code;
     private int recentPrice;
@@ -14,8 +16,9 @@ public class TradeOfferDto {
     private int quantity;
 
     @Builder
-    public TradeOfferDto(Member member, TradeType tradeType, String code, int recentPrice, int wantPrice, int quantity) {
+    public TradeOfferDto(Member member, Team team, TradeType tradeType, String code, int recentPrice, int wantPrice, int quantity) {
         this.member = member;
+        this.team = team;
         this.tradeType = tradeType;
         this.code = code;
         this.recentPrice = recentPrice;
@@ -26,6 +29,7 @@ public class TradeOfferDto {
     public TradeOffer toEntity() {
         return TradeOffer.builder()
                 .member(this.member)
+                .team(this.team)
                 .tradeType(this.tradeType)
                 .stockCode(this.code)
                 .recentPrice(this.recentPrice)
