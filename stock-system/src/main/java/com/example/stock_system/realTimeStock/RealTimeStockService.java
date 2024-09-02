@@ -7,6 +7,8 @@ import com.example.stock_system.holdings.Holdings;
 import com.example.stock_system.holdings.HoldingsRepository;
 import com.example.stock_system.stocks.Stocks;
 import com.example.stock_system.stocks.StocksRepository;
+import com.example.stock_system.stocks.exception.StocksErrorCode;
+import com.example.stock_system.stocks.exception.StocksException;
 import com.example.stock_system.trade.Trade;
 import com.example.stock_system.trade.TradeRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -224,7 +226,7 @@ public class RealTimeStockService {
     }
 
     protected void processPendingTrades(String stockCode, int price) {
-        Stocks findStock = stocksRepository.findByCode(stockCode);
+        Stocks findStock = stocksRepository.findByCode(stockCode).orElseThrow(() -> new StocksException(StocksErrorCode.STOCKS_NOT_FOUND));
         List<Trade> pendingTrades = tradeRepository.findByStatusAndStockCodeAndPrice(TradeStatus.PENDING, findStock, price);
 
         for (Trade trade : pendingTrades) {
