@@ -14,7 +14,7 @@ public class TransferHistoryController {
     private final TransferHistoryService transferHistoryService;
 
     @Operation(summary = "계좌 이체 내역 조회", description = "모임계좌를 제외한 내 계좌의 이체내역을 조회한다.")
-    @GetMapping("accounts/{id}/transactions")
+    @GetMapping("/api/accounts/{id}/transactions")
     public ApiResponse<AccountTransferDetailDto> getAccountTransferDetail(@PathVariable int id) {
 
         AccountTransferDetailDto accountTransferDetail = transferHistoryService.getAccountTransferDetail(id);
