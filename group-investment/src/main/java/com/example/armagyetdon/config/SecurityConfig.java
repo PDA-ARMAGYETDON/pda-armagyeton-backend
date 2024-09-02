@@ -1,5 +1,6 @@
 package com.example.armagyetdon.config;
 
+import com.example.armagyetdon.auth.AgUserDetailsService;
 import com.example.armagyetdon.auth.JwtFilter;
 import com.example.armagyetdon.auth.JwtUtil;
 import com.example.armagyetdon.auth.LoginFilter;
@@ -23,6 +24,7 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
+    private final AgUserDetailsService userDetailsService;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -45,15 +47,14 @@ public class SecurityConfig {
         http
                 .httpBasic(AbstractHttpConfigurer::disable);
 
-
         http
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/api/users/signin", "/api/users/signup", "/login").permitAll()
-                        .requestMatchers("/").hasRole("USER")
+                        .requestMatchers("/api/trade-offer").hasRole("USER")
                         .anyRequest().authenticated())
 //                .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(new JwtFilter(jwtUtil), LoginFilter.class)
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, userDetailsService), UsernamePasswordAuthenticationFilter.class)
+//                .addFilterAfter(new JwtFilter(jwtUtil), LoginFilter.class)
                 .logout((logoutConfig)->
                         logoutConfig
                                 .logoutSuccessUrl("/"))
