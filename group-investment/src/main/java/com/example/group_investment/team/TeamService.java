@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.util.List;
 
+
 @Service
 @AllArgsConstructor
 public class TeamService {
@@ -104,6 +105,7 @@ public class TeamService {
 //        SelectTeamResponse selectTeamResponse = teamRepository.findById(id);
 //        return selectTeamResponse;
 //    }
+
     public InsertCodeTeamResponse insertCode(String inviteCode) {
 
         Invitation invitation = invitationRepository.findByInviteCode(inviteCode).orElseThrow(()

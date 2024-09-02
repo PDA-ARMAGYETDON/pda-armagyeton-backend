@@ -39,6 +39,11 @@ public class Team {
     private List<Member> members = new ArrayList<>();
 
 
+    public int getSizeOfMembers() {
+        return members.size();
+    }
+
+
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -68,5 +73,6 @@ public class Team {
                 .endAt(team.getEndAt())
                 .createdAt(team.getCreatedAt())
                 .build();
+
     }
 }

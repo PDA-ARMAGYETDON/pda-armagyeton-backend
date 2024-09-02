@@ -1,6 +1,9 @@
 package com.example.group_investment.team.dto;
 
 import com.example.group_investment.enums.Category;
+import com.example.group_investment.enums.TeamStatus;
+import com.example.group_investment.rule.dto.RuleDto;
+import com.example.group_investment.team.Team;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
