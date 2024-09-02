@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Integer> {
     Optional<Member> findByUserIdAndTeamId(int userId, int teamId);
-    List<Member> findByTeam(Team team);
-    int countByTeam(Team team);
+    Optional<List<Member>> findByTeam(Team team);
+    Optional<Integer> countByTeam(Team team);
 }
