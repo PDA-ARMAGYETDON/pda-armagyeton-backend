@@ -6,6 +6,8 @@ import com.example.stock_system.account.exception.AccountErrorCode;
 import com.example.stock_system.account.exception.AccountException;
 import com.example.stock_system.holdings.dto.HoldingsDto;
 import com.example.stock_system.holdings.dto.SaveClosingPrice;
+import com.example.stock_system.holdings.exception.HoldingsErrorCode;
+import com.example.stock_system.holdings.exception.HoldingsException;
 import com.example.stock_system.stocks.StocksService;
 import com.example.stock_system.stocks.dto.StockCurrentPrice;
 import lombok.AllArgsConstructor;
@@ -40,7 +42,7 @@ public class HoldingsService {
             String stockCode = stockData[0].toString();
             int currentPrice = Integer.parseInt(stockData[1].toString());
 
-            Holdings holding = holdingsList.stream().filter(h -> h.getStockCode().getCode().equals(stockCode)).findFirst().orElseThrow(() -> new IllegalArgumentException("조회 되지 않는 코드입니다. " + stockCode));
+            Holdings holding = holdingsList.stream().filter(h -> h.getStockCode().getCode().equals(stockCode)).findFirst().orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUNT));
 
             int evluAmt = currentPrice * holding.getHldgQty();
             int evluPfls = evluAmt - holding.getPchsAmt();
