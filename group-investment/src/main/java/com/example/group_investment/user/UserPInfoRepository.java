@@ -1,4 +1,4 @@
-package com.example.armagyetdon.user;
+package com.example.group_investment.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

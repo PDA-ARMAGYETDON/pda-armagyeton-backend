@@ -1,4 +1,4 @@
-package com.example.armagyetdon.user;
+package com.example.group_investment.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
