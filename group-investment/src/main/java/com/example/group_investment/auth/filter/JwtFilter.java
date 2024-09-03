@@ -1,5 +1,7 @@
-package com.example.group_investment.auth;
+package com.example.group_investment.auth.filter;
 
+import com.example.group_investment.auth.AgUserDetails;
+import com.example.group_investment.auth.utils.JwtUtil;
 import com.example.group_investment.auth.exception.AuthoErrorCode;
 import com.example.group_investment.auth.exception.AuthoException;
 import com.example.group_investment.user.User;
@@ -48,7 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = authorization.substring(7);
 
-        // 토큰 만료 검증
+        // 토큰 만료 검증 - 만료함
         if(jwtUtil.isExpired(token)) {
             filterChain.doFilter(request, response);
             throw new AuthoException(AuthoErrorCode.EXPIRED_JWT_TOKEN);
