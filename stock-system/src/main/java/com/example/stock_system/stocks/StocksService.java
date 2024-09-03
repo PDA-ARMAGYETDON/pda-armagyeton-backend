@@ -25,7 +25,7 @@ public class StocksService {
 
     private final StocksRepository stocksRepository;
 
-    private final RestTemplate restTemplate = new RestTemplate();  // RestTemplate 초기화
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${HANTU_APP_KEY_SAVE_CLOSINGPRICE}")
     private String appKey;
