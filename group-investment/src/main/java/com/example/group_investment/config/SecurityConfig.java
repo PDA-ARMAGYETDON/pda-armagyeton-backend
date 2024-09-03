@@ -51,12 +51,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/api/users/signin", "/api/users/signup", "/login").permitAll()
                         .requestMatchers("/api/trade-offer").hasRole("USER")
-                        .anyRequest().authenticated())
-//                .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
+                        .anyRequest().authenticated());
+        http
+                .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, userDetailsService), UsernamePasswordAuthenticationFilter.class)
 //                .addFilterAfter(new JwtFilter(jwtUtil), LoginFilter.class)
                 .logout((logoutConfig)->
                         logoutConfig
+                                .logoutUrl("/api/users/logout")
+
                                 .logoutSuccessUrl("/"))
         ;
 
