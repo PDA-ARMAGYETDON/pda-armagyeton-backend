@@ -1,10 +1,13 @@
 package com.example.stock_system.holdings;
 
 import com.example.stock_system.account.Account;
+import com.example.stock_system.holdings.dto.SaveClosingPrice;
 import com.example.stock_system.stocks.Stocks;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class Holdings {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,5 +48,10 @@ public class Holdings {
         this.pchsAmt -= amount;
     }
 
+    public void updateWithClosingPrice(SaveClosingPrice saveClosingPrice) {
+        this.evluAmt = saveClosingPrice.getEvluAmt();
+        this.evluPfls = saveClosingPrice.getEvluPfls();
+        this.evluPflsRt = saveClosingPrice.getEvluPflsRt();
+    }
 
 }

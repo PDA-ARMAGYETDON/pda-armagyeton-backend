@@ -5,7 +5,11 @@ import lombok.Getter;
 @Getter
 public enum StocksErrorCode {
     STOCKS_NOT_FOUND(404, "AG401", "종목이 존재하지 않습니다."),
+    API_BAD_REQUEST(400,"AG001","API 호출에 이상이 있습니다."),
+    API_BAD_RESPONSE(404,"AG402","API 응답이 존재하지 않습니다.")
+
     ;
+
 
     private final int status;
     private final String divisionCode;
