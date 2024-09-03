@@ -19,5 +19,8 @@ public class StocksController {
         return new ApiResponse<>(200, true, "종목 이름을 조회했습니다.", stocksService.getStockNameByCode(code));
     }
 
+    @GetMapping("/prdyVrssRt")
+    public ApiResponse<Double> getPrdyVrssRt(@RequestParam String code) {
+        return new ApiResponse<>(200, true, "전일 대비 등락률을 조회했습니다.", stocksService.getPrdyVrssRtByCode(code));
     }
 }
