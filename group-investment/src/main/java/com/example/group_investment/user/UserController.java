@@ -3,6 +3,7 @@ package com.example.group_investment.user;
 import com.example.common.dto.ApiResponse;
 import com.example.group_investment.user.dto.GetUserResponse;
 import com.example.group_investment.user.dto.SignUpRequest;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,7 @@ public class UserController {
     }
 
     @PostMapping("/api/users/signup")
-    public ApiResponse<String> signUp(@RequestBody SignUpRequest signUpRequest) {
+    public ApiResponse<String> signUp( @RequestBody @Valid SignUpRequest signUpRequest) {
         userService.signUp(signUpRequest);
         return new ApiResponse<>(200, true, "회원가입에 성공했습니다.", null);
     }
