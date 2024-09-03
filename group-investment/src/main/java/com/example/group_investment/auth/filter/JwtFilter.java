@@ -69,6 +69,11 @@ public class JwtFilter extends OncePerRequestFilter {
         // Security Context(세션)에 인증 객체 저장
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
+
+        // FIXME: 가라로 모듈 안에서 attribute를 설정함
+        request.setAttribute("loginId", jwtUtil.getLoginId(token));
+        request.setAttribute("teamId", jwtUtil.getTeamId(token));
+
         filterChain.doFilter(request, response);
     }
 
