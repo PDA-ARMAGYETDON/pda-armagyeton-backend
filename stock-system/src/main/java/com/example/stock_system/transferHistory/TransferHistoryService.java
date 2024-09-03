@@ -2,6 +2,8 @@ package com.example.stock_system.transferHistory;
 
 import com.example.stock_system.account.Account;
 import com.example.stock_system.account.AccountRepository;
+import com.example.stock_system.account.TeamAccount;
+import com.example.stock_system.account.TeamAccountRepository;
 import com.example.stock_system.account.exception.AccountErrorCode;
 import com.example.stock_system.account.exception.AccountException;
 import com.example.stock_system.transferHistory.dto.AccountTransferDetailDto;
@@ -18,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class TransferHistoryService {
 
     private final TransferHistoryRepository transferHistoryRepository;
+    private final TeamAccountRepository teamAccountRepository;
     private final AccountRepository accountRepository;
+
 
     private final String PRIVATE_ACCOUNT = "81901";
     private final String TEAM_ACCOUNT = "81902";
@@ -40,4 +44,16 @@ public class TransferHistoryService {
 
     }
 
+    public Page<AccountTransferDetailDto> getTeamAccountTransferDetail(int teamId, int page, int size) {
+        TeamAccount foundedTeamAccount = teamAccountRepository.findByTeamId(teamId).orElseThrow(
+                () -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        Page<AccountTransferDetailDto> foundedTransferDetailList = transferHistoryRepository
+                .findByAccountId(foundedTeamAccount.getId(), pageRequest);
+
+        return foundedTransferDetailList;
+    }
 }
+
