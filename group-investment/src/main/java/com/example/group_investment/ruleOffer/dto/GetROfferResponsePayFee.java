@@ -1,5 +1,6 @@
 package com.example.group_investment.ruleOffer.dto;
 
+import com.example.group_investment.enums.RulePeriod;
 import com.example.group_investment.enums.RuleType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,10 +20,10 @@ public class GetROfferResponsePayFee implements GetROfferResponseType{
     int totalvotes;
 
     int depositAmt;
-    int period;
+    RulePeriod period;
     LocalDateTime payDate;
 
-    public GetROfferResponsePayFee(RuleType type, int upvotes, int downvotes, int totalvotes, int depositAmt, int period, LocalDateTime payDate) {
+    public GetROfferResponsePayFee(RuleType type, int upvotes, int downvotes, int totalvotes, int depositAmt, RulePeriod period, LocalDateTime payDate) {
         this.type = type;
         this.upvotes = upvotes;
         this.downvotes = downvotes;

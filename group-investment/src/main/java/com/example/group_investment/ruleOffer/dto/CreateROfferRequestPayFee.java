@@ -1,5 +1,6 @@
 package com.example.group_investment.ruleOffer.dto;
 
+import com.example.group_investment.enums.RulePeriod;
 import com.example.group_investment.enums.RuleType;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.rule.Rule;
@@ -19,7 +20,7 @@ import java.time.LocalDateTime;
 public class CreateROfferRequestPayFee implements CreateROfferRequest {
     String type;
     int depositAmt;
-    int period;
+    RulePeriod period;
     LocalDateTime payDate;
 
     @Override
