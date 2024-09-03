@@ -4,6 +4,7 @@ import com.example.group_investment.enums.MemberRole;
 import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
+import com.example.group_investment.member.dto.MemberDto;
 import com.example.group_investment.member.exception.MemberErrorCode;
 import com.example.group_investment.member.exception.MemberException;
 import com.example.group_investment.rule.Rule;
@@ -11,10 +12,7 @@ import com.example.group_investment.rule.RuleRepository;
 import com.example.group_investment.rule.dto.RuleDto;
 import com.example.group_investment.rule.exception.RuleErrorCode;
 import com.example.group_investment.rule.exception.RuleException;
-import com.example.group_investment.team.dto.CreateTeamRequest;
-import com.example.group_investment.team.dto.CreateTeamResponse;
-import com.example.group_investment.team.dto.InvitationDto;
-import com.example.group_investment.team.dto.TeamDto;
+import com.example.group_investment.team.dto.*;
 import com.example.group_investment.team.exception.TeamErrorCode;
 import com.example.group_investment.team.exception.TeamException;
 import com.example.group_investment.user.User;
@@ -196,20 +194,13 @@ public class TeamService {
     }
 
     public void confirmTeam() {
-        int teamId = 3;
+        int teamId = 4;
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
-
-        TeamDto updatedTeamDto = TeamDto.builder()
-                .name(team.getName())
-                .category(team.getCategory())
-                .startAt(team.getStartAt())
-                .endAt(team.getEndAt())
+        int confirmMembers = memberRepository.countByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        Team updatedTeam = team.toBuilder()
                 .status(TeamStatus.ACTIVE)
+                .headCount(confirmMembers)
                 .build();
-        try {
-            teamRepository.save(updatedTeamDto.toEntity());
-        } catch (Exception e) {
-            throw new TeamException(TeamErrorCode.TEAM_SAVE_FAILED);
-        }
+        teamRepository.save(updatedTeam);
     }
 }
