@@ -1,5 +1,6 @@
-package com.example.stock_system.stocks;
+package com.example.stock_system.stocks.dto;
 
+import com.example.stock_system.stocks.Stocks;
 import lombok.Builder;
 import lombok.Getter;
 

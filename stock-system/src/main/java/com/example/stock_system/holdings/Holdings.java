@@ -3,8 +3,10 @@ package com.example.stock_system.holdings;
 import com.example.stock_system.account.Account;
 import com.example.stock_system.stocks.Stocks;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class Holdings {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
