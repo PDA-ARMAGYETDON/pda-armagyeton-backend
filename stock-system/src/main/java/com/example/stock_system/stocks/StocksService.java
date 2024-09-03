@@ -9,13 +9,13 @@ import com.example.stock_system.stocks.exception.StocksException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
 
@@ -55,7 +55,12 @@ public class StocksService {
                 "appsecret", appSecret
         );
 
-        TokenResponse response = restTemplate.postForObject(tokenUri, requestBody, TokenResponse.class);
+        TokenResponse response;
+        try {
+            response = restTemplate.postForObject(tokenUri, requestBody, TokenResponse.class);
+        } catch (Exception e) {
+            throw new StocksException(StocksErrorCode.ACCESS_TOKEN_BAD_REQUEST);
+        }
 
         if (response != null && response.getAccessToken() != null) {
             return response.getAccessToken();
@@ -88,16 +93,19 @@ public class StocksService {
         headers.add("tr_id", "FHKST01010100");
         headers.add("Content-Type", "application/json; charset=utf-8");
 
-
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-
-        ResponseEntity<ClosingPirceRequest> responseEntity = restTemplate.exchange(
-                uri,
-                HttpMethod.GET,
-                entity,
-                ClosingPirceRequest.class
-        );
+        ResponseEntity<ClosingPirceRequest> responseEntity;
+        try {
+            responseEntity = restTemplate.exchange(
+                    uri,
+                    HttpMethod.GET,
+                    entity,
+                    ClosingPirceRequest.class
+            );
+        } catch (Exception e) {
+            throw new StocksException(StocksErrorCode.API_BAD_RESPONSE);
+        }
 
         ClosingPirceRequest response = responseEntity.getBody();
 
