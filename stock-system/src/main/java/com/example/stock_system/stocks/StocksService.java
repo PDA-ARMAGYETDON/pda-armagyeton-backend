@@ -58,7 +58,7 @@ public class StocksService {
         TokenResponse response = restTemplate.postForObject(tokenUri, requestBody, TokenResponse.class);
 
         if (response != null && response.getAccessToken() != null) {
-            return "엑세스 토큰이 생성되었습니다.";
+            return response.getAccessToken();
         } else {
             throw new StocksException(StocksErrorCode.API_BAD_RESPONSE);
         }
