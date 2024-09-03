@@ -1,4 +1,4 @@
-package com.example.group_investment.auth;
+package com.example.group_investment.auth.utils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -24,20 +24,36 @@ public class JwtUtil {
     public String getLoginId(String token){
         return Jwts.parser().verifyWith(secretKey).build()
                 .parseSignedClaims(token).getPayload()
-                .get("loginId", String.class);
+                .get("username", String.class);
     }
-
-//    public String getRole(String token){
-//        return Jwts.parser().verifyWith(secretKey).build()
-//                .parseSignedClaims(token).getPayload()
-//                .get("role", String.class);
-//    }
 
     public int getTeamId(String token){
         return Jwts.parser().verifyWith(secretKey).build()
                 .parseSignedClaims(token).getPayload()
                 .get("teamId", Integer.class);
     }
+
+    public boolean isTeamExist(String token){
+        return Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(token).getPayload()
+                .get("isTeamExist", Boolean.class);
+    }
+
+    public void printExpiration(String token){
+        System.out.println(Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(token).getPayload()
+                .getExpiration());
+    }
+
+    public boolean validateToken(String token){
+        try{
+            Jwts.parser().verifyWith(secretKey).build().parseClaimsJws(token);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
 
 
     public Boolean isExpired(String token){
@@ -46,15 +62,17 @@ public class JwtUtil {
                 .getExpiration().before(new Date());
     }
 
-    public String createJwt(String loginId, Integer teamId, boolean isTeam, Long expiredMs){
+    public String createJwt(String loginId, Integer teamId, boolean isTeam){
         return Jwts.builder()
                 .claim("username", loginId)
                 .claim("teamId", teamId)
                 .claim("isTeamExist", isTeam)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .expiration(new Date(System.currentTimeMillis()+24*60*60*1000L))
                 .signWith(secretKey)
                 .compact();
     }
+
+
 
 }
