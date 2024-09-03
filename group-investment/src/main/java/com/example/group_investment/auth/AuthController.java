@@ -8,6 +8,8 @@ import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.user.User;
 import com.example.group_investment.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 
 import org.springframework.http.HttpHeaders;
@@ -23,17 +25,14 @@ public class AuthController {
     private final AuthService authService;
 
     @Operation(summary = "팀 변경 시 => JWT 토큰 갱신")
-    @PutMapping("/api/auth/{teamId}")
-    public ResponseEntity<?> updateToken(@RequestHeader("Authorization") String auth, @PathVariable int teamId){
+    @PutMapping("/api/auth/{team}")
+    public ResponseEntity<?> updateToken(@RequestAttribute("loginId") String loginId, @RequestAttribute("teamId") int teamId,
+                                         @RequestHeader("Authorization") String auth, @PathVariable int team){
+//    public ResponseEntity<?> updateToken(HttpServletRequest request,
+//                                         @RequestHeader("Authorization") String auth, @PathVariable int team){
 
-        String jwtToken = auth.substring(7);
-        if (!jwtUtil.validateToken(jwtToken)){
-            throw new AuthoException(AuthoErrorCode.INVALID_JWT_TOKEN);
-        } else if (jwtUtil.isExpired(jwtToken)) {
-            throw new AuthoException(AuthoErrorCode.EXPIRED_JWT_TOKEN);
-        }
 
-        String newJwtToken = authService.updateToken(auth.substring(7), teamId);
+        String newJwtToken = authService.updateToken(auth.substring(7), team);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + newJwtToken);
