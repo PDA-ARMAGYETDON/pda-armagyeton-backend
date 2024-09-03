@@ -1,5 +1,6 @@
 package com.example.stock_system.askPrice;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -18,27 +19,29 @@ public class AskPriceController {
         this.askPriceService = askPriceService;
     }
 
+
+    @Operation(summary = "호가 처리 웹소켓 실행",description = "실시간 호가 data를 80개 받아올 수 있도록 연결합니다.")
     @PostMapping("/start")
-    public String startWebSocket() throws IOException {
+    public void startWebSocket() throws IOException {
         askPriceService.start();
-        return "웹 소켓 연결 시작";
     }
 
+    @Operation(summary = "호가 처리 웹소켓 종료",description = "실시간 호가 data를 받아오는 소켓을 종료합니다.")
     @PostMapping("/stop")
-    public String stopWebSocket() {
+    public void stopWebSocket() {
         askPriceService.stop();
-        return "웹 소켓 연결 종료";
     }
 
+    @Operation(summary = "특정 종목 호가 받아오기",description = "pathVariable로 받은 종목 코드로 해당 종목의 호가를 매수호가5개, 매도호가 5개와 각각의 잔량 형식으로 가져옵니다.")
     @GetMapping(value = "/stream/{stockCode}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Object[][]> streamByStockCode(@PathVariable String stockCode) {
         askPriceService.streamByStockCode(stockCode);
         return askPriceService.stream();
     }
 
+    @Operation(summary = "특정 종목 호가 종료", description = "특정 종목 호가를 받아오는 로직을 종료합니다.")
     @PostMapping("/stream/stop")
-    public String stopStreaming() {
+    public void stopStreaming() {
         askPriceService.stopStreaming();
-        return "데이터 스트리밍 중지";
     }
 }

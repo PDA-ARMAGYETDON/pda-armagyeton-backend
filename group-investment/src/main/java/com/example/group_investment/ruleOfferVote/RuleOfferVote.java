@@ -12,11 +12,11 @@ public class RuleOfferVote {
     private int id;
 
     @ManyToOne(targetEntity = Member.class, fetch = FetchType.LAZY)
-    @JoinColumn(name="member_id")
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @ManyToOne(targetEntity = RuleOffer.class, fetch = FetchType.LAZY)
-    @JoinColumn(name="rule_offer_id")
+    @JoinColumn(name = "rule_offer_id")
     private RuleOffer ruleOffer;
 
 
