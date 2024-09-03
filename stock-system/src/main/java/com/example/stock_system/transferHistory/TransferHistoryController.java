@@ -19,7 +19,7 @@ public class TransferHistoryController {
     @GetMapping("/api/accounts/{id}/transactions")
     public ApiResponse<List<AccountTransferDetailDto>> getAccountTransferDetail(@PathVariable int id) {
 
-        List<AccountTransferDetailDto> accountTransferDetailList = transferHistoryService.getAccountTransferDetail(id);
+        List<AccountTransferDetailDto> accountTransferDetailList = transferHistoryService.getPrivateAccountTransferDetail(id);
         return new ApiResponse<>(200, true, "계좌 이체 내역 조회에 성공하였습니다.", accountTransferDetailList);
 
     }
