@@ -34,4 +34,21 @@ public class TradeOfferCommunicator {
 
         return stockName.getData();
     }
+
+    public double getPrdyVrssRtFromStockSystem(String code) {
+        WebClient webClient = webClientBuilder.build();
+
+        ApiResponse<Double> prdyVrssRt = webClient.get()
+                .uri(AG_URL + ":8083/api/stocks/prdyVrssRt?code=" + code)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<Double>>() {
+                })
+                .block();
+
+        if (prdyVrssRt.isSuccess()) {
+            throw new TradeOfferException(TradeOfferErrorCode.STOCKS_SERVER_BAD_REQUEST);
+        }
+
+        return prdyVrssRt.getData();
+    }
 }

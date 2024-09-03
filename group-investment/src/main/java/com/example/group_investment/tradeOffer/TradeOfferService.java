@@ -47,8 +47,16 @@ public class TradeOfferService {
         Team team = teamRepository.findById(teamId).orElseThrow(
                 () -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
 
+        Rule rule = ruleRepository.findByTeam(team).orElseThrow(
+                () -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
+
         TradeOfferDto tradeOfferDto;
+        if (createTradeOfferRequest.getTradeType() == TradeType.SELL && tradeOfferCommunicator.getPrdyVrssRtFromStockSystem(createTradeOfferRequest.getCode()) <= rule.getPrdyVrssRt()) {
+            tradeOfferDto = tradeOfferConverter.createTradeOfferRequestToUrgentTradeOfferDto(createTradeOfferRequest, member, team);
+        } else {
             tradeOfferDto = tradeOfferConverter.createTradeOfferRequestToTradeOfferDto(createTradeOfferRequest, member, team);
+        }
+
         try {
             tradeOfferRepository.save(tradeOfferDto.toEntity());
         } catch (Exception e) {

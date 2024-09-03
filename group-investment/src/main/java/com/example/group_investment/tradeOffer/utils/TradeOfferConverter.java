@@ -34,6 +34,19 @@ public class TradeOfferConverter {
                 .toList();
     }
 
+    public TradeOfferDto createTradeOfferRequestToUrgentTradeOfferDto(CreateTradeOfferRequest createTradeOfferRequest, Member member, Team team) {
+        return new TradeOfferDto().builder()
+                .member(member)
+                .team(team)
+                .isUrgent(true)
+                .tradeType(createTradeOfferRequest.getTradeType())
+                .recentPrice(createTradeOfferRequest.getRecentPrice())
+                .wantPrice(createTradeOfferRequest.getWantPrice())
+                .quantity(createTradeOfferRequest.getQuantity())
+                .code(createTradeOfferRequest.getCode())
+                .build();
+    }
+
     public TradeOfferDto createTradeOfferRequestToTradeOfferDto(CreateTradeOfferRequest createTradeOfferRequest, Member member, Team team) {
         return new TradeOfferDto().builder()
                 .member(member)
