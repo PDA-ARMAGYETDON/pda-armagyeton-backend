@@ -43,3 +43,4 @@ out/
 ### env
 envfile
 alarm/src/main/resources/serviceAccountKey.json
+alarm/src/main/resources/.env

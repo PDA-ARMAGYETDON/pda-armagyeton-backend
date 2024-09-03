@@ -217,14 +217,12 @@ public class AskPriceService {
     // 스트리밍 중지
     public void stopStreaming() {
         isStreamingActive = false;
-        System.out.println("데이터 스트리밍 중지");
     }
 
     // 스트리밍(특정 주식 코드로)
     public void streamByStockCode(String stockCode) {
         this.stockCode = stockCode;
         isStreamingActive = true;
-        System.out.println("해당 주식 코드에 대해 스트리밍 시작 " + stockCode);
     }
 
     private void handleError(Throwable error) {
