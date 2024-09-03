@@ -7,6 +7,7 @@ import com.example.group_investment.tradeOffer.dto.CreateTradeOfferRequest;
 import com.example.group_investment.tradeOffer.dto.TradeOfferDto;
 import com.example.group_investment.tradeOffer.dto.TradeOfferResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
@@ -17,7 +18,7 @@ import java.util.List;
 public class TradeOfferConverter {
     private final TradeOfferCommunicator tradeOfferCommunicator;
 
-    public List<TradeOfferResponse> tradeOfferListToTradeOfferResponseList(List<TradeOffer> tradeOffers) {
+    public List<TradeOfferResponse> tradeOfferListToTradeOfferResponseList(Page<TradeOffer> tradeOffers) {
         return tradeOffers.stream()
                 .map(tradeOffer -> new TradeOfferResponse().builder()
                         .userName(tradeOffer.getMember().getUser().getName())
@@ -27,6 +28,7 @@ public class TradeOfferConverter {
                         .wantPrice(tradeOffer.getWantPrice())
                         .quantity(tradeOffer.getQuantity())
                         .offerAt(tradeOffer.getOfferAt().toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                        .isUrgent(tradeOffer.isUrgent())
                         .userName(tradeOffer.getMember().getUser().getName())
                         .upvotes(tradeOffer.getUpvotes())
                         .downvotes(tradeOffer.getDownvotes())

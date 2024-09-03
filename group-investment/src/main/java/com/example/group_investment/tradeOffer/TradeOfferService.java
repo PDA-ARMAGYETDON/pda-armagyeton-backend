@@ -17,11 +17,13 @@ import com.example.group_investment.tradeOffer.dto.CreateTradeOfferRequest;
 import com.example.group_investment.tradeOffer.dto.GetAllTradeOffersResponse;
 import com.example.group_investment.tradeOffer.dto.TradeOfferDto;
 import com.example.group_investment.tradeOffer.dto.TradeOfferResponse;
-import com.example.group_investment.tradeOffer.exception.TradeOfferErrorCode;
-import com.example.group_investment.tradeOffer.exception.TradeOfferException;
 import com.example.group_investment.tradeOffer.utils.TradeOfferCommunicator;
 import com.example.group_investment.tradeOffer.utils.TradeOfferConverter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,7 +66,7 @@ public class TradeOfferService {
         }
     }
 
-    public GetAllTradeOffersResponse getAllTradeOffers(TradeType type) {
+    public GetAllTradeOffersResponse getAllTradeOffers(TradeType type, int page, int size) {
         // FIXME: 토큰으로 사용자 아이디와 모임 아이디 가져와야함
         int userId = 1;
         int teamId = 1;
@@ -72,9 +74,10 @@ public class TradeOfferService {
         Team team = teamRepository.findById(teamId).orElseThrow(
                 () -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
 
-        List<TradeOffer> tradeOffers = tradeOfferRepository.findAllByTeamIdAndTradeType(team.getId(), type).orElseThrow(
-                () -> new TradeOfferException(TradeOfferErrorCode.TRADE_OFFER_NOT_FOUND)
-        );
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "offerAt"));
+
+        Page<TradeOffer> tradeOffers = tradeOfferRepository.findAllByTeamIdAndTradeType(team.getId(), type, pageable);
+
 
         List<TradeOfferResponse> tradeOfferResponses = tradeOfferConverter.tradeOfferListToTradeOfferResponseList(tradeOffers);
 
