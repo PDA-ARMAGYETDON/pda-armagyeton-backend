@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @DiscriminatorValue("PAY_FEE")

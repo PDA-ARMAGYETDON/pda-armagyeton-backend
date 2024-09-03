@@ -6,12 +6,16 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder(toBuilder = true)
 public class Rule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,9 +51,9 @@ public class Rule {
         this.maxProfitRt = maxProfitRt;
     }
 
-    public Rule() {
-
-    }
+//    public Rule() {
+//
+//    }
 
     public RuleDto fromEntity(Rule rule) {
         return RuleDto.builder()
