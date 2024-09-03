@@ -1,6 +1,6 @@
 spring:
   application:
-    name: armagyetdon
+    name: group-investment
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
