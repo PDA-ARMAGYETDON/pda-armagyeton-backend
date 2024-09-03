@@ -20,6 +20,6 @@ public class UserController {
     @PostMapping("/api/users/signup")
     public ApiResponse<String> signUp( @RequestBody @Valid SignUpRequest signUpRequest) {
         userService.signUp(signUpRequest);
-        return new ApiResponse<>(200, true, "회원가입에 성공했습니다.", null);
+        return new ApiResponse<>(201, true, "회원가입에 성공했습니다.", null);
     }
 }
