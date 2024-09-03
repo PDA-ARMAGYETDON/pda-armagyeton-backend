@@ -1,10 +1,10 @@
-package com.example.armagyetdon.auth;
+package com.example.group_investment.auth;
 
-import com.example.armagyetdon.user.User;
-import com.example.armagyetdon.user.UserRepository;
-import com.example.armagyetdon.user.UserService;
-import com.example.armagyetdon.user.exception.UserErrorCode;
-import com.example.armagyetdon.user.exception.UserException;
+import com.example.group_investment.user.User;
+import com.example.group_investment.user.UserRepository;
+import com.example.group_investment.user.UserService;
+import com.example.group_investment.user.exception.UserErrorCode;
+import com.example.group_investment.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

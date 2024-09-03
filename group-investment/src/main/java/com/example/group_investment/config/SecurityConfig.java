@@ -1,9 +1,9 @@
-package com.example.armagyetdon.config;
+package com.example.group_investment.config;
 
-import com.example.armagyetdon.auth.AgUserDetailsService;
-import com.example.armagyetdon.auth.JwtFilter;
-import com.example.armagyetdon.auth.JwtUtil;
-import com.example.armagyetdon.auth.LoginFilter;
+import com.example.group_investment.auth.AgUserDetailsService;
+import com.example.group_investment.auth.filter.JwtFilter;
+import com.example.group_investment.auth.utils.JwtUtil;
+import com.example.group_investment.auth.filter.LoginFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

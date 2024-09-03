@@ -1,12 +1,12 @@
 package com.example.group_investment.user;
 
-import com.example.armagyetdon.member.Member;
-import com.example.armagyetdon.user.dto.GetUserResponse;
-import com.example.armagyetdon.user.dto.SignInRequest;
-import com.example.armagyetdon.user.dto.SignInResponse;
-import com.example.armagyetdon.user.dto.SignUpRequest;
-import com.example.armagyetdon.user.exception.UserErrorCode;
-import com.example.armagyetdon.user.exception.UserException;
+import com.example.group_investment.member.Member;
+import com.example.group_investment.user.dto.GetUserResponse;
+import com.example.group_investment.user.dto.SignInRequest;
+import com.example.group_investment.user.dto.SignInResponse;
+import com.example.group_investment.user.dto.SignUpRequest;
+import com.example.group_investment.user.exception.UserErrorCode;
+import com.example.group_investment.user.exception.UserException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +40,6 @@ public class UserService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .address(request.getAddress())
-                .role("ROLE_USER")
                 .build();
 
         userRepository.save(createdUser);

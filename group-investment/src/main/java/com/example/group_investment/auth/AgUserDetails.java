@@ -1,7 +1,6 @@
-package com.example.armagyetdon.auth;
+package com.example.group_investment.auth;
 
-import com.example.armagyetdon.user.User;
-import com.example.armagyetdon.user.UserService;
+import com.example.group_investment.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
