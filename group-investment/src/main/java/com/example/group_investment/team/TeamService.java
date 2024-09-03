@@ -4,6 +4,7 @@ import com.example.group_investment.enums.MemberRole;
 import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
+import com.example.group_investment.member.dto.MemberDto;
 import com.example.group_investment.member.exception.MemberErrorCode;
 import com.example.group_investment.member.exception.MemberException;
 import com.example.group_investment.rule.Rule;
@@ -11,10 +12,7 @@ import com.example.group_investment.rule.RuleRepository;
 import com.example.group_investment.rule.dto.RuleDto;
 import com.example.group_investment.rule.exception.RuleErrorCode;
 import com.example.group_investment.rule.exception.RuleException;
-import com.example.group_investment.team.dto.CreateTeamRequest;
-import com.example.group_investment.team.dto.CreateTeamResponse;
-import com.example.group_investment.team.dto.InvitationDto;
-import com.example.group_investment.team.dto.TeamDto;
+import com.example.group_investment.team.dto.*;
 import com.example.group_investment.team.exception.TeamErrorCode;
 import com.example.group_investment.team.exception.TeamException;
 import com.example.group_investment.user.User;
@@ -139,7 +137,7 @@ public class TeamService {
         RuleDto ruleDto = rule.fromEntity(rule);
         //2-3. is 모임장
         int isLeader = 0;
-        if (memberRepository.findById(userId).orElseThrow(()->new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
+        if (memberRepository.findById(userId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
                 .getRole() == MemberRole.LEADER)
             isLeader = 1;
         //2-4. is 참여
