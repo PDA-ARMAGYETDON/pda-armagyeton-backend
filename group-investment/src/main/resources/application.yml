@@ -7,7 +7,7 @@ spring:
     url: ${RDS_URL}
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
-
+  
   jpa:
     properties:
       hibernate:
@@ -16,6 +16,9 @@ spring:
       ddl-auto: none
     show-sql: true
 
+  ag:
+    url: ${AG_URL}
+    
   devtools:
     restart:
       enabled: true # auto restart
@@ -31,4 +34,4 @@ server:
 
 logging:
   level:
-    root: debug
+    root: info

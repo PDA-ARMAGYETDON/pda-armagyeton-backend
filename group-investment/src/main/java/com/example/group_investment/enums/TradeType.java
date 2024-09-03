@@ -9,7 +9,7 @@ public enum TradeType {
 
     private final String message;
 
-    TradeType(String message){
+    TradeType(String message) {
         this.message = message;
     }
 }

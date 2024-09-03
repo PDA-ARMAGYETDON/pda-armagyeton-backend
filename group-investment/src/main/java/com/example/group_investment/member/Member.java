@@ -8,10 +8,9 @@ import com.example.group_investment.tradeOffer.TradeOffer;
 import com.example.group_investment.tradeOfferVote.TradeOfferVote;
 import com.example.group_investment.user.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
@@ -25,7 +24,7 @@ public class Member {
     private int id;
 
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(targetEntity = Team.class, fetch = FetchType.LAZY)
@@ -35,7 +34,7 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
-    @CreatedDate
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "member")
@@ -49,4 +48,16 @@ public class Member {
 
     @OneToMany(mappedBy = "member")
     private List<RuleOfferVote> ruleOfferVotes;
+
+    @Builder
+    public Member(Team team, User user, MemberRole role, LocalDateTime createdAt) {
+        this.team = team;
+        this.user = user;
+        this.role = role;
+        this.createdAt = createdAt;
+    }
+
+    public Member() {
+
+    }
 }

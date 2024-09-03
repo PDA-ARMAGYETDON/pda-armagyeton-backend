@@ -11,7 +11,7 @@ public enum RuleType {
 
     private final String message;
 
-    RuleType(String message){
+    RuleType(String message) {
         this.message = message;
     }
 }
