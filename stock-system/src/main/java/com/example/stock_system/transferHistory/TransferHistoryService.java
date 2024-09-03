@@ -2,45 +2,42 @@ package com.example.stock_system.transferHistory;
 
 import com.example.stock_system.account.Account;
 import com.example.stock_system.account.AccountRepository;
-import com.example.stock_system.account.TeamAccountRepository;
 import com.example.stock_system.account.exception.AccountErrorCode;
 import com.example.stock_system.account.exception.AccountException;
 import com.example.stock_system.transferHistory.dto.AccountTransferDetailDto;
-import com.example.stock_system.transferHistory.exception.TransferHistoryErrorCode;
-import com.example.stock_system.transferHistory.exception.TransferHistoryException;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
+@Slf4j
 @Service
 @AllArgsConstructor
 public class TransferHistoryService {
 
-    private static final Logger log = LoggerFactory.getLogger(TransferHistoryService.class);
     private final TransferHistoryRepository transferHistoryRepository;
     private final AccountRepository accountRepository;
-    private final TeamAccountRepository teamAccountRepository;
+
+    private final String PRIVATE_ACCOUNT = "81901";
+    private final String TEAM_ACCOUNT = "81902";
 
     @Transactional
-    public List<AccountTransferDetailDto> getAccountTransferDetail(int userId) {
-        List<AccountTransferDetailDto> foundedTransferDetailList = null;
+    public Page<AccountTransferDetailDto> getPrivateAccountTransferDetail(int userId, int page, int size) {
 
-        List<Account> foundedAccount = accountRepository.findByUserId(userId)
-                .orElseThrow(() -> new AccountException(AccountErrorCode.USER_ACCOUNT_NOT_FOUND));
+        Account foundedPrivateAccount = accountRepository
+                .findByUserIdAndAccountNumberContaining(userId, PRIVATE_ACCOUNT)
+                .orElseThrow(() -> new AccountException(
+                        AccountErrorCode.PRIVATE_ACCOUNT_NOT_FOUND));
 
-        //TODO: 성능 개선 필요
-        for (Account account : foundedAccount) {
-            if (!teamAccountRepository.existsByAccount(account)) {
-                foundedTransferDetailList =
-                        transferHistoryRepository.findByAccountId(account.getId())
-                                .orElseThrow(() -> new TransferHistoryException(TransferHistoryErrorCode.TRANSFER_HISTORY_NOT_FOUND));
-            }
-        }
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        Page<AccountTransferDetailDto> foundedTransferDetailList = transferHistoryRepository
+                .findByAccountId(foundedPrivateAccount.getId(), pageRequest);
+
         return foundedTransferDetailList;
+
     }
 
 }
