@@ -1,6 +1,7 @@
 package com.example.stock_system.stocks;
 
 import com.example.common.dto.ApiResponse;
+import com.example.stock_system.stocks.dto.StockName;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

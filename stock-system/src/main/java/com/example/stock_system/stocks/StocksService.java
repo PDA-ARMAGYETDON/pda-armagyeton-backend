@@ -1,5 +1,6 @@
 package com.example.stock_system.stocks;
 
+import com.example.stock_system.stocks.dto.StockName;
 import com.example.stock_system.stocks.exception.StocksErrorCode;
 import com.example.stock_system.stocks.exception.StocksException;
 import lombok.AllArgsConstructor;
