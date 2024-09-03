@@ -58,7 +58,7 @@ public class StocksService {
         TokenResponse response = restTemplate.postForObject(tokenUri, requestBody, TokenResponse.class);
 
         if (response != null && response.getAccessToken() != null) {
-            return response.getAccessToken();
+            return "엑세스 토큰이 생성되었습니다.";
         } else {
             throw new StocksException(StocksErrorCode.API_BAD_RESPONSE);
         }
@@ -79,8 +79,6 @@ public class StocksService {
                 .queryParam("fid_cond_mrkt_div_code", "J")
                 .queryParam("fid_input_iscd", stockCode)
                 .toUriString();
-
-        System.out.println("Request URI: " + uri);
 
         // HttpHeaders 객체를 생성하고 헤더를 설정합니다.
         HttpHeaders headers = new HttpHeaders();
