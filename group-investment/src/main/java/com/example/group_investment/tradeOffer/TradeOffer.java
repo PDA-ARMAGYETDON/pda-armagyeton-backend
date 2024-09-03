@@ -64,4 +64,8 @@ public class TradeOffer {
         this.quantity = quantity;
         this.stockCode = stockCode;
     }
+
+    public void expireTradeOffer() {
+        this.offerStatus = OfferStatus.REJECTED;
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.group_investment.tradeOffer;
 
+import com.example.group_investment.enums.OfferStatus;
 import com.example.group_investment.enums.TradeType;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -78,6 +80,12 @@ public class TradeOfferService {
 
         Page<TradeOffer> tradeOffers = tradeOfferRepository.findAllByTeamIdAndTradeType(team.getId(), type, pageable);
 
+        for (TradeOffer tradeOffer : tradeOffers) {
+            if (tradeOffer.getOfferStatus() == OfferStatus.PROGRESS && tradeOffer.isUrgent() && tradeOffer.getOfferAt().isBefore(LocalDateTime.now().plusMinutes(30))) {
+                tradeOffer.expireTradeOffer();
+                tradeOfferRepository.save(tradeOffer);
+            }
+        }
 
         List<TradeOfferResponse> tradeOfferResponses = tradeOfferConverter.tradeOfferListToTradeOfferResponseList(tradeOffers);
 
