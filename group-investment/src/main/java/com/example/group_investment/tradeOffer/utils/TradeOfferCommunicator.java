@@ -28,7 +28,7 @@ public class TradeOfferCommunicator {
                 })
                 .block();
 
-        if (stockName.isSuccess()) {
+        if (!stockName.isSuccess()) {
             throw new TradeOfferException(TradeOfferErrorCode.STOCKS_SERVER_BAD_REQUEST);
         }
 
@@ -45,7 +45,7 @@ public class TradeOfferCommunicator {
                 })
                 .block();
 
-        if (prdyVrssRt.isSuccess()) {
+        if (!prdyVrssRt.isSuccess()) {
             throw new TradeOfferException(TradeOfferErrorCode.STOCKS_SERVER_BAD_REQUEST);
         }
 
