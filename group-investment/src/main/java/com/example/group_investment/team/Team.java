@@ -7,6 +7,7 @@ import com.example.group_investment.team.dto.TeamDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -21,11 +22,15 @@ public class Team {
     private int id;
     private String name;
 
+    private int baseAmt;
+    private int headCount;
+
     @Enumerated(EnumType.STRING)
     private Category category;
 
     @Enumerated(EnumType.STRING)
-    private TeamStatus status;
+    @ColumnDefault("'PENDING'")
+    private TeamStatus status = TeamStatus.PENDING;
 
     private LocalDateTime startAt;
     private LocalDateTime endAt;
@@ -42,8 +47,10 @@ public class Team {
     }
 
     @Builder
-    public Team(String name, Category category, TeamStatus status, LocalDateTime startAt, LocalDateTime endAt, LocalDateTime createdAt) {
+    public Team(String name, int baseAmt, int headCount, Category category, TeamStatus status, LocalDateTime startAt, LocalDateTime endAt, LocalDateTime createdAt) {
         this.name = name;
+        this.baseAmt = baseAmt;
+        this.headCount = headCount;
         this.category = category;
         this.status = status;
         this.startAt = startAt;
@@ -55,9 +62,15 @@ public class Team {
 
     }
 
+    public void setStatus(TeamStatus status) {
+        this.status = status;
+    }
+
     public TeamDto fromEntity(Team team) {
         return TeamDto.builder()
                 .name(team.getName())
+                .baseAmt(team.getBaseAmt())
+                .headCount(team.getHeadCount())
                 .category(team.getCategory())
                 .status(team.getStatus())
                 .startAt(team.getStartAt())

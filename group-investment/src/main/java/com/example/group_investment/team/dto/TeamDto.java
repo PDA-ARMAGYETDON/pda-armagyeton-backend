@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class TeamDto {
     private String name;
+    private int baseAmt;
+    private int headCount;
     private Category category;
     private TeamStatus status;
     private LocalDateTime startAt;
@@ -20,9 +22,11 @@ public class TeamDto {
     private LocalDateTime createdAt;
 
     @Builder
-    public TeamDto(String name, Category category, TeamStatus status, LocalDateTime startAt, LocalDateTime endAt, LocalDateTime createdAt) {
+    public TeamDto(String name, int baseAmt, int headCount, Category category, TeamStatus status, LocalDateTime startAt, LocalDateTime endAt, LocalDateTime createdAt) {
 
         this.name = name;
+        this.baseAmt = baseAmt;
+        this.headCount = headCount;
         this.category = category;
         this.status = status;
         this.startAt = startAt;
@@ -33,6 +37,8 @@ public class TeamDto {
     public Team toEntity() {
         return Team.builder()
                 .name(this.name)
+                .baseAmt(this.baseAmt)
+                .headCount(this.headCount)
                 .category(this.category)
                 .status(this.status)
                 .startAt(this.startAt)

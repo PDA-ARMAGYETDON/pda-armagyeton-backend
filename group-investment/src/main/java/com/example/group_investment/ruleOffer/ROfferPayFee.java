@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,6 +16,6 @@ import java.time.LocalDateTime;
 @DiscriminatorValue("PAY_FEE")
 public class ROfferPayFee extends RuleOffer {
     private int depositAmt;
-    private int period;
+    private LocalDateTime period;
     private LocalDateTime payDate;
 }

@@ -2,11 +2,13 @@ package com.example.stock_system.transferHistory;
 
 import com.example.stock_system.account.Account;
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
 @Entity
+@NoArgsConstructor
 public class TransferHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +23,6 @@ public class TransferHistory {
 
     private int transferAmt;
 
-    @ManyToOne(targetEntity = Account.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiving_account_id")
-    private Account receivingAccount;
+    private int receivingAccountId;
+
 }
