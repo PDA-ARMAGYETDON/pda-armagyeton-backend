@@ -6,6 +6,7 @@ import com.example.group_investment.enums.RuleType;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -17,20 +18,20 @@ public class DetailPendingTeamResponse {
     private Category category;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
-    private float prdyVrssRt;
+    private double prdyVrssRt;
     private int urgentTradeUpvotes;
     private int tradeUpvotes;
     private int depositAmt;
     private RulePeriod period;
-    private Date payDate;
-    private float maxLossRt;
-    private float maxProfitRt;
+    private LocalDate payDate;
+    private double maxLossRt;
+    private double maxProfitRt;
     private int invitedMembers;
     private int isLeader;
     private int isParticipating;
 
     @Builder
-    public DetailPendingTeamResponse(String name, int baseAmt, int headCount, Category category, LocalDateTime startAt, LocalDateTime endAt, float prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, RulePeriod period, Date payDate, float maxLossRt, float maxProfitRt, int invitedMembers, int isLeader, int isParticipating) {
+    public DetailPendingTeamResponse(String name, int baseAmt, int headCount, Category category, LocalDateTime startAt, LocalDateTime endAt, double prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, RulePeriod period, LocalDate payDate, double maxLossRt, double maxProfitRt, int invitedMembers, int isLeader, int isParticipating) {
         this.name = name;
         this.baseAmt = baseAmt;
         this.headCount = headCount;
