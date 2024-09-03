@@ -26,8 +26,6 @@ public class TeamController {
         return new ApiResponse<>(200, true, "팀 정보를 조회했습니다.", new TeamDto());
     }
 
-
-
     @PostMapping("")
     public ApiResponse<CreateTeamResponse> createTeam(@RequestBody CreateTeamRequest createTeamRequest) {
         CreateTeamResponse createTeamResponse = teamService.createTeam(createTeamRequest);
