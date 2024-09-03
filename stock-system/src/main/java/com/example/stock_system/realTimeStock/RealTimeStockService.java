@@ -1,16 +1,8 @@
 package com.example.stock_system.realTimeStock;
 
-import com.example.stock_system.account.Account;
-import com.example.stock_system.account.AccountRepository;
-import com.example.stock_system.enums.TradeStatus;
-import com.example.stock_system.holdings.Holdings;
-import com.example.stock_system.holdings.HoldingsRepository;
-import com.example.stock_system.stocks.Stocks;
-import com.example.stock_system.stocks.StocksRepository;
-import com.example.stock_system.stocks.exception.StocksErrorCode;
-import com.example.stock_system.stocks.exception.StocksException;
-import com.example.stock_system.trade.Trade;
-import com.example.stock_system.trade.TradeRepository;
+import com.example.stock_system.stocks.StocksService;
+import com.example.stock_system.stocks.dto.StockName;
+import com.example.stock_system.trade.TradeService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,10 +47,9 @@ public class RealTimeStockService {
 
     private final List<Disposable> connections = new CopyOnWriteArrayList<>();
     private final WebClient webClient;
-    private final TradeRepository tradeRepository;
-    private final HoldingsRepository holdingsRepository;
-    private final AccountRepository accountRepository;
-    private final StocksRepository stocksRepository;
+
+    private final TradeService tradeService;
+    private final StocksService stocksService;
 
     private Sinks.Many<Object[]> allStockDataSink;
     private Sinks.Many<Object[]> dataOnlySink;
@@ -67,14 +58,10 @@ public class RealTimeStockService {
     private final Map<String, Boolean> isStreamingActiveMap = new ConcurrentHashMap<>();
 
     @Autowired
-    public RealTimeStockService(WebClient.Builder webClientBuilder, TradeRepository tradeRepository,
-                                HoldingsRepository holdingsRepository, AccountRepository accountRepository,
-                                StocksRepository stocksRepository) {
+    public RealTimeStockService(WebClient.Builder webClientBuilder,StocksService stocksService,TradeService tradeService) {
         this.webClient = webClientBuilder.build();
-        this.tradeRepository = tradeRepository;
-        this.holdingsRepository = holdingsRepository;
-        this.accountRepository = accountRepository;
-        this.stocksRepository = stocksRepository;
+        this.stocksService = stocksService;
+        this.tradeService = tradeService;
     }
 
 
@@ -115,7 +102,8 @@ public class RealTimeStockService {
         allStockDataSink.asFlux().subscribe(stockData -> {
             String stockCode = stockData[0].toString();
             int price = Integer.parseInt(stockData[1].toString());
-            processPendingTrades(stockCode, price);
+            tradeService.buyProcessPendingTrades(stockCode,price);
+            tradeService.sellProcessPendingTrades(stockCode,price);
         });
 
         // 데이터만 처리하는 로직
@@ -225,13 +213,18 @@ public class RealTimeStockService {
         }
 
         String stockCode = fields[0];
-        int price;
+        int price = Integer.parseInt(fields[2]);
+        int prdyVrss = Integer.parseInt(fields[4]); //전일 대비
+        int prdyCtrt = Integer.parseInt(fields[5]); //전일 대비율
+        StockName stockName = stocksService.getStockNameByCode(stockCode);
 
-        price = Integer.parseInt(fields[2]);
+        Object[] stockArray = new Object[5];
 
-        Object[] stockArray = new Object[2];
-        stockArray[0] = stockCode;
-        stockArray[1] = price;
+        stockArray[0] = stockName.getName();
+        stockArray[1] = stockCode;
+        stockArray[2] = price;
+        stockArray[3] = prdyVrss;
+        stockArray[4] = prdyCtrt;
 
 
         if (allStockDataSink != null) {
@@ -250,39 +243,7 @@ public class RealTimeStockService {
         }
     }
 
-    protected void processPendingTrades(String stockCode, int price) {
-        Stocks findStock = stocksRepository.findByCode(stockCode).orElseThrow(() -> new StocksException(StocksErrorCode.STOCKS_NOT_FOUND));
 
-        List<Trade> pendingTrades = tradeRepository.findByStatusAndStockCodeAndPrice(TradeStatus.PENDING, findStock, price);
-
-        for (Trade trade : pendingTrades) {
-            Account account = trade.getAccount();
-            int requiredAmount = trade.getPrice() * trade.getQuantity();
-
-            if (account.getDeposit() >= requiredAmount) {
-                System.out.println("거래 완료 - 주식 코드: " + stockCode + ", 거래 ID: " + trade.getId());
-
-                trade.setStatus(TradeStatus.COMPLETED);
-                tradeRepository.save(trade);
-
-                Holdings existingHolding = holdingsRepository.findByAccountAndStockCode(account, findStock);
-
-                if (existingHolding != null) {
-                    existingHolding.addData(trade.getQuantity(), requiredAmount);
-                    holdingsRepository.save(existingHolding);
-                } else {
-                    Holdings newHolding = new Holdings(account, findStock, trade.getQuantity(), requiredAmount);
-                    holdingsRepository.save(newHolding);
-                }
-
-                account.buyStock(requiredAmount);
-                accountRepository.save(account);
-            }
-            else {
-                System.out.println("거래 실패 - 예치금 부족, 거래 ID: " + trade.getId());
-            }
-        }
-    }
 
 
     public void streamByStockCode(String stockCode) {
