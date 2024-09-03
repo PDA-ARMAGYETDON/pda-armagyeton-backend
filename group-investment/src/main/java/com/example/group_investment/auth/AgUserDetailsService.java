@@ -20,19 +20,22 @@ public class AgUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
-
-        User user = userRepository.findByLoginId(loginId).orElseThrow(()-> new UsernameNotFoundException("User not found"));
-
+        User user = userRepository.findByLoginId(loginId).orElseThrow(()-> new UserException(UserErrorCode.USER_NOT_FOUND));
         if (user != null) {
             return new AgUserDetails(user);
         }
-
         return null;
     }
 
     @Transactional
     public boolean isTeamExist(int id) {
-        return userRepository.findById(id).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND))
-                .getMembers().isEmpty();
+        User user = userRepository.findById(id).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
+        return !user.getMembers().isEmpty();
+    }
+
+    @Transactional
+    public int getTeamId(int id) {
+        User user = userRepository.findById(id).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
+        return user.getMembers().get(0).getTeam().getId();
     }
 }

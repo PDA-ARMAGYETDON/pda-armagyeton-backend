@@ -2,14 +2,12 @@ package com.example.group_investment.auth;
 
 import com.example.group_investment.user.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -26,7 +24,8 @@ public class AgUserDetails implements UserDetails {
         collection.add(new GrantedAuthority() {
             @Override
             public String getAuthority() {
-                return user.getMembers().getRole();
+                return "MEMBER";
+//                return user.getMembers().stream().map(m -> m.getTeam().getTeamName()).collect(Collectors.joining(","));
             }
         });
 
@@ -47,20 +46,6 @@ public class AgUserDetails implements UserDetails {
         return user.getId();
     }
 
-//    public Set<Integer> getTeams() {
-////        return null;
-//
-//        if (user.getMembers().isEmpty()) {
-//            return null;
-//        }
-//        return user
-//                .getMembers()
-//                .stream()
-//                .map(m -> m
-//                        .getTeam()
-//                        .getId())
-//                .collect(Collectors.toSet());
-//    }
 
     @Override
     public boolean isAccountNonExpired() {
