@@ -46,15 +46,18 @@ public class TradeOffer {
     @ColumnDefault("0")
     private int downvotes;
 
+    private boolean isUrgent;
+
     private String stockCode;
 
     public TradeOffer() {
     }
 
     @Builder
-    public TradeOffer(Member member, Team team, TradeType tradeType, int recentPrice, int wantPrice, int quantity, String stockCode) {
+    public TradeOffer(Member member, Team team, boolean isUrgent, TradeType tradeType, int recentPrice, int wantPrice, int quantity, String stockCode) {
         this.member = member;
         this.team = team;
+        this.isUrgent = isUrgent;
         this.tradeType = tradeType;
         this.recentPrice = recentPrice;
         this.wantPrice = wantPrice;

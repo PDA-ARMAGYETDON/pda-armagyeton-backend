@@ -38,6 +38,7 @@ public class TradeOfferConverter {
         return new TradeOfferDto().builder()
                 .member(member)
                 .team(team)
+                .isUrgent(false)
                 .tradeType(createTradeOfferRequest.getTradeType())
                 .recentPrice(createTradeOfferRequest.getRecentPrice())
                 .wantPrice(createTradeOfferRequest.getWantPrice())
