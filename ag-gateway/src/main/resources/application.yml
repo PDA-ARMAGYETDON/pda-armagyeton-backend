@@ -6,43 +6,37 @@ spring:
       mvc:
         routes:
           - id: group-investment
-            uri:
-              http://localhost:8081
+            uri: ${GROUP_INVESTMENT_URL}
             predicates:
-              - Path=/group-investment/**
-            filters:
-              - StripPrefix=1
+              - Path=/api/users/**,/api/groups/**,/api/auth/**
 
           - id: stock-system
-            uri:
-              http://localhost:8082
+            uri: ${STOCK_SYSTEM_URL}
             predicates:
-              - Path=/invest-system/**
-            filters:
-              - StripPrefix=1
+              - Path=/api/stocks/**
 
           - id: invest-references-service
-            uri:
-              http://localhost:8083
+            uri: ${INVEST_REFERENCES_URL}
             predicates:
-              - Path=/invest-references/**
-            filters:
-              - StripPrefix=1
+              - Path=/api/invest-references/**
 
           - id: chatting
-            uri:
-              http://localhost:8084
+            uri: ${CHAT_URL}
             predicates:
-              - Path=/chatting/**
-            filters:
-              - StripPrefix=1
+              - Path=/api/chatting/**
 
           - id: alarm
-            uri:
-              http://localhost:8085
+            uri: ${ALARM_URL}
             predicates:
-              - Path=/alarm/**
-            filters:
-              - StripPrefix=1
+              - Path=/api/alarm/**
+
+  jwt:
+    secret: ${JWT_SECRET}
+
 server:
   port: 8080
+
+logging:
+  level:
+    root: debug
+
