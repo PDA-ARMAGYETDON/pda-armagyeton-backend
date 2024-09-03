@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 public class StocksService {
     private final StocksRepository stocksRepository;
 
-    public StockName getStockNameByCode(String stockCode) {
-        Stocks stocks = stocksRepository.findByCode(stockCode).orElseThrow(
+    public StockName getStockNameByCode(String code) {
+        Stocks stocks = stocksRepository.findByCode(code).orElseThrow(
                 () -> new StocksException(StocksErrorCode.STOCKS_NOT_FOUND));
         return new StockName().fromEntity(stocks);
     }
