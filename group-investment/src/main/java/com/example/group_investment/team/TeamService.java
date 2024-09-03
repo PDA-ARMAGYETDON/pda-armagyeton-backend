@@ -110,7 +110,6 @@ public class TeamService {
         InvitationDto invitationDto = InvitationDto.builder()
                 .team(savedTeam)
                 .inviteCode(inviteCode)
-                .inviteUrl(inviteUrl)
                 .build();
         try {
             invitationRepository.save(invitationDto.toEntity());
