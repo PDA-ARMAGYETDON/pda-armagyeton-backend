@@ -1,4 +1,5 @@
 package com.example.group_investment.rule;
+
 import com.example.group_investment.enums.RulePeriod;
 import com.example.group_investment.rule.dto.RuleDto;
 import com.example.group_investment.team.Team;

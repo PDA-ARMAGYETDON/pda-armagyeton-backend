@@ -3,7 +3,6 @@ package com.example.group_investment.rule.dto;
 import com.example.group_investment.enums.RulePeriod;
 import com.example.group_investment.rule.Rule;
 import com.example.group_investment.team.Team;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +20,7 @@ public class RuleDto {
     private int depositAmt;
     private RulePeriod period;
     private LocalDate payDate;
+
     private double maxLossRt;
     private double maxProfitRt;
 

@@ -1,4 +1,4 @@
-rootProject.name = 'armagyeton-backend'
+rootProject.name = 'armagyetdon-backend'
 
 include 'ag-gateway'
 include 'alarm'

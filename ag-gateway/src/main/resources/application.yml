@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: ag-gateway
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: group-investment
+            uri: ${GROUP_INVESTMENT_URL}
+            predicates:
+              - Path=/api/users/**,/api/groups/**,/api/auth/**
+
+          - id: stock-system
+            uri: ${STOCK_SYSTEM_URL}
+            predicates:
+              - Path=/api/stocks/**
+
+          - id: invest-references-service
+            uri: ${INVEST_REFERENCES_URL}
+            predicates:
+              - Path=/api/invest-references/**
+
+          - id: chatting
+            uri: ${CHAT_URL}
+            predicates:
+              - Path=/api/chatting/**
+
+          - id: alarm
+            uri: ${ALARM_URL}
+            predicates:
+              - Path=/api/alarm/**
+
+  jwt:
+    secret: ${JWT_SECRET}
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: debug
+
