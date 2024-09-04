@@ -49,10 +49,10 @@ public class TradeService {
                 account.buyStock(requiredAmount);
                 accountRepository.save(account);
 
-                System.out.println("거래 완료 - 주식 코드: " + stockCode + ", 거래 ID: " + trade.getId());
+                System.out.println("매수 완료 - 주식 코드: " + stockCode + ", 거래 ID: " + trade.getId());
             }
             else {
-                System.out.println("거래 실패 - 예치금 부족, 거래 ID: " + trade.getId());
+                System.out.println("매수 실패 - 예치금 부족, 거래 ID: " + trade.getId());
             }
         }
     }
@@ -75,12 +75,17 @@ public class TradeService {
             Holdings holdings = holdingsRepository.findByAccountAndStockCode(account,findStock);
 
             holdings.subtractData(trade.getQuantity(),profitLoss);
-            holdingsRepository.save(holdings);
+            if(holdings.getHldgQty()==0) {
+                holdingsRepository.delete(holdings);
+            }
+            else {
+                holdingsRepository.save(holdings);
+            }
 
             account.sellStock(profitLoss);
             accountRepository.save(account);
 
-            System.out.println("거래 완료 - 주식 코드: " + stockCode + ", 거래 ID: " + trade.getId());
+            System.out.println("매도 완료 - 주식 코드: " + stockCode + ", 거래 ID: " + trade.getId());
         }
 
 
