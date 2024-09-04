@@ -1,5 +1,6 @@
 package com.example.group_investment.tradeOffer;
 
+import com.example.group_investment.enums.Choice;
 import com.example.group_investment.enums.OfferStatus;
 import com.example.group_investment.enums.TradeType;
 import com.example.group_investment.member.Member;
@@ -14,10 +15,9 @@ import com.example.group_investment.team.Team;
 import com.example.group_investment.team.TeamRepository;
 import com.example.group_investment.team.exception.TeamErrorCode;
 import com.example.group_investment.team.exception.TeamException;
-import com.example.group_investment.tradeOffer.dto.CreateTradeOfferRequest;
-import com.example.group_investment.tradeOffer.dto.GetAllTradeOffersResponse;
-import com.example.group_investment.tradeOffer.dto.TradeOfferDto;
-import com.example.group_investment.tradeOffer.dto.TradeOfferResponse;
+import com.example.group_investment.tradeOffer.dto.*;
+import com.example.group_investment.tradeOffer.exception.TradeOfferErrorCode;
+import com.example.group_investment.tradeOffer.exception.TradeOfferException;
 import com.example.group_investment.tradeOffer.utils.TradeOfferCommunicator;
 import com.example.group_investment.tradeOffer.utils.TradeOfferConverter;
 import lombok.RequiredArgsConstructor;
@@ -36,9 +36,10 @@ public class TradeOfferService {
     private final TradeOfferRepository tradeOfferRepository;
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
+    private final RuleRepository ruleRepository;
+    private final TradeOfferVoteRepository tradeOfferVoteRepository;
     private final TradeOfferConverter tradeOfferConverter;
     private final TradeOfferCommunicator tradeOfferCommunicator;
-    private final RuleRepository ruleRepository;
 
     public void createTradeOffer(CreateTradeOfferRequest createTradeOfferRequest) {
         // FIXME: 토큰으로 사용자 아이디와 모임 아이디 가져와야함
@@ -91,6 +92,32 @@ public class TradeOfferService {
 
         return new GetAllTradeOffersResponse().builder()
                 .tradeOfferResponses(tradeOfferResponses)
+                .build();
+    }
+
+    public VoteTradeOfferResponse voteTradeOffer(int userId, int teamId, int tradeOfferId, VoteTradeOfferRequest voteTradeOfferRequest) {
+        Member member = memberRepository.findByUserIdAndTeamId(userId, teamId).orElseThrow(
+                () -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        Rule rule = ruleRepository.findByTeam(teamRepository.findById(teamId).orElseThrow(
+                () -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND))).orElseThrow(
+                () -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
+
+        TradeOffer tradeOffer = tradeOfferRepository.findById(tradeOfferId).orElseThrow(
+                () -> new TradeOfferException(TradeOfferErrorCode.TRADE_OFFER_NOT_FOUND));
+
+        TradeOfferVoteDto tradeOfferVoteDto = TradeOfferVoteDto.builder()
+                .member(member)
+                .tradeOffer(tradeOffer)
+                .choice(voteTradeOfferRequest.getChoice())
+                .build();
+
+        tradeOfferVoteRepository.save(tradeOfferVoteDto.toEntity());
+
+        return new VoteTradeOfferResponse().builder()
+                .offerStatus(tradeOffer.getOfferStatus())
+                .upvotes(tradeOffer.getUpvotes())
+                .downvotes(tradeOffer.getDownvotes())
                 .build();
     }
 }

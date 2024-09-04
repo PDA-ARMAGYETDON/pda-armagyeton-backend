@@ -4,6 +4,8 @@ import com.example.common.dto.ApiResponse;
 import com.example.group_investment.enums.TradeType;
 import com.example.group_investment.tradeOffer.dto.CreateTradeOfferRequest;
 import com.example.group_investment.tradeOffer.dto.GetAllTradeOffersResponse;
+import com.example.group_investment.tradeOffer.dto.VoteTradeOfferRequest;
+import com.example.group_investment.tradeOffer.dto.VoteTradeOfferResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,5 +27,12 @@ public class TradeOfferController {
     @GetMapping
     public ApiResponse<GetAllTradeOffersResponse> getAllTradeOffers(@RequestParam TradeType type, @RequestParam int page, @RequestParam int size) {
         return new ApiResponse(200, true, "매매제안을 조회했습니다.", tradeOfferService.getAllTradeOffers(type, page, size));
+    }
+
+    @Operation(summary = "매매 제안 투표", description = "매매 제안에 투표하는 api입니다.")
+    @PostMapping("/{id}/vote")
+    public ApiResponse<VoteTradeOfferResponse> voteTradeOffer(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId,
+                                                              @PathVariable int id, @RequestBody VoteTradeOfferRequest voteTradeOfferRequest) {
+        return new ApiResponse<>(201, true, "매매제안에 투표했습니다.", tradeOfferService.voteTradeOffer(userId, teamId, id, voteTradeOfferRequest));
     }
 }
