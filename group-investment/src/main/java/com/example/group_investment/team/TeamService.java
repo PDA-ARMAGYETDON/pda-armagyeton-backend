@@ -181,10 +181,9 @@ public class TeamService {
                 .build();
     }
 
-    public void participateTeam() {
-        int teamId = 1;
-        int userId = 2;
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+    public void participateTeam(int id) {
+        int userId = 3;
+        Team team = teamRepository.findById(id).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         MemberDto memberDto = MemberDto.builder()
                 .team(team)
@@ -210,7 +209,7 @@ public class TeamService {
     }
 
     public DetailTeamResponse selectTeamRules() {
-        int teamId = 17;
+        int teamId = 10;
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
         return DetailTeamResponse.builder()
