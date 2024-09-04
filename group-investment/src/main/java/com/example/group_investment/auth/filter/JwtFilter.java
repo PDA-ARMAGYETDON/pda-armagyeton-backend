@@ -23,16 +23,19 @@ import java.util.List;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final List<String> excludeUrls = Arrays.asList("/api/users/signup", "/api/users/login");
+    private final List<String> excludeUrls = Arrays.asList("/api/users/signup", "/api/users/login", "/swagger-ui/**");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         // 요청 URL을 가져와서 제외할 URL 목록과 비교
         String requestURI = request.getRequestURI();
+        System.out.println("requestURI 가져옴 : " + requestURI);
 
         // login/sign up에 대해서는 필터링을 수행하지 않음
-        if (excludeUrls.stream().anyMatch(requestURI::startsWith)) {
+        System.out.println(excludeUrls.stream().anyMatch(requestURI::startsWith));
+//        if (excludeUrls.stream().anyMatch(requestURI::startsWith)) {
+        if (excludeUrls.stream().anyMatch(url -> requestURI.startsWith(url))){
             filterChain.doFilter(request, response);
             return;
         }
