@@ -1,7 +1,7 @@
 package com.example.alarm.firebase;
 
-import com.example.alarm.firebase.dto.FcmTokenRequestDto;
 import com.example.common.dto.ApiResponse;
+import com.example.group_investment.user.dto.FcmTokenRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
