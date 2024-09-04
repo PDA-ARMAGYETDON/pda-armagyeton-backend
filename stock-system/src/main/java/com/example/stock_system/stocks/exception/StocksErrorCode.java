@@ -8,6 +8,7 @@ public enum StocksErrorCode {
     API_BAD_REQUEST(400, "AG001", "API 호출에 이상이 있습니다."),
     API_BAD_RESPONSE(404, "AG402", "API 응답이 존재하지 않습니다."),
     ACCESS_TOKEN_BAD_REQUEST(400, "AG002", "액세스 토큰 요청에 실패했습니다."),
+    STOCKS_PRICE_CONNECTION_ERROR(400, "AG003", "종목 가격 조회에 실패했습니다."),
     ;
 
     private final int status;

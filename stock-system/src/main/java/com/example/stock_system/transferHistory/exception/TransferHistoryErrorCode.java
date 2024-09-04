@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum TransferHistoryErrorCode {
-    TRANSFER_HISTORY_NOT_FOUND(404, "AG401", "이체내역이 존재하지 않습니다."),
+    TRANSFER_HISTORY_NOT_FOUND(404, "AG401", "내역이 존재하지 않습니다."),
     ;
 
     private final int status;

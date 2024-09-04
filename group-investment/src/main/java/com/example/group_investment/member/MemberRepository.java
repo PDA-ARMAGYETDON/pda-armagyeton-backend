@@ -14,4 +14,5 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
     Optional<List<Member>> findByTeam(Team team);
     Optional<Integer> countByTeam(Team team);
     boolean existsByUserAndTeamId(User user, int teamId);
+    Optional<List<Member>> findByUser(User user);
 }
