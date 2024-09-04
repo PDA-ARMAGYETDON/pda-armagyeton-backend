@@ -3,7 +3,6 @@ package com.example.group_investment.rule.dto;
 import com.example.group_investment.enums.RulePeriod;
 import com.example.group_investment.rule.Rule;
 import com.example.group_investment.team.Team;
-
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,17 +11,17 @@ import java.util.Date;
 @Getter
 public class RuleDto {
     private Team team;
-    private float prdyVrssRt;
+    private double prdyVrssRt;
     private int urgentTradeUpvotes;
     private int tradeUpvotes;
     private int depositAmt;
     private RulePeriod period;
     private Date payDate;
-    private float maxLossRt;
-    private float maxProfitRt;
+    private double maxLossRt;
+    private double maxProfitRt;
 
     @Builder
-    public RuleDto(Team team, float prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, RulePeriod period, Date payDate, float maxLossRt, float maxProfitRt) {
+    public RuleDto(Team team, double prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, RulePeriod period, Date payDate, double maxLossRt, double maxProfitRt) {
         this.team = team;
         this.prdyVrssRt = prdyVrssRt;
         this.urgentTradeUpvotes = urgentTradeUpvotes;

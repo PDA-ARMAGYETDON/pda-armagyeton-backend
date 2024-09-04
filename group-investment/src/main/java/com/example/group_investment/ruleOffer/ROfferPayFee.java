@@ -7,7 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -18,5 +19,5 @@ import java.time.LocalDateTime;
 public class ROfferPayFee extends RuleOffer {
     private int depositAmt;
     private RulePeriod period;
-    private LocalDateTime payDate;
+    private LocalDate payDate;
 }

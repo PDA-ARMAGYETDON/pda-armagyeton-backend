@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
@@ -21,7 +21,7 @@ public class CreateROfferRequestPayFee implements CreateROfferRequest {
     String type;
     int depositAmt;
     RulePeriod period;
-    LocalDateTime payDate;
+    LocalDate payDate;
 
     @Override
     public RuleOffer toEntity(Rule rule, Member member, int totalMember) {

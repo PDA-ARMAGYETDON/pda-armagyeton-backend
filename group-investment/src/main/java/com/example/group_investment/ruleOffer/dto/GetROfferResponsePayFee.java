@@ -7,11 +7,11 @@ import jakarta.persistence.Enumerated;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Builder
-public class GetROfferResponsePayFee implements GetROfferResponseType{
+public class GetROfferResponsePayFee implements GetROfferResponseType {
 
     @Enumerated(EnumType.STRING)
     RuleType type;
@@ -21,9 +21,9 @@ public class GetROfferResponsePayFee implements GetROfferResponseType{
 
     int depositAmt;
     RulePeriod period;
-    LocalDateTime payDate;
+    LocalDate payDate;
 
-    public GetROfferResponsePayFee(RuleType type, int upvotes, int downvotes, int totalvotes, int depositAmt, RulePeriod period, LocalDateTime payDate) {
+    public GetROfferResponsePayFee(RuleType type, int upvotes, int downvotes, int totalvotes, int depositAmt, RulePeriod period, LocalDate payDate) {
         this.type = type;
         this.upvotes = upvotes;
         this.downvotes = downvotes;
