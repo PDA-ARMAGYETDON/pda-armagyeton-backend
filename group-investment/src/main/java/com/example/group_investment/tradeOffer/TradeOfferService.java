@@ -7,6 +7,7 @@ import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.exception.MemberErrorCode;
 import com.example.group_investment.member.exception.MemberException;
+import com.example.group_investment.rabbitMq.MqSender;
 import com.example.group_investment.rule.Rule;
 import com.example.group_investment.rule.RuleRepository;
 import com.example.group_investment.rule.exception.RuleErrorCode;
@@ -40,6 +41,8 @@ public class TradeOfferService {
     private final TradeOfferVoteRepository tradeOfferVoteRepository;
     private final TradeOfferConverter tradeOfferConverter;
     private final TradeOfferCommunicator tradeOfferCommunicator;
+
+    private final MqSender mqSender;
 
     public void createTradeOffer(CreateTradeOfferRequest createTradeOfferRequest) {
         // FIXME: 토큰으로 사용자 아이디와 모임 아이디 가져와야함
@@ -121,11 +124,18 @@ public class TradeOfferService {
         if (tradeOffer.isUrgent() && (tradeOffer.getUpvotes() + tradeOffer.getDownvotes()) >= rule.getUrgentTradeUpvotes()) {
             if (tradeOffer.getUpvotes() >= rule.getUrgentTradeUpvotes()) {
                 tradeOffer.approveTradeOffer();
+
             } else {
                 tradeOffer.expireTradeOffer();
             }
             tradeOfferRepository.save(tradeOffer);
-
+            CreateTradeRequest createTradeRequest = new CreateTradeRequest().builder()
+                    .tradeType(tradeOffer.getTradeType())
+                    .stockCode(tradeOffer.getStockCode())
+                    .quantity(tradeOffer.getQuantity())
+                    .price(tradeOffer.getWantPrice())
+                    .build();
+            mqSender.send(createTradeRequest);
         } else if (!tradeOffer.isUrgent() && (tradeOffer.getUpvotes() + tradeOffer.getDownvotes()) >= rule.getTradeUpvotes()) {
             if (tradeOffer.getUpvotes() >= rule.getTradeUpvotes()) {
                 tradeOffer.approveTradeOffer();
@@ -133,6 +143,13 @@ public class TradeOfferService {
                 tradeOffer.expireTradeOffer();
             }
             tradeOfferRepository.save(tradeOffer);
+            CreateTradeRequest createTradeRequest = new CreateTradeRequest().builder()
+                    .tradeType(tradeOffer.getTradeType())
+                    .stockCode(tradeOffer.getStockCode())
+                    .quantity(tradeOffer.getQuantity())
+                    .price(tradeOffer.getWantPrice())
+                    .build();
+            mqSender.send(createTradeRequest);
         }
 
         return new VoteTradeOfferResponse().builder()
