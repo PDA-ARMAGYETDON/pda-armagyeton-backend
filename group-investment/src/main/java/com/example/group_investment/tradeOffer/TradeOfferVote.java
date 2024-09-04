@@ -22,4 +22,13 @@ public class TradeOfferVote {
     @Enumerated(EnumType.STRING)
     private Choice choice;
 
+    public TradeOfferVote() {
+    }
+
+    @Builder
+    public TradeOfferVote(Member member, TradeOffer tradeOffer, Choice choice) {
+        this.member = member;
+        this.tradeOffer = tradeOffer;
+        this.choice = choice;
+    }
 }
