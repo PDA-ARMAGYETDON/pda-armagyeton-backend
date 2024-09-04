@@ -57,9 +57,9 @@ public class TeamController {
     }
 
     @Operation(summary = "팀을 참가하는 API")
-    @GetMapping("/participate")
-    public ApiResponse participateTeam() {
-        teamService.participateTeam();
+    @GetMapping("/{id}/participate")
+    public ApiResponse participateTeam(@PathVariable int id) {
+        teamService.participateTeam(id);
         return new ApiResponse<>(201, true, "모임에 참가했습니다.", null);
     }
 
