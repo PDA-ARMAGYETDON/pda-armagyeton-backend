@@ -10,9 +10,10 @@ import lombok.Getter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+
 @Getter
 @Builder
-public class GetROfferResponsePayFee implements GetROfferResponseType{
+public class GetROfferResponsePayFee implements GetROfferResponseType {
 
     @Enumerated(EnumType.STRING)
     RuleType type;
