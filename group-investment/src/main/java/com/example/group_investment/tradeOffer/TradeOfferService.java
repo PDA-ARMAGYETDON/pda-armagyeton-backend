@@ -114,6 +114,27 @@ public class TradeOfferService {
 
         tradeOfferVoteRepository.save(tradeOfferVoteDto.toEntity());
 
+        if (voteTradeOfferRequest.getChoice() == Choice.PROS) {
+            tradeOffer.vote(true);
+        } else tradeOffer.vote(false);
+
+        if (tradeOffer.isUrgent() && (tradeOffer.getUpvotes() + tradeOffer.getDownvotes()) >= rule.getUrgentTradeUpvotes()) {
+            if (tradeOffer.getUpvotes() >= rule.getUrgentTradeUpvotes()) {
+                tradeOffer.approveTradeOffer();
+            } else {
+                tradeOffer.expireTradeOffer();
+            }
+            tradeOfferRepository.save(tradeOffer);
+
+        } else if (!tradeOffer.isUrgent() && (tradeOffer.getUpvotes() + tradeOffer.getDownvotes()) >= rule.getTradeUpvotes()) {
+            if (tradeOffer.getUpvotes() >= rule.getTradeUpvotes()) {
+                tradeOffer.approveTradeOffer();
+            } else {
+                tradeOffer.expireTradeOffer();
+            }
+            tradeOfferRepository.save(tradeOffer);
+        }
+
         return new VoteTradeOfferResponse().builder()
                 .offerStatus(tradeOffer.getOfferStatus())
                 .upvotes(tradeOffer.getUpvotes())
