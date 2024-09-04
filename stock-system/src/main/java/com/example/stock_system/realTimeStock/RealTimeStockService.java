@@ -162,7 +162,7 @@ public class RealTimeStockService {
                 ))
                 .retrieve()
                 .bodyToMono(Map.class)
-                .map(response ->  response.get("approval_key").toString())
+                .map(response -> response.get("approval_key").toString())
                 .block();
     }
 
@@ -277,8 +277,7 @@ public class RealTimeStockService {
 
                 account.buyStock(requiredAmount);
                 accountRepository.save(account);
-            }
-            else {
+            } else {
                 System.out.println("거래 실패 - 예치금 부족, 거래 ID: " + trade.getId());
             }
         }

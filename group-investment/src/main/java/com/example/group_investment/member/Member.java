@@ -5,13 +5,12 @@ import com.example.group_investment.ruleOffer.RuleOffer;
 import com.example.group_investment.ruleOfferVote.RuleOfferVote;
 import com.example.group_investment.team.Team;
 import com.example.group_investment.tradeOffer.TradeOffer;
-import com.example.group_investment.tradeOfferVote.TradeOfferVote;
+import com.example.group_investment.tradeOffer.TradeOfferVote;
 import com.example.group_investment.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 import java.util.List;
