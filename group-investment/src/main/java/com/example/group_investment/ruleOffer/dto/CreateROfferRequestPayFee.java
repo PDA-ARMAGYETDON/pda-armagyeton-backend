@@ -24,6 +24,7 @@ public class CreateROfferRequestPayFee implements CreateROfferRequest {
     RulePeriod period;
     LocalDate payDate;
 
+
     @Override
     public RuleOffer toEntity(Rule rule, Member member, int totalMember) {
         return ROfferPayFee.builder()
