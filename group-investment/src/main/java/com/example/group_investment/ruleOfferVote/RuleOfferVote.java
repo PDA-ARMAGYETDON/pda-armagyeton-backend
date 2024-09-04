@@ -4,6 +4,7 @@ import com.example.group_investment.enums.Choice;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.ruleOffer.RuleOffer;
 import jakarta.persistence.*;
+import lombok.Builder;
 
 @Entity
 public class RuleOfferVote {
@@ -22,4 +23,16 @@ public class RuleOfferVote {
 
     @Enumerated(EnumType.STRING)
     private Choice choice;
+
+    @Builder
+    public RuleOfferVote(Member member, RuleOffer ruleOffer, Choice choice) {
+        this.member = member;
+        this.ruleOffer = ruleOffer;
+        this.choice = choice;
+    }
+
+    public RuleOfferVote () {
+
+    }
+
 }

@@ -9,16 +9,21 @@ import lombok.Builder;
 public class TradeOfferDto {
     private Member member;
     private Team team;
+    private boolean isUrgent;
     private TradeType tradeType;
     private String code;
     private int recentPrice;
     private int wantPrice;
     private int quantity;
 
+    public TradeOfferDto() {
+    }
+
     @Builder
-    public TradeOfferDto(Member member, Team team, TradeType tradeType, String code, int recentPrice, int wantPrice, int quantity) {
+    public TradeOfferDto(Member member, Team team, boolean isUrgent, TradeType tradeType, String code, int recentPrice, int wantPrice, int quantity) {
         this.member = member;
         this.team = team;
+        this.isUrgent = isUrgent;
         this.tradeType = tradeType;
         this.code = code;
         this.recentPrice = recentPrice;
@@ -30,6 +35,7 @@ public class TradeOfferDto {
         return TradeOffer.builder()
                 .member(this.member)
                 .team(this.team)
+                .isUrgent(this.isUrgent)
                 .tradeType(this.tradeType)
                 .stockCode(this.code)
                 .recentPrice(this.recentPrice)

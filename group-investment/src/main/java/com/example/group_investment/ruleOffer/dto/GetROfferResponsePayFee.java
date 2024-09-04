@@ -1,16 +1,19 @@
 package com.example.group_investment.ruleOffer.dto;
 
+import com.example.group_investment.enums.RulePeriod;
 import com.example.group_investment.enums.RuleType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 
 @Getter
 @Builder
-public class GetROfferResponsePayFee implements GetROfferResponseType{
+public class GetROfferResponsePayFee implements GetROfferResponseType {
 
     @Enumerated(EnumType.STRING)
     RuleType type;
@@ -19,10 +22,10 @@ public class GetROfferResponsePayFee implements GetROfferResponseType{
     int totalvotes;
 
     int depositAmt;
-    int period;
-    LocalDateTime payDate;
+    RulePeriod period;
+    LocalDate payDate;
 
-    public GetROfferResponsePayFee(RuleType type, int upvotes, int downvotes, int totalvotes, int depositAmt, int period, LocalDateTime payDate) {
+    public GetROfferResponsePayFee(RuleType type, int upvotes, int downvotes, int totalvotes, int depositAmt, RulePeriod period, LocalDate payDate) {
         this.type = type;
         this.upvotes = upvotes;
         this.downvotes = downvotes;

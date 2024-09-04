@@ -4,6 +4,7 @@ import com.example.group_investment.enums.MemberRole;
 import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
+import com.example.group_investment.member.dto.MemberDto;
 import com.example.group_investment.member.exception.MemberErrorCode;
 import com.example.group_investment.member.exception.MemberException;
 import com.example.group_investment.rule.Rule;
@@ -11,26 +12,28 @@ import com.example.group_investment.rule.RuleRepository;
 import com.example.group_investment.rule.dto.RuleDto;
 import com.example.group_investment.rule.exception.RuleErrorCode;
 import com.example.group_investment.rule.exception.RuleException;
-import com.example.group_investment.team.dto.CreateTeamRequest;
-import com.example.group_investment.team.dto.CreateTeamResponse;
-import com.example.group_investment.team.dto.InvitationDto;
-import com.example.group_investment.team.dto.TeamDto;
+import com.example.group_investment.team.dto.*;
 import com.example.group_investment.team.exception.TeamErrorCode;
 import com.example.group_investment.team.exception.TeamException;
 import com.example.group_investment.user.User;
 import com.example.group_investment.user.UserRepository;
 import com.example.group_investment.user.exception.UserErrorCode;
 import com.example.group_investment.user.exception.UserException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TeamService {
+
+    @Value("${ag.url}")
+    private static String AG_URL;
 
     private final TeamRepository teamRepository;
     private final RuleRepository ruleRepository;
@@ -38,17 +41,15 @@ public class TeamService {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int CODE_LENGTH = 6;
     private static final SecureRandom RANDOM = new SecureRandom();
-    private static final String baseUrl = "http://localhost:8081/";
+    private static final String baseUrl = AG_URL+":8081/";
     private final InvitationRepository invitationRepository;
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
 
 
     @Transactional
-    public CreateTeamResponse createTeam(CreateTeamRequest createTeamRequest) {
+    public CreateTeamResponse createTeam(int userId, CreateTeamRequest createTeamRequest) {
         // 팀을 만든 user
-        int userId = 2;
-
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         //1. 팀
         Team savedTeam;
@@ -107,7 +108,6 @@ public class TeamService {
         InvitationDto invitationDto = InvitationDto.builder()
                 .team(savedTeam)
                 .inviteCode(inviteCode)
-                .inviteUrl(inviteUrl)
                 .build();
         try {
             invitationRepository.save(invitationDto.toEntity());
@@ -127,10 +127,8 @@ public class TeamService {
     }
 
     @Transactional
-    public DetailPendingTeamResponse selectPendingDetails() {
+    public DetailPendingTeamResponse selectPendingDetails(int userId, int teamId) {
         //1. 상세 조회 (모임, 규칙, 인원수)
-        int teamId = 1;
-        int userId = 1;
         //2-1. 모임 조회
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         TeamDto teamDto = team.fromEntity(team);
@@ -138,8 +136,8 @@ public class TeamService {
         Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
         RuleDto ruleDto = rule.fromEntity(rule);
         //2-3. is 모임장
-        int isLeader = 0;
-        if (memberRepository.findById(userId).orElseThrow(()->new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
+        int isLeader = 0; 
+        if (memberRepository.findByUserIdAndTeamId(userId, teamId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
                 .getRole() == MemberRole.LEADER)
             isLeader = 1;
         //2-4. is 참여
@@ -178,9 +176,7 @@ public class TeamService {
                 .build();
     }
 
-    public void participateTeam() {
-        int teamId = 1;
-        int userId = 2;
+    public void participateTeam(int userId, int teamId) {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         MemberDto memberDto = MemberDto.builder()
@@ -195,21 +191,42 @@ public class TeamService {
         }
     }
 
-    public void confirmTeam() {
-        int teamId = 3;
+    public void confirmTeam(int teamId) {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        int confirmMembers = memberRepository.countByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        Team updatedTeam = team.toBuilder()
+                .status(TeamStatus.ACTIVE)
+                .headCount(confirmMembers)
+                .build();
+        teamRepository.save(updatedTeam);
+    }
 
-        TeamDto updatedTeamDto = TeamDto.builder()
-                .name(team.getName())
-                .category(team.getCategory())
+    public DetailTeamResponse selectTeamRules(int teamId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
+        return DetailTeamResponse.builder()
                 .startAt(team.getStartAt())
                 .endAt(team.getEndAt())
-                .status(TeamStatus.ACTIVE)
+                .baseAmt(team.getBaseAmt())
+                .prdyVrssRt(rule.getPrdyVrssRt())
+                .urgentTradeUpvotes(rule.getUrgentTradeUpvotes())
+                .tradeUpvotes(rule.getTradeUpvotes())
+                .depositAmt(rule.getDepositAmt())
+                .period(rule.getPeriod())
+                .payDate(rule.getPayDate())
+                .maxLossRt(rule.getMaxLossRt())
+                .maxProfitRt(rule.getMaxProfitRt())
                 .build();
-        try {
-            teamRepository.save(updatedTeamDto.toEntity());
-        } catch (Exception e) {
-            throw new TeamException(TeamErrorCode.TEAM_SAVE_FAILED);
+
+    }
+
+    public List<TeamByUserResponse> selectTeamByUser(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+        List<Member> members = memberRepository.findByUser(user).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        List<TeamByUserResponse> teamByUserResponses = new ArrayList<>();
+        for (Member member : members) {
+            teamByUserResponses.add(new TeamByUserResponse(member.getTeam().getId(), member.getTeam().getStatus()));
         }
+        return teamByUserResponses;
     }
 }

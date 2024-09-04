@@ -5,8 +5,10 @@ import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.team.dto.TeamDto;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -16,6 +18,9 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder(toBuilder = true)  
+@AllArgsConstructor
+@NoArgsConstructor
 public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,13 +63,6 @@ public class Team {
         this.createdAt = createdAt;
     }
 
-    public Team() {
-
-    }
-
-    public void setStatus(TeamStatus status) {
-        this.status = status;
-    }
 
     public TeamDto fromEntity(Team team) {
         return TeamDto.builder()

@@ -1,15 +1,22 @@
 package com.example.group_investment.rule;
+
 import com.example.group_investment.enums.RulePeriod;
 import com.example.group_investment.rule.dto.RuleDto;
 import com.example.group_investment.team.Team;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder(toBuilder = true)
 public class Rule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +26,7 @@ public class Rule {
     @JoinColumn(name = "team_id")
     private Team team;
 
-    private float prdyVrssRt;
+    private double prdyVrssRt;
     private int urgentTradeUpvotes;
     private int tradeUpvotes;
     private int depositAmt;
@@ -27,12 +34,13 @@ public class Rule {
     @Enumerated(EnumType.STRING)
     private RulePeriod period;
 
-    private Date payDate;
-    private float maxLossRt;
-    private float maxProfitRt;
+    private LocalDate payDate;
+    private double maxLossRt;
+    private double maxProfitRt;
+
 
     @Builder
-    public Rule(Team team, float prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, RulePeriod period, Date payDate, float maxLossRt, float maxProfitRt) {
+    public Rule(Team team, double prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, RulePeriod period, LocalDate payDate, double maxLossRt, double maxProfitRt) {
         this.team = team;
         this.prdyVrssRt = prdyVrssRt;
         this.urgentTradeUpvotes = urgentTradeUpvotes;
@@ -43,11 +51,6 @@ public class Rule {
         this.maxLossRt = maxLossRt;
         this.maxProfitRt = maxProfitRt;
     }
-
-    public Rule() {
-
-    }
-
     public RuleDto fromEntity(Rule rule) {
         return RuleDto.builder()
                 .team(rule.getTeam())

@@ -13,7 +13,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
 
   rabbitmq:
@@ -27,4 +27,4 @@ spring:
       name: stock_to_alarm
 
 server:
-  port: 8083
+  port: 8082
