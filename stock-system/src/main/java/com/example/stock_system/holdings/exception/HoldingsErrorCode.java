@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum HoldingsErrorCode {
-    HOLDINGS_NOT_FOUNT(404, "AG401", "보유 종목이 존재하지 않습니다."),
+    HOLDINGS_NOT_FOUND(404, "AG401", "보유 종목이 존재하지 않습니다."),
     ;
 
     private final int status;
