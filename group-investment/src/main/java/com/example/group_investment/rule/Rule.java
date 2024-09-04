@@ -50,11 +50,6 @@ public class Rule {
         this.maxLossRt = maxLossRt;
         this.maxProfitRt = maxProfitRt;
     }
-
-//    public Rule() {
-//
-//    }
-
     public RuleDto fromEntity(Rule rule) {
         return RuleDto.builder()
                 .team(rule.getTeam())
