@@ -207,4 +207,24 @@ public class TeamService {
                 .build();
         teamRepository.save(updatedTeam);
     }
+
+    public DetailTeamResponse selectTeamRules() {
+        int teamId = 17;
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
+        return DetailTeamResponse.builder()
+                .startAt(team.getStartAt())
+                .endAt(team.getEndAt())
+                .baseAmt(team.getBaseAmt())
+                .prdyVrssRt(rule.getPrdyVrssRt())
+                .urgentTradeUpvotes(rule.getUrgentTradeUpvotes())
+                .tradeUpvotes(rule.getTradeUpvotes())
+                .depositAmt(rule.getDepositAmt())
+                .period(rule.getPeriod())
+                .payDate(rule.getPayDate())
+                .maxLossRt(rule.getMaxLossRt())
+                .maxProfitRt(rule.getMaxProfitRt())
+                .build();
+
+    }
 }
