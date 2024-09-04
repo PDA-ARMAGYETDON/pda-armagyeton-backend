@@ -100,8 +100,8 @@ public class RealTimeStockService {
 
         // 매매 로직
         allStockDataSink.asFlux().subscribe(stockData -> {
-            String stockCode = stockData[0].toString();
-            int price = Integer.parseInt(stockData[1].toString());
+            String stockCode = stockData[1].toString();
+            int price = Integer.parseInt(stockData[2].toString());
             tradeService.buyProcessPendingTrades(stockCode,price);
             tradeService.sellProcessPendingTrades(stockCode,price);
         });
@@ -214,9 +214,10 @@ public class RealTimeStockService {
 
         String stockCode = fields[0];
         int price = Integer.parseInt(fields[2]);
-        int prdyVrss = Integer.parseInt(fields[4]); //전일 대비
-        int prdyCtrt = Integer.parseInt(fields[5]); //전일 대비율
+        double prdyVrss = Double.parseDouble(fields[4]); //전일 대비
+        double prdyCtrt = Double.parseDouble(fields[5]); //전일 대비율
         StockName stockName = stocksService.getStockNameByCode(stockCode);
+
 
         Object[] stockArray = new Object[5];
 
