@@ -23,7 +23,7 @@ public class TradeOfferController {
 
     @Operation(summary = "매매 제안 조회", description = "매매 제안 리스트를 조회하는 api입니다.")
     @GetMapping
-    public ApiResponse<GetAllTradeOffersResponse> getAllTradeOffers(@RequestParam TradeType type) {
-        return new ApiResponse(200, true, "매매제안을 조회했습니다.", tradeOfferService.getAllTradeOffers(type));
+    public ApiResponse<GetAllTradeOffersResponse> getAllTradeOffers(@RequestParam TradeType type, @RequestParam int page, @RequestParam int size) {
+        return new ApiResponse(200, true, "매매제안을 조회했습니다.", tradeOfferService.getAllTradeOffers(type, page, size));
     }
 }

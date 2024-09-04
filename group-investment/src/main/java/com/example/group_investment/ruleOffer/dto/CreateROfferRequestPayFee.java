@@ -1,5 +1,6 @@
 package com.example.group_investment.ruleOffer.dto;
 
+import com.example.group_investment.enums.RulePeriod;
 import com.example.group_investment.enums.RuleType;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.rule.Rule;
@@ -10,7 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
@@ -19,8 +20,8 @@ import java.time.LocalDateTime;
 public class CreateROfferRequestPayFee implements CreateROfferRequest {
     String type;
     int depositAmt;
-    int period;
-    LocalDateTime payDate;
+    RulePeriod period;
+    LocalDate payDate;
 
     @Override
     public RuleOffer toEntity(Rule rule, Member member, int totalMember) {

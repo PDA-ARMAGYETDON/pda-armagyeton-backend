@@ -2,7 +2,6 @@ package com.example.group_investment.team.dto;
 
 import com.example.group_investment.enums.Category;
 import com.example.group_investment.enums.RulePeriod;
-import com.example.group_investment.enums.RuleType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -24,6 +23,7 @@ public class DetailPendingTeamResponse {
     private int depositAmt;
     private RulePeriod period;
     private LocalDate payDate;
+
     private double maxLossRt;
     private double maxProfitRt;
     private int invitedMembers;
@@ -50,6 +50,7 @@ public class DetailPendingTeamResponse {
         this.isLeader = isLeader;
         this.isParticipating = isParticipating;
     }
+
     public DetailPendingTeamResponse() {
 
     }
