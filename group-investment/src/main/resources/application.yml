@@ -18,9 +18,18 @@ spring:
 
   ag:
     url: ${AG_URL}
+    
+  devtools:
+    restart:
+      enabled: true # auto restart
+      additional-exclude: static/**,public/**
+
+  jwt:
+    secret: ${JWT_SECRET}
 
 server:
   port: 8081
+
 logging:
   level:
     root: info

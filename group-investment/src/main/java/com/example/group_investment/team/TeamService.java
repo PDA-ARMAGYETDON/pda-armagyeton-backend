@@ -20,6 +20,8 @@ import com.example.group_investment.user.UserRepository;
 import com.example.group_investment.user.exception.UserErrorCode;
 import com.example.group_investment.user.exception.UserException;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +29,11 @@ import java.security.SecureRandom;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TeamService {
+
+    @Value("${ag.url}")
+    private static String AG_URL;
 
     private final TeamRepository teamRepository;
     private final RuleRepository ruleRepository;
@@ -36,7 +41,7 @@ public class TeamService {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int CODE_LENGTH = 6;
     private static final SecureRandom RANDOM = new SecureRandom();
-    private static final String baseUrl = "http://localhost:8081/";
+    private static final String baseUrl = AG_URL+":8081/";
     private final InvitationRepository invitationRepository;
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
@@ -199,6 +204,8 @@ public class TeamService {
 
         TeamDto updatedTeamDto = TeamDto.builder()
                 .name(team.getName())
+                .baseAmt(team.getBaseAmt())
+                .headCount(team.getHeadCount())
                 .category(team.getCategory())
                 .startAt(team.getStartAt())
                 .endAt(team.getEndAt())
