@@ -214,7 +214,7 @@ public class RealTimeStockService {
 
         String stockCode = fields[0];
         int price = Integer.parseInt(fields[2]);
-        double prdyVrss = Double.parseDouble(fields[4]); //전일 대비
+        int prdyVrss = Integer.parseInt(fields[4]); //전일 대비
         double prdyCtrt = Double.parseDouble(fields[5]); //전일 대비율
         StockName stockName = stocksService.getStockNameByCode(stockCode);
 
