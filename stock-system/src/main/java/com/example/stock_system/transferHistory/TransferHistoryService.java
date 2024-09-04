@@ -1,18 +1,20 @@
 package com.example.stock_system.transferHistory;
 
-import com.example.stock_system.account.Account;
 import com.example.stock_system.account.AccountRepository;
-import com.example.stock_system.account.TeamAccount;
 import com.example.stock_system.account.TeamAccountRepository;
 import com.example.stock_system.account.exception.AccountErrorCode;
 import com.example.stock_system.account.exception.AccountException;
-import com.example.stock_system.transferHistory.dto.AccountTransferDetailDto;
+import com.example.stock_system.transferHistory.dto.TransferDetailDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -28,32 +30,66 @@ public class TransferHistoryService {
     private final String TEAM_ACCOUNT = "81902";
 
     @Transactional
-    public Page<AccountTransferDetailDto> getPrivateAccountTransferDetail(int userId, int page, int size) {
+    public Page<TransferDetailDto> getPrivateAccountTransferDetail(int userId, int page, int size) {
 
-        Account foundedPrivateAccount = accountRepository
-                .findByUserIdAndAccountNumberContaining(userId, PRIVATE_ACCOUNT)
+        int foundedPrivateAccountId = accountRepository
+                .findAllByUserIdAndAccountNumberContaining(userId, PRIVATE_ACCOUNT)
                 .orElseThrow(() -> new AccountException(
-                        AccountErrorCode.PRIVATE_ACCOUNT_NOT_FOUND));
+                        AccountErrorCode.PRIVATE_ACCOUNT_NOT_FOUND)).getId();
 
-        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<TransferDetailDto> pageResult = getTransferDetails(page, size, foundedPrivateAccountId);
 
-        Page<AccountTransferDetailDto> foundedTransferDetailList = transferHistoryRepository
-                .findByAccountId(foundedPrivateAccount.getId(), pageRequest);
-
-        return foundedTransferDetailList;
+        return pageResult;
 
     }
 
-    public Page<AccountTransferDetailDto> getTeamAccountTransferDetail(int teamId, int page, int size) {
-        TeamAccount foundedTeamAccount = teamAccountRepository.findByTeamId(teamId).orElseThrow(
-                () -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
+
+    public Page<TransferDetailDto> getTeamAccountTransferDetail(int teamId, int page, int size) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        Page<AccountTransferDetailDto> foundedTransferDetailList = transferHistoryRepository
-                .findByAccountId(foundedTeamAccount.getId(), pageRequest);
+        int foundedTeamAccountId = teamAccountRepository.findByTeamId(teamId).orElseThrow(
+                () -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND)).getId();
 
-        return foundedTransferDetailList;
+        Page<TransferDetailDto> pageResult = getTransferDetails(page, size, foundedTeamAccountId);
+
+        return pageResult;
+
+    }
+
+
+    private Page<TransferDetailDto> getTransferDetails(int page, int size, int Id) {
+
+        List<TransferHistory> foundedTransferToOtherEntity = transferHistoryRepository
+                .findAllByAccountId(Id);
+
+        List<TransferDetailDto> foundedTransferToOtherList = foundedTransferToOtherEntity.stream()
+                .map(transferHistory -> new TransferDetailDto().fromToOtherEntity(transferHistory))
+                .toList();
+
+        List<TransferHistory> foundedTransferToMeEntity = transferHistoryRepository
+                .findAllByReceivingAccountId(Id);
+
+        List<TransferDetailDto> foundedTransferToMeList = foundedTransferToMeEntity.stream()
+                .map(transferHistory -> new TransferDetailDto().fromToMeEntity(transferHistory))
+                .toList();
+
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        List<TransferDetailDto> mergedList = new ArrayList<>();
+        mergedList.addAll(foundedTransferToOtherList);
+        mergedList.addAll(foundedTransferToMeList);
+
+
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min((start + pageRequest.getPageSize()), mergedList.size());
+
+        if (start > end || start < 0 || end > mergedList.size()) {
+            throw new IllegalArgumentException("잘못된 페이지 범위입니다.");
+        }
+
+        return new PageImpl<>(mergedList.subList(start, end), pageRequest, mergedList.size());
     }
 }
 
