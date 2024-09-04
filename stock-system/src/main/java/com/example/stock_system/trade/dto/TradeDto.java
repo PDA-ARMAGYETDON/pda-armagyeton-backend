@@ -14,4 +14,26 @@ public class TradeDto {
     private Stocks stocks;
     private int quantity;
     private int price;
+
+    public TradeDto() {
+    }
+
+    @Builder
+    public TradeDto(Account account, TradeType type, Stocks stocks, int quantity, int price) {
+        this.account = account;
+        this.type = type;
+        this.stocks = stocks;
+        this.quantity = quantity;
+        this.price = price;
+    }
+
+    public Trade toEntity() {
+        return Trade.builder()
+                .account(this.account)
+                .type(this.type)
+                .stockCode(this.stocks)
+                .quantity(this.quantity)
+                .price(this.price)
+                .build();
+    }
 }
