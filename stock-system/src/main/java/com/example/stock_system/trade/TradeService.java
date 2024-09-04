@@ -83,7 +83,8 @@ public class TradeService {
                 trade.setStatus(TradeStatus.COMPLETED);
                 tradeRepository.save(trade);
 
-                Holdings existingHolding = holdingsRepository.findByAccountAndStockCode(account, findStock);
+                Holdings existingHolding = holdingsRepository.findByAccountAndStockCode(account, findStock)
+                        .orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUND));
 
                 if (existingHolding != null) {
                     existingHolding.addData(trade.getQuantity(), requiredAmount);
@@ -96,35 +97,34 @@ public class TradeService {
                 accountRepository.save(account);
 
                 System.out.println("매수 완료 - 주식 코드: " + stockCode + ", 거래 ID: " + trade.getId());
-            }
-            else {
+            } else {
                 System.out.println("매수 실패 - 예치금 부족, 거래 ID: " + trade.getId());
             }
         }
     }
 
 
-    public void sellProcessPendingTrades(String stockCode, int price){
+    public void sellProcessPendingTrades(String stockCode, int price) {
         Stocks findStock = stocksRepository.findByCode(stockCode).orElseThrow(() -> new StocksException(StocksErrorCode.STOCKS_NOT_FOUND));
 
         List<Trade> pendingTrades = tradeRepository.findByStatusAndStockCodeAndPriceAndType(TradeStatus.PENDING, findStock, price, TradeType.SELL);
 
-        for(Trade trade : pendingTrades){
+        for (Trade trade : pendingTrades) {
 
             trade.setStatus(TradeStatus.COMPLETED);
             tradeRepository.save(trade);
 
             Account account = trade.getAccount();
 
-            int profitLoss = trade.getPrice()* trade.getQuantity();
+            int profitLoss = trade.getPrice() * trade.getQuantity();
 
-            Holdings holdings = holdingsRepository.findByAccountAndStockCode(account,findStock);
+            Holdings holdings = holdingsRepository.findByAccountAndStockCode(account, findStock)
+                    .orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUND));
 
-            holdings.subtractData(trade.getQuantity(),profitLoss);
-            if(holdings.getHldgQty()==0) {
+            holdings.subtractData(trade.getQuantity(), profitLoss);
+            if (holdings.getHldgQty() == 0) {
                 holdingsRepository.delete(holdings);
-            }
-            else {
+            } else {
                 holdingsRepository.save(holdings);
             }
 
