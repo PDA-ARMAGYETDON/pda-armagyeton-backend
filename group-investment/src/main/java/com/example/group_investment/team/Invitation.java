@@ -17,13 +17,11 @@ public class Invitation {
     private Team team;
 
     private String inviteCode;
-    private String inviteUrl;
 
 
     @Builder
-    public Invitation(String inviteCode, String inviteUrl, Team team) {
+    public Invitation(String inviteCode, Team team) {
         this.inviteCode = inviteCode;
-        this.inviteUrl = inviteUrl;
         this.team = team;
     }
 

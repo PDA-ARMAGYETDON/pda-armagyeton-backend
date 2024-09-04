@@ -110,7 +110,6 @@ public class TeamService {
         InvitationDto invitationDto = InvitationDto.builder()
                 .team(savedTeam)
                 .inviteCode(inviteCode)
-                .inviteUrl(inviteUrl)
                 .build();
         try {
             invitationRepository.save(invitationDto.toEntity());
@@ -199,22 +198,13 @@ public class TeamService {
     }
 
     public void confirmTeam() {
-        int teamId = 3;
+        int teamId = 4;
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
-
-        TeamDto updatedTeamDto = TeamDto.builder()
-                .name(team.getName())
-                .baseAmt(team.getBaseAmt())
-                .headCount(team.getHeadCount())
-                .category(team.getCategory())
-                .startAt(team.getStartAt())
-                .endAt(team.getEndAt())
+        int confirmMembers = memberRepository.countByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        Team updatedTeam = team.toBuilder()
                 .status(TeamStatus.ACTIVE)
+                .headCount(confirmMembers)
                 .build();
-        try {
-            teamRepository.save(updatedTeamDto.toEntity());
-        } catch (Exception e) {
-            throw new TeamException(TeamErrorCode.TEAM_SAVE_FAILED);
-        }
+        teamRepository.save(updatedTeam);
     }
 }

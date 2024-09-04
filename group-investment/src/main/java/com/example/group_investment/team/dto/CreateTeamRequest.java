@@ -7,6 +7,7 @@ import com.example.group_investment.rule.dto.RuleDto;
 import com.example.group_investment.team.Team;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -18,13 +19,13 @@ public class CreateTeamRequest {
     private Category category;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
-    private float prdyVrssRt;
+    private double prdyVrssRt;
     private int urgentTradeUpvotes;
     private int tradeUpvotes;
     private int depositAmt;
     private RulePeriod period;
-    private Date payDate;
-    private float maxLossRt;
-    private float maxProfitRt;
+    private LocalDate payDate;
+    private double maxLossRt;
+    private double maxProfitRt;
 
 }
