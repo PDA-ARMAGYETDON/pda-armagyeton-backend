@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -140,8 +141,8 @@ public class TeamService {
         Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
         RuleDto ruleDto = rule.fromEntity(rule);
         //2-3. is 모임장
-        int isLeader = 0;
-        if (memberRepository.findById(userId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
+        int isLeader = 0; 
+        if (memberRepository.findByUserIdAndTeamId(userId, teamId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
                 .getRole() == MemberRole.LEADER)
             isLeader = 1;
         //2-4. is 참여
@@ -226,5 +227,16 @@ public class TeamService {
                 .maxProfitRt(rule.getMaxProfitRt())
                 .build();
 
+    }
+
+    public List<TeamByUserResponse> selectTeamByUser() {
+        int userId = 2;
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+        List<Member> members = memberRepository.findByUser(user).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        List<TeamByUserResponse> teamByUserResponses = new ArrayList<>();
+        for (Member member : members) {
+            teamByUserResponses.add(new TeamByUserResponse(member.getTeam().getId(), member.getTeam().getStatus()));
+        }
+        return teamByUserResponses;
     }
 }
