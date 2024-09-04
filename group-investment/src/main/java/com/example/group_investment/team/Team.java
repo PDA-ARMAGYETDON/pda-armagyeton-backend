@@ -63,10 +63,6 @@ public class Team {
         this.createdAt = createdAt;
     }
 
-//    public Team() {
-//
-//    }
-
 
     public TeamDto fromEntity(Team team) {
         return TeamDto.builder()
