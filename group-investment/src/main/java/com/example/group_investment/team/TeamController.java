@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/teams")
@@ -18,6 +20,13 @@ public class TeamController {
 
     // TeamResponseDto를 만들어서 response해주세요.
     // ApiResponse를 사용해서 response 형식을 통일해주세요.
+    @Operation(summary = "유저가 속한 팀들의 pk와 status를 조회하는 API")
+    @GetMapping("/users")
+    public ApiResponse<List<TeamByUserResponse>> selectTeamByUser() {
+        List<TeamByUserResponse> teamByUserResponse = teamService.selectTeamByUser();
+        return new ApiResponse<>(200, true, "유저가 속한 팀의 정보를 조회했습니다.", teamByUserResponse);
+    }
+
     @Operation(summary = "팀의 모임 원칙 조회하는 API")
     @GetMapping("/rules")
     public ApiResponse<DetailTeamResponse> selectTeamRules() {
