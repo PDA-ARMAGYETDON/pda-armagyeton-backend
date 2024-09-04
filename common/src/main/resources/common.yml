@@ -1,0 +1,10 @@
+logging:
+  file:
+    name: ${user.dir}/log/test.log  # 로깅 파일 위치
+    max-history: 7                  # 로그 파일 삭제 주기. 7일 이후 로그는 삭제한다.
+    max-size: 10MB                  # 로그 파일 하나당 최대 파일 사이즈
+  level:                            # 각 package 별로 로깅 레벨을 지정할 수 있다.
+    com.example.common : error
+    com.example.group : error
+    com.example.invest-reference : error
+    com.example.stock-system : error
