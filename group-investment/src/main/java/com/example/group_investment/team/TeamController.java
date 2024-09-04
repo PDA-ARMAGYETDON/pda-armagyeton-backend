@@ -18,6 +18,12 @@ public class TeamController {
 
     // TeamResponseDto를 만들어서 response해주세요.
     // ApiResponse를 사용해서 response 형식을 통일해주세요.
+    @Operation(summary = "팀의 모임 원칙 조회하는 API")
+    @GetMapping("/rules")
+    public ApiResponse<DetailTeamResponse> selectTeamRules() {
+        DetailTeamResponse detailTeamResponse = teamService.selectTeamRules();
+        return new ApiResponse<>(200, true, "팀의 모임 원칙을 조회했습니다.",detailTeamResponse);
+    }
 
     @Operation(summary = "팀을 생성하는 API")
     @PostMapping("")
