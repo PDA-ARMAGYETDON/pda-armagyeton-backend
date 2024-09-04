@@ -1,5 +1,6 @@
 package com.example.group_investment.ruleOffer;
 
+import com.example.group_investment.enums.RulePeriod;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,6 @@ import java.time.LocalDateTime;
 @DiscriminatorValue("PAY_FEE")
 public class ROfferPayFee extends RuleOffer {
     private int depositAmt;
-    private LocalDateTime period;
+    private RulePeriod period;
     private LocalDateTime payDate;
 }

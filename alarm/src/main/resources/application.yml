@@ -14,3 +14,6 @@ spring:
       name: chat_to_alarm
     recvStockQueue:
       name: stock_to_alarm
+
+server:
+  port: 8085
