@@ -5,6 +5,8 @@ import com.example.stock_system.account.AccountRepository;
 import com.example.stock_system.enums.TradeStatus;
 import com.example.stock_system.holdings.Holdings;
 import com.example.stock_system.holdings.HoldingsRepository;
+import com.example.stock_system.holdings.exception.HoldingsErrorCode;
+import com.example.stock_system.holdings.exception.HoldingsException;
 import com.example.stock_system.stocks.Stocks;
 import com.example.stock_system.stocks.StocksRepository;
 import com.example.stock_system.stocks.exception.StocksErrorCode;
@@ -265,7 +267,8 @@ public class RealTimeStockService {
                 trade.setStatus(TradeStatus.COMPLETED);
                 tradeRepository.save(trade);
 
-                Holdings existingHolding = holdingsRepository.findByAccountAndStockCode(account, findStock);
+                Holdings existingHolding = holdingsRepository.findByAccountAndStockCode(account, findStock)
+                        .orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUND));
 
                 if (existingHolding != null) {
                     existingHolding.addData(trade.getQuantity(), requiredAmount);
