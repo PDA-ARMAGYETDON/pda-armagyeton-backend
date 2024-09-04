@@ -168,10 +168,7 @@ public class StocksService {
         String[] dataParts = dataValue.split("\\|");
 
         for (String part : dataParts) {
-            try {
-                result.add(Integer.parseInt(part));
-            } catch (NumberFormatException e) {
-            }
+            result.add(Integer.parseInt(part));
         }
         return result;
     }
