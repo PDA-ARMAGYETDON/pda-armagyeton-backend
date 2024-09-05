@@ -107,7 +107,7 @@ jobs:
       - name: Build with Gradle for ${{ matrix.module }}
         run: ./gradlew :${{ matrix.module }}:bootJar
 
-      - name: Copy jar to EC2 for ${{ matrix.module }}
+      - name: Copy jar to EC2 for ${{ matrix.module }} ${EC2_HOST}
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${EC2_HOST}
