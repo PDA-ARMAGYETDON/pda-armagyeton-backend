@@ -54,17 +54,20 @@ public class AccountService {
     }
 
 
-    public List<AccountPayment> convertPaymentData(String jwtToken) {
+    public List<AccountPayment> convertPaymentData() {
         String url = "http://localhost:8081/api/teams/autoPayment";
 
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("Authorization", jwtToken);
 
         HttpEntity<Void> entity = new HttpEntity<>(httpHeaders);
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
         ResponseEntity<ApiResponser> response = restTemplate.exchange(url, HttpMethod.POST, entity, ApiResponser.class);
 
+        System.out.println(response.getBody());
+
         ApiResponser responseWrapper = response.getBody();
+
         return responseWrapper.getData();
     }
 
@@ -81,9 +84,12 @@ public class AccountService {
                 if(personalAccount.getDeposit()>=accountPayment.getPaymentMoney()){
                     personalAccount.buyStock(accountPayment.getPaymentMoney());
                     accountRepository.save(personalAccount);
-                    TeamAccount teamAccount = teamAccountRepository.findByTeamId(accountPayment.getTeamId());
-                    teamAccount.getAccount().sellStock(accountPayment.getPaymentMoney());
-                    accountRepository.save(teamAccount.getAccount());
+                    Optional<TeamAccount> teamAccount = teamAccountRepository.findByTeamId(accountPayment.getTeamId());
+                    if (teamAccount.isPresent()) {
+                        TeamAccount account = teamAccount.get();
+                        account.getAccount().sellStock(accountPayment.getPaymentMoney());
+                        accountRepository.save(account.getAccount());
+                    }
                 }
                 else{
                     failedUsers.add(userId);
@@ -112,5 +118,19 @@ public class AccountService {
         throw new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND);
     }
 
+    public void expelMember(List<PayFail> payFails) {
+        String url = "http://localhost:8081/api/teams/expelMember";
 
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<List<PayFail>> entity = new HttpEntity<>(payFails, httpHeaders);
+
+        ResponseEntity<ApiResponser> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                entity,
+                ApiResponser.class
+        );
+    }
 }

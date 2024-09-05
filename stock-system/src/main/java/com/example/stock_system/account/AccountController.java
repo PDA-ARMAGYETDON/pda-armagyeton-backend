@@ -42,12 +42,13 @@ public class AccountController {
     }
 
     @Operation(summary = "자동 이체 서비스",description = "test를 위해 호출식으로 작성, 추후에 배치로 처리")
-    @PostMapping("/test")
-    public List<PayFail> cee(@RequestHeader("Authorization") String jwtToken) {
+    @PostMapping("/auto")
+    public void autoPaymentAndExpel() {
 
-        List<AccountPayment> accountPayments= accountService.convertPaymentData(jwtToken);
+        List<AccountPayment> accountPayments= accountService.convertPaymentData();
+        List<PayFail> payFails = accountService.autoPaymentService(accountPayments);
+        accountService.expelMember(payFails);
 
-        return accountService.autoPaymentService(accountPayments);
     }
 
 }
