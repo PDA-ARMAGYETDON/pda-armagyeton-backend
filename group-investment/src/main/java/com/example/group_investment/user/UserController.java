@@ -31,10 +31,9 @@ public class UserController {
     @PostMapping("/api/users/fcm/issue")
     @Operation(summary = "FCM 토큰 발급", description = "유저 ID 와 FCM 토큰을 받아 alarm 모듈에 전송")
     public ApiResponse<?> saveFcmToken(@RequestBody FcmTokenRequestDto fcmTokenRequestDto) {
-        log.warn("fcmTokenRequestDto: {}", fcmTokenRequestDto);
-        System.out.println("토큰 컨트롤러 시작");
-        userService.saveFcmToken(fcmTokenRequestDto);
 
+        userService.saveFcmToken(fcmTokenRequestDto);
+        
         return new ApiResponse<>(200, true, "토큰을 등록하였습니다.", null);
     }
 

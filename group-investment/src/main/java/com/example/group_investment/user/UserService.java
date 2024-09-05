@@ -23,7 +23,6 @@ import java.util.ArrayList;
 public class UserService {
     private final UserRepository userRepository;
     private final UserPInfoService userPInfoService;
-    private final FcmTokenRepository fcmTokenRepository;
     private final MemberRepository memberRepository;
     private final RabbitTemplate rabbitTemplate;
 
@@ -68,16 +67,11 @@ public class UserService {
 
             FcmTokenResponseDto data = new FcmTokenResponseDto(fcmTokenRequestDto.getUserId(), teamList, fcmTokenRequestDto.getFcmToken());
 
-            //subscribeToTopics(fcmTokenRequestDto.getFcmToken(), teamList);
-
             //MQ 전송
             ObjectMapper objectMapper = new ObjectMapper();
             String objToJson = objectMapper.writeValueAsString(data);
 
             rabbitTemplate.convertAndSend("main_to_alarm", objToJson);
-
-            //TODO: 테스트 후 삭제 할 것
-            log.info("[Main] Send: '{}' ", data.toString());
 
 
         } catch (JsonProcessingException e) {
