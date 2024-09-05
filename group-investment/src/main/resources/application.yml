@@ -28,10 +28,10 @@ spring:
     secret: ${JWT_SECRET}
 
   rabbitmq:
-    host: 3.38.242.178
-    port: 5672
-    username: test
-    password: test
+    host: ${MQ_HOST}
+    port: ${MQ_PORT}
+    username: ${MQ_USERNAME}
+    password: ${MQ_PASSWORD}
     exchange:
       name: (AMQP default)
     queue:
