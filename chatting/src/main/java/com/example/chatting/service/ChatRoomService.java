@@ -2,6 +2,8 @@ package com.example.chatting.service;
 
 import com.example.chatting.domain.ChatMessage;
 import com.example.chatting.domain.ChatRoom;
+import com.example.chatting.exception.ChatErrorCode;
+import com.example.chatting.exception.ChatException;
 import com.example.chatting.repository.ChatMsRepository;
 import com.example.chatting.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,31 +45,22 @@ public class ChatRoomService {
 
     @Cacheable(value = "chatMessages", key = "#teamId")
     public List<ChatMessage> selectChatMessageList(int teamId) {
+
+        chatRoomRepository.findById(teamId).orElseThrow(
+                () -> new ChatException(ChatErrorCode.ROOM_NOT_FOUND));
+
         String key = prefix + "room:" + teamId;
 
-        try {
-            Set<ChatMessage> messageSet = redisTemplateForMessage.opsForZSet().reverseRange(key, 0, 99);
+        Set<ChatMessage> messageSet = redisTemplateForMessage.opsForZSet().reverseRange(key, 0, 99);
 
-            if (messageSet != null && !messageSet.isEmpty()) {
-                log.info("캐시 히트: Redis에서 데이터를 가져왔습니다.");
-            } else {
-                log.info("캐시 미스: 데이터를 캐시에서 가져오지 못했습니다. Redis에서 데이터를 가져옵니다.");
-            }
+        return List.copyOf(messageSet);
 
-            log.info("Redis에서 가져온 메시지 수: {}", messageSet.size());
-            return List.copyOf(messageSet);
-
-        } catch (Exception e) {
-            log.error("Redis에서 메시지를 가져오는 중 오류 발생: {}", e.getMessage(), e);
-            throw e;  // 적절한 예외 처리 로직 추가
-        }
     }
 
     @CacheEvict(value = "chatMessages", key = "#messageDto.teamId")
     public void sendMessage(ChatMessage messageDto) {
 
         String key = prefix + "room:" + messageDto.getTeamId();
-        log.info("Redis에 메시지 저장 시작 - 팀 ID: {}, 키: {}", messageDto.getTeamId(), key);
 
         Long generatedId = redisTemplateForMessage.opsForValue().increment("chatMessage:id");
         int id = generatedId != null ? generatedId.intValue() : 0;
@@ -78,9 +71,7 @@ public class ChatRoomService {
 
         long score = updatedMessageDto.getCreatedAt().toEpochSecond(ZoneOffset.UTC);
         redisTemplateForMessage.opsForZSet().add(key, updatedMessageDto, score);
-        log.info("Redis에 메시지 저장 완료. 키: {}, 메시지 ID: {}", key, id);
 
         messageTemplate.convertAndSend("/sub/chat/room/" + messageDto.getTeamId(), updatedMessageDto);
-        log.info("메시지가 전송되었습니다. 팀 ID: {}", messageDto.getTeamId());
     }
 }
