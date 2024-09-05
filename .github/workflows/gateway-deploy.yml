@@ -30,10 +30,11 @@ jobs:
       - name: Build with Gradle for ${{ env.NAME }}
         run: ./gradlew :${{ env.NAME }}:bootJar
 
-      - name: Copy jar to EC2 for ${{ env.NAME }} ${EC2_HOST}
+      - name: Copy jar to EC2 for ${{ env.NAME }}
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ env.EC2_HOST }}
+          port: ${{ env.EC2_PORT }}
           username: ubuntu
           password: ${{ env.EC2_KEY }}
           source: ${{ env.NAME }}/build/libs/*.jar
@@ -42,7 +43,8 @@ jobs:
       - name: Restart service on EC2 for ${{ env.NAME }}
         uses: appleboy/ssh-action@v0.1.5
         with:
-          host: ${EC2_HOST}
+          host: ${{ env.EC2_HOST }}
+          port: ${{ env.EC2_PORT }}
           username: ec2-user
           password: ${{ env.EC2_KEY }}
           script: |
