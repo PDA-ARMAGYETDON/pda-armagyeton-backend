@@ -6,7 +6,9 @@ import lombok.Getter;
 @Getter
 public class CreateAccountRequest {
 
+    private String name;
     private String accountPInfo;
+    private int userId;
 
     public AccountPInfo toEntity(){
         return AccountPInfo.builder()
