@@ -26,7 +26,7 @@ public class RabbitMqConfig {
     @Value("${spring.rabbitmq.password}")
     private String rabbitmqPassword;
 
-    @Value("${spring.rabbitmq.queue.name}")
+    @Value("${spring.rabbitmq.fcm-queue.name}")
     private String QueueName;
 
 

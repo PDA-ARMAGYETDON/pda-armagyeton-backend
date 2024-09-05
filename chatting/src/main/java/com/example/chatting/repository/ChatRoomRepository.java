@@ -3,6 +3,8 @@ package com.example.chatting.repository;
 import com.example.chatting.domain.ChatRoom;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.Optional;
+
 public interface ChatRoomRepository extends CrudRepository<ChatRoom, Integer> {
-    //ChatRoom findChatRoomById(Long id);
+    Optional<ChatRoom> findByTeamId(int teamId);
 }
