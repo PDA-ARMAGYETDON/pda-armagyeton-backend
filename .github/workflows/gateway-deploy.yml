@@ -34,7 +34,7 @@ jobs:
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ env.EC2_HOST }}
-          port: ${{ env.EC2_PORT }}
+          port: 22
           username: ubuntu
           password: ${{ env.EC2_KEY }}
           source: ${{ env.NAME }}/build/libs/*.jar
@@ -44,7 +44,7 @@ jobs:
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ env.EC2_HOST }}
-          port: ${{ env.EC2_PORT }}
+          port: 22
           username: ec2-user
           password: ${{ env.EC2_KEY }}
           script: |
