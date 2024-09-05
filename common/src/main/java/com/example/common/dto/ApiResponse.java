@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ApiResponse<D> {
     protected final int code;
-    protected final boolean isSuccess;
+    protected final boolean success;
     protected final String message;
     protected final D data;
 }
