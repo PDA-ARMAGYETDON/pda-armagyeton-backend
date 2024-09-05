@@ -54,6 +54,8 @@ public enum ErrorCode {
     // 서버가 처리 할 방법을 모르는 경우 발생
     INTERNAL_SERVER_ERROR(500, "AG900", "내부 서버 에러가 발생했습니다."),
 
+    MQ_CONNECTION_FAILED(500, "AG901", "MQ 연결에 실패했습니다."),
+
     ;
 
     /**
