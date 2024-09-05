@@ -13,6 +13,7 @@ jobs:
       EC2_HOST: ${{ secrets.GATEWAY_EC2_HOST }}
       EC2_PORT: ${{ secrets.GATEWAY_EC2_PORT }}
       EC2_KEY: ${{ secrets.EC2_KEY }}
+      AWS_ROLE: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 
     steps:
       - name: Checkout code
@@ -34,7 +35,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: 'ap-northeast-2'
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: ${{ env.AWS_ROLE }}
           id-token: write
 #          role-session-name: 'github-actions-role-role'
 #          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -53,7 +54,6 @@ jobs:
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ env.EC2_HOST }}
-          port: 22
           username: ec2-user
           password: ${{ env.EC2_KEY }}
           script: |
