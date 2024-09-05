@@ -1,5 +1,6 @@
 package com.example.group_investment.member;
 
+import com.example.group_investment.enums.JoinStatus;
 import com.example.group_investment.enums.MemberRole;
 import com.example.group_investment.ruleOffer.RuleOffer;
 import com.example.group_investment.ruleOfferVote.RuleOfferVote;
@@ -11,7 +12,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,11 +32,17 @@ public class Member {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @JoinColumn(name = "join_status")
+    private JoinStatus joinStatus;
+
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime dropedAt;
 
     @OneToMany(mappedBy = "member")
     private List<TradeOffer> tradeOffers;
@@ -50,11 +57,13 @@ public class Member {
     private List<RuleOfferVote> ruleOfferVotes;
 
     @Builder
-    public Member(Team team, User user, MemberRole role, LocalDateTime createdAt) {
+    public Member(Team team, User user, MemberRole role, LocalDateTime createdAt,JoinStatus joinStatus,LocalDateTime dropedAt) {
         this.team = team;
         this.user = user;
         this.role = role;
         this.createdAt = createdAt;
+        this.joinStatus = joinStatus;
+        this.dropedAt = dropedAt;
     }
 
     public Member() {
