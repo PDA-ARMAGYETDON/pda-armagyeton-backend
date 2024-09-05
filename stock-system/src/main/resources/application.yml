@@ -1,6 +1,8 @@
 spring:
   application:
     name: stock-system
+  jwt:
+    secret: ${JWT_SECRET}
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -14,7 +16,8 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
+
 
   rabbitmq:
     host: 3.38.242.178

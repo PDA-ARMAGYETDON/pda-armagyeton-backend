@@ -35,7 +35,7 @@ public class Team {
 
     @Enumerated(EnumType.STRING)
     @ColumnDefault("'PENDING'")
-    private TeamStatus status = TeamStatus.PENDING;
+    private TeamStatus status;
 
     private LocalDateTime startAt;
     private LocalDateTime endAt;
@@ -44,7 +44,7 @@ public class Team {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "team")
-    private List<Member> members = new ArrayList<>();
+    private List<Member> members;
 
 
     public int getSizeOfMembers() {
