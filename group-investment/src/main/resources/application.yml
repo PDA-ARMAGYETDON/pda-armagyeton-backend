@@ -34,8 +34,10 @@ spring:
     password: ${MQ_PASSWORD}
     exchange:
       name: (AMQP default)
-    queue:
+    fcm-queue:
       name: main_to_alarm
+    main-stock-queue:
+      name: offer_to_trade
 
 server:
   port: 8081
