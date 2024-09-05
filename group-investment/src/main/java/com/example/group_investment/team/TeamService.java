@@ -292,13 +292,9 @@ public class TeamService {
             List<Integer> userIds = payFail.getUserId();
 
             for (Integer userId : userIds) {
-                Optional<Member> memberOptional = memberRepository.findByUserIdAndTeamId(userId, teamId);
-
-                if (memberOptional.isPresent()) {
-                    Member member = memberOptional.get();
-
+                Member member = memberRepository.findByUserIdAndTeamId(userId, teamId)
+                        .orElseThrow(()->new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
                     member.expelMember();
-
                     memberRepository.save(member);
                 }
             }
