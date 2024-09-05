@@ -35,28 +35,41 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
+    env:
+        GATEWAY_EC2_HOST: ${{ secrets.GATEWAY_EC2_HOST }}
+        GATEWAY_EC2_PORT: ${{ secrets.GATEWAY_EC2_PORT }}
+        GROUP_INVESTMENT_EC2_HOST: ${{ secrets.GROUP_INVESTMENT_EC2_HOST }}
+        GROUP_INVESTMENT_EC2_PORT: ${{ secrets.GROUP_INVESTMENT_EC2_PORT }}
+        STOCK_SYSTEM_EC2_HOST: ${{ secrets.STOCK_SYSTEM_EC2_HOST }}
+        STOCK_SYSTEM_EC2_PORT: ${{ secrets.STOCK_SYSTEM_EC2_PORT }}
+        CHAT_EC2_HOST: ${{ secrets.CHAT_EC2_HOST }}
+        CHAT_EC2_PORT: ${{ secrets.CHAT_EC2_PORT }}
+        ALARM_EC2_HOST: ${{ secrets.ALARM_EC2_HOST }}
+        ALARM_EC2_PORT: ${{ secrets.ALARM_EC2_PORT }}
+        INVEST_REFERENCES_EC2_HOST: ${{ secrets.INVEST_REFERENCES_EC2_HOST }}
+        INVEST_REFERENCES_EC2_PORT: ${{ secrets.INVEST_REFERENCES_EC2_PORT }}
 
     strategy:
       matrix:
         include:
           - module: 'ag-gateway'
-            ec2_host: ${{ secrets.GATEWAY_EC2_HOST }}
-            port: ${{ secrets.GATEWAY_EC2_PORT }}
+            ec2_host: ${{ env.GATEWAY_EC2_HOST }}
+            port: ${{ env.GATEWAY_EC2_PORT }}
           - module: 'group-investment'
-            ec2_host: ${{ secrets.GROUP_INVESTMENT_EC2_HOST }}
-            port: ${{ secrets.GROUP_INVESTMENT_EC2_PORT }}
+            ec2_host: ${{ env.GROUP_INVESTMENT_EC2_HOST }}
+            port: ${{ env.GROUP_INVESTMENT_EC2_PORT }}
           - module: 'stock-system'
-            ec2_host: ${{ secrets.STOCK_SYSTEM_EC2_HOST }}
-            port: ${{ secrets.STOCK_SYSTEM_EC2_PORT }}
+            ec2_host: ${{ env.STOCK_SYSTEM_EC2_HOST }}
+            port: ${{ env.STOCK_SYSTEM_EC2_PORT }}
           - module: 'chatting'
-            ec2_host: ${{ secrets.CHAT_EC2_HOST }}
-            port: ${{ secrets.CHAT_EC2_PORT }}
+            ec2_host: ${{ env.CHAT_EC2_HOST }}
+            port: ${{ env.CHAT_EC2_PORT }}
           - module: 'alarm'
-            ec2_host: ${{ secrets.ALARM_EC2_HOST }}
-            port: ${{ secrets.ALARM_EC2_PORT }}
+            ec2_host: ${{ env.ALARM_EC2_HOST }}
+            port: ${{ env.ALARM_EC2_PORT }}
           - module: 'invest-references'
-            ec2_host: ${{ secrets.INVEST_REFERENCES_EC2_HOST }}
-            port: ${{ secrets.INVEST_REFERENCES_EC2_PORT }}
+            ec2_host: ${{ env.INVEST_REFERENCES_EC2_HOST }}
+            port: ${{ env.INVEST_REFERENCES_EC2_PORT }}
 
     steps:
       - name: Checkout code
@@ -77,10 +90,10 @@ jobs:
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ matrix.ec2_host }}
-          username: ec2-user
+          username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           source: ${{ matrix.module }}/build/libs/*.jar
-          target: /home/ec2-user/${{ matrix.module }}/
+          target: /home/ubuntu/${{ matrix.module }}.jar
 
       - name: Restart service on EC2 for ${{ matrix.module }}
         uses: appleboy/ssh-action@v0.1.5
