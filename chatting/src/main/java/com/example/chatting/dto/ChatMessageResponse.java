@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ChatMessageResponse {
-    private Long sender;
+    private int sender;
     private String message;
 
 }

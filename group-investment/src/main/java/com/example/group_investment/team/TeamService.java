@@ -52,10 +52,8 @@ public class TeamService {
 
 
     @Transactional
-    public CreateTeamResponse createTeam(CreateTeamRequest createTeamRequest) {
+    public CreateTeamResponse createTeam(int userId, CreateTeamRequest createTeamRequest) {
         // 팀을 만든 user
-        int userId = 2;
-
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         //1. 팀
         Team savedTeam;
@@ -133,10 +131,8 @@ public class TeamService {
     }
 
     @Transactional
-    public DetailPendingTeamResponse selectPendingDetails() {
+    public DetailPendingTeamResponse selectPendingDetails(int userId, int teamId) {
         //1. 상세 조회 (모임, 규칙, 인원수)
-        int teamId = 1;
-        int userId = 1;
         //2-1. 모임 조회
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         TeamDto teamDto = team.fromEntity(team);
@@ -144,8 +140,8 @@ public class TeamService {
         Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
         RuleDto ruleDto = rule.fromEntity(rule);
         //2-3. is 모임장
-        int isLeader = 0;
-        if (memberRepository.findById(userId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
+        int isLeader = 0; 
+        if (memberRepository.findByUserIdAndTeamId(userId, teamId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
                 .getRole() == MemberRole.LEADER)
             isLeader = 1;
         //2-4. is 참여
@@ -184,9 +180,7 @@ public class TeamService {
                 .build();
     }
 
-    public void participateTeam() {
-        int teamId = 1;
-        int userId = 2;
+    public void participateTeam(int userId, int teamId) {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         MemberDto memberDto = MemberDto.builder()
@@ -201,8 +195,7 @@ public class TeamService {
         }
     }
 
-    public void confirmTeam() {
-        int teamId = 4;
+    public void confirmTeam(int teamId) {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         int confirmMembers = memberRepository.countByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
         Team updatedTeam = team.toBuilder()
@@ -269,7 +262,34 @@ public class TeamService {
         return autoPayments;
     }
 
+    public DetailTeamResponse selectTeamRules(int teamId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
+        return DetailTeamResponse.builder()
+                .startAt(team.getStartAt())
+                .endAt(team.getEndAt())
+                .baseAmt(team.getBaseAmt())
+                .prdyVrssRt(rule.getPrdyVrssRt())
+                .urgentTradeUpvotes(rule.getUrgentTradeUpvotes())
+                .tradeUpvotes(rule.getTradeUpvotes())
+                .depositAmt(rule.getDepositAmt())
+                .period(rule.getPeriod())
+                .payDate(rule.getPayDate())
+                .maxLossRt(rule.getMaxLossRt())
+                .maxProfitRt(rule.getMaxProfitRt())
+                .build();
 
+    }
+
+    public List<TeamByUserResponse> selectTeamByUser(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+        List<Member> members = memberRepository.findByUser(user).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        List<TeamByUserResponse> teamByUserResponses = new ArrayList<>();
+        for (Member member : members) {
+            teamByUserResponses.add(new TeamByUserResponse(member.getTeam().getId(), member.getTeam().getStatus()));
+        }
+        return teamByUserResponses;
+    }
 }
 
 

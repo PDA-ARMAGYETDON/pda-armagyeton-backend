@@ -54,10 +54,11 @@ public class Account {
     }
 
     @Builder
-    public Account(String accountNumber, int userId, String name,int deposit, int totalEvluAmt, int totalPchsAmt, int totalEvluPfls, double totalEvluPflsRt) {
+    public Account(String accountNumber, int userId, String name, int deposit, int totalEvluAmt, int totalPchsAmt, int totalEvluPfls, double totalEvluPflsRt) {
         this.accountNumber = accountNumber;
         this.name = name;
         this.userId = userId;
+        this.name = name;
         this.deposit = deposit;
         this.totalEvluAmt = totalEvluAmt;
         this.totalPchsAmt = totalPchsAmt;

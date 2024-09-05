@@ -1,8 +1,8 @@
 package com.example.group_investment.config;
 
+import com.example.common.auth.JwtUtil;
 import com.example.group_investment.auth.AgUserDetailsService;
 import com.example.group_investment.auth.filter.JwtFilter;
-import com.example.group_investment.auth.utils.JwtUtil;
 import com.example.group_investment.auth.filter.LoginFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -49,7 +49,8 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/api/users/login", "/api/users/signup", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/api/users/login", "/api/users/signup",
+                                "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated());
 
         http

@@ -1,7 +1,7 @@
 package com.example.group_investment.auth.filter;
 
+import com.example.common.auth.JwtUtil;
 import com.example.group_investment.auth.AgUserDetails;
-import com.example.group_investment.auth.utils.JwtUtil;
 import com.example.group_investment.auth.exception.AuthoErrorCode;
 import com.example.group_investment.auth.exception.AuthoException;
 import com.example.group_investment.user.User;
@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,22 +21,22 @@ import java.util.Arrays;
 import java.util.List;
 
 @RequiredArgsConstructor
+@Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final List<String> excludeUrls = Arrays.asList("/api/users/signup", "/api/users/login", "/swagger-ui/**");
+    private final List<String> excludeUrls = Arrays.asList("/api/users/signup", "/api/users/login",
+            "/swagger-ui", "/v3/api-docs");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         // 요청 URL을 가져와서 제외할 URL 목록과 비교
         String requestURI = request.getRequestURI();
-        System.out.println("requestURI 가져옴 : " + requestURI);
+        log.info("Request URI 출력 : " + requestURI);
 
-        // login/sign up에 대해서는 필터링을 수행하지 않음
-        System.out.println(excludeUrls.stream().anyMatch(requestURI::startsWith));
-//        if (excludeUrls.stream().anyMatch(requestURI::startsWith)) {
-        if (excludeUrls.stream().anyMatch(url -> requestURI.startsWith(url))){
+        // login/sign up/swagger에 대해서는 필터링을 수행하지 않음
+        if (excludeUrls.stream().anyMatch(requestURI::startsWith)){
             filterChain.doFilter(request, response);
             return;
         }
@@ -44,7 +45,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // authorization 헤더 검증
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-//            filterChain.doFilter(request, response);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Authorization Header not found");
 
@@ -60,7 +60,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         User user = User.builder()
-                .loginId(jwtUtil.getLoginId(token))
+                .id(jwtUtil.getUserId(token))
                 .build();
 
         // 유저 정보를 가지고 인증 객체 생성
@@ -71,11 +71,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // Security Context(세션)에 인증 객체 저장
         SecurityContextHolder.getContext().setAuthentication(authToken);
-
-
-        // FIXME: 가라로 모듈 안에서 attribute를 설정함
-        request.setAttribute("loginId", jwtUtil.getLoginId(token));
-        request.setAttribute("teamId", jwtUtil.getTeamId(token));
 
         filterChain.doFilter(request, response);
     }

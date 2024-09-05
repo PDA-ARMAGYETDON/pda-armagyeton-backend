@@ -1,15 +1,19 @@
 package com.example.stock_system.transferHistory;
 
-import com.example.stock_system.transferHistory.dto.AccountTransferDetailDto;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface TransferHistoryRepository extends JpaRepository<TransferHistory, Integer> {
 
-    Page<AccountTransferDetailDto> findByAccountId(int accountId, Pageable pageable);
+    //송금 내역 확인 시
+    List<TransferHistory> findAllByAccountId(int accountId);
+
+    //입금 내역 확인 시
+    List<TransferHistory> findAllByReceivingAccountId(int receivingAccountId);
+
 
 }
 

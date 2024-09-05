@@ -57,7 +57,7 @@ public class Member {
     private List<RuleOfferVote> ruleOfferVotes;
 
     @Builder
-    public Member(Team team, User user, MemberRole role, LocalDateTime createdAt,JoinStatus joinStatus,LocalDateTime dropedAt) {
+    public Member(Team team, User user, MemberRole role, LocalDateTime createdAt, JoinStatus joinStatus, LocalDateTime dropedAt) {
         this.team = team;
         this.user = user;
         this.role = role;

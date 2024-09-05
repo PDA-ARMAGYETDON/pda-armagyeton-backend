@@ -19,34 +19,6 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String getLoginId(String token){
-        return Jwts.parser().verifyWith(secretKey).build()
-                .parseSignedClaims(token).getPayload()
-                .get("username", String.class);
-    }
-
-    public int getTeamId(String token){
-        return Jwts.parser().verifyWith(secretKey).build()
-                .parseSignedClaims(token).getPayload()
-                .get("teamId", Integer.class);
-    }
-
-    public boolean isTeamExist(String token){
-        return Jwts.parser().verifyWith(secretKey).build()
-                .parseSignedClaims(token).getPayload()
-                .get("isTeamExist", Boolean.class);
-    }
-
-    public boolean validateToken(String token){
-        try{
-            Jwts.parser().verifyWith(secretKey).build().parseClaimsJws(token);
-            return true;
-        }catch (Exception e){
-            return false;
-        }
-    }
-
-
     public Boolean isExpired(String token){
         return Jwts.parser().verifyWith(secretKey).build()
                 .parseSignedClaims(token).getPayload()
