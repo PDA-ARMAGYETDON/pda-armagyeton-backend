@@ -65,12 +65,34 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "EC2_HOST=${{ secrets[format('{0}_EC2_HOST', matrix.prefix)] }}" >> $GITHUB_ENV
-          echo "EC2_PORT=${{ secrets[format('{0}_EC2_PORT', matrix.prefix)] }}" >> $GITHUB_ENV
-          echo "EC2_HOST: ${{ env.EC2_HOST }}"
-          echo "EC2_PORT: ${{ env.EC2_PORT }}"
-          echo "EC2_HOST: ${EC2_HOST}"
-          echo "EC2_PORT: ${EC2_PORT}"
+          if [ "${{ matrix.prefix }}" == "GATEWAY" ]; then
+            echo "EC2_HOST=${{ secrets.GATEWAY_EC2_HOST }}" >> $GITHUB_ENV
+            echo "EC2_PORT=${{ secrets.GATEWAY_EC2_PORT }}" >> $GITHUB_ENV
+          elif [ "${{ matrix.prefix }}" == "GROUP_INVESTMENT" ]; then
+            echo "EC2_HOST=${{ secrets.GROUP_INVESTMENT_EC2_HOST }}" >> $GITHUB_ENV
+            echo "EC2_PORT=${{ secrets.GROUP_INVESTMENT_EC2_PORT }}" >> $GITHUB_ENV
+          elif [ "${{ matrix.prefix }}" == "STOCK_SYSTEM" ]; then
+            echo "EC2_HOST=${{ secrets.STOCK_SYSTEM_EC2_HOST }}" >> $GITHUB_ENV
+            echo "EC2_PORT=${{ secrets.STOCK_SYSTEM_EC2_PORT }}" >> $GITHUB_ENV
+          elif [ "${{ matrix.prefix }}" == "CHAT" ]; then
+            echo "EC2_HOST=${{ secrets.CHAT_EC2_HOST }}" >> $GITHUB_ENV
+            echo "EC2_PORT=${{ secrets.CHAT_EC2_PORT }}" >> $GITHUB_ENV
+          elif [ "${{ matrix.prefix }}" == "ALARM" ]; then
+            echo "EC2_HOST=${{ secrets.ALARM_EC2_HOST }}" >> $GITHUB_ENV
+            echo "EC2_PORT=${{ secrets.ALARM_EC2_PORT }}" >> $GITHUB_ENV
+          elif [ "${{ matrix.prefix }}" == "INVEST_REFERENCES" ]; then
+            echo "EC2_HOST=${{ secrets.INVEST_REFERENCES_EC2_HOST }}" >> $GITHUB_ENV
+            echo "EC2_PORT=${{ secrets.INVEST_REFERENCES_EC2_PORT }}" >> $GITHUB_ENV
+          fi
+        shell: bash
+#      - name: Set environment variables
+#        run: |
+#          echo "EC2_HOST=${{ secrets[format('{0}_EC2_HOST', matrix.prefix)] }}" >> $GITHUB_ENV
+#          echo "EC2_PORT=${{ secrets[format('{0}_EC2_PORT', matrix.prefix)] }}" >> $GITHUB_ENV
+#          echo "EC2_HOST: ${{ env.EC2_HOST }}"
+#          echo "EC2_PORT: ${{ env.EC2_PORT }}"
+#          echo "EC2_HOST: ${EC2_HOST}"
+#          echo "EC2_PORT: ${EC2_PORT}"
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
