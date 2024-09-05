@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
+import static com.example.group_investment.enums.JoinStatus.DROP;
+
 @Entity
 @Getter
 public class Member {
@@ -35,7 +37,6 @@ public class Member {
     private Team team;
 
     @Enumerated(EnumType.STRING)
-    @JoinColumn(name = "join_status")
     private JoinStatus joinStatus;
 
     @Enumerated(EnumType.STRING)
@@ -69,7 +70,7 @@ public class Member {
     }
 
     public void expelMember(){
-        this.joinStatus = JoinStatus.DROP;
+        this.joinStatus = DROP;
         this.dropedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
