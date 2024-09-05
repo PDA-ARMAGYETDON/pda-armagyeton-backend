@@ -33,25 +33,19 @@ public class ChatRoomController {
 
     @GetMapping("/room")
     public ResponseEntity<List<ChatMessageResponse>> getMessages(@RequestParam("teamId") int teamId) {
-        try {
-            log.info("채팅 메시지 조회 요청 시작 - 팀 ID: {}", teamId);
-            List<ChatMessage> messages = chatRoomService.selectChatMessageList(teamId);
 
-            if (messages.isEmpty()) {
-                log.warn("팀 ID {}에 대한 메시지가 없습니다.", teamId);
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-            }
+        List<ChatMessage> messages = chatRoomService.selectChatMessageList(teamId);
 
-            log.info("채팅 메시지 조회 완료 - 메시지 수: {}", messages.size());
-            List<ChatMessageResponse> messageDtos = messages.stream()
-                    .map(message -> new ChatMessageResponse(message.getUserId(), message.getMessage()))
-                    .toList();
-            return ResponseEntity.ok(messageDtos);
-
-        } catch (Exception e) {
-            log.error("채팅 메시지 조회 중 오류 발생: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        if (messages.isEmpty()) {
+            log.warn("팀 ID {}에 대한 메시지가 없습니다.", teamId);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
+
+        List<ChatMessageResponse> messageDtos = messages.stream()
+                .map(message -> new ChatMessageResponse(message.getUserId(), message.getMessage()))
+                .toList();
+        return ResponseEntity.ok(messageDtos);
+
     }
 
 }
