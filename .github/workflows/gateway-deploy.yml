@@ -45,11 +45,11 @@ jobs:
 #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Copy jar to EC2 for ${{ env.NAME }}
-        uses: appleboy/scp-action@v0.1.5
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ env.EC2_HOST }}
           username: ubuntu
-          password: ${{ env.EC2_KEY }}
+          port: 22
           source: ${{ env.NAME }}/build/libs/*.jar
           target: /home/ubuntu/${{ env.NAME }}.jar
 
