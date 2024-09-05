@@ -75,23 +75,19 @@ public class AccountService {
 
         List<PayFail> failedPayments = new ArrayList<>();
 
-        for(AccountPayment accountPayment: accountPayments){
+        for (AccountPayment accountPayment : accountPayments) {
             List<Integer> failedUsers = new ArrayList<>();
 
-            for(int userId : accountPayment.getUsers()){
+            for (int userId : accountPayment.getUsers()) {
                 Account personalAccount = getPersonalAccount(userId);
 
-                if(personalAccount.getDeposit()>=accountPayment.getPaymentMoney()){
+                if (personalAccount.getDeposit() >= accountPayment.getPaymentMoney()) {
                     personalAccount.buyStock(accountPayment.getPaymentMoney());
                     accountRepository.save(personalAccount);
-                    Optional<TeamAccount> teamAccount = teamAccountRepository.findByTeamId(accountPayment.getTeamId());
-                    if (teamAccount.isPresent()) {
-                        TeamAccount account = teamAccount.get();
-                        account.getAccount().sellStock(accountPayment.getPaymentMoney());
-                        accountRepository.save(account.getAccount());
-                    }
-                }
-                else{
+                    TeamAccount teamAccount = teamAccountRepository.findByTeamId(accountPayment.getTeamId()).orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
+                    teamAccount.getAccount().sellStock(accountPayment.getPaymentMoney());
+                    accountRepository.save(teamAccount.getAccount());
+                } else {
                     failedUsers.add(userId);
                 }
             }
@@ -107,15 +103,13 @@ public class AccountService {
     }
 
     public Account getPersonalAccount(int id) {
-        Optional<List<Account>> accounts = accountRepository.findByUserId(id);
+        List<Account> accounts = accountRepository.findByUserId(id).orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
+        return accounts.stream()
+                .filter(account -> account.getAccountNumber().startsWith("81901"))
+                .findFirst()  // 첫 번째 매칭되는 계좌 찾기
+                .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
 
-        if (accounts.isPresent()) {
-            return accounts.get().stream()
-                    .filter(account -> account.getAccountNumber().startsWith("81901"))
-                    .findFirst()  // 첫 번째 매칭되는 계좌 찾기
-                    .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
-        }
-        throw new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND);
+
     }
 
     public void expelMember(List<PayFail> payFails) {
