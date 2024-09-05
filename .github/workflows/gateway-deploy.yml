@@ -36,7 +36,6 @@ jobs:
         with:
           aws-region: 'ap-northeast-2'
           role-to-assume: ${{ env.AWS_ROLE }}
-          id-token: write
 #          role-session-name: 'github-actions-role-role'
 #          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
 #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
