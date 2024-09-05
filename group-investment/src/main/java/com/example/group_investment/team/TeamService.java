@@ -1,5 +1,6 @@
 package com.example.group_investment.team;
 
+import com.example.group_investment.enums.JoinStatus;
 import com.example.group_investment.enums.MemberRole;
 import com.example.group_investment.enums.RulePeriod;
 import com.example.group_investment.enums.TeamStatus;
@@ -249,19 +250,20 @@ public class TeamService {
 
 
             if (isPayDate) {
-
                 Optional<List<Member>> membersOptional = memberRepository.findByTeam(team);
 
                 if (membersOptional.isPresent()) {
                     List<Member> members = membersOptional.get();
                     List<Integer> userIds = new ArrayList<>();
 
-                    for (Member member : members) {
-                        userIds.add(member.getUser().getId());
-                    }
-                    AutoPayment autoPayment = new AutoPayment(team.getId(), rule.getDepositAmt(), userIds);
+                    members.stream()
+                            .filter(member -> member.getJoinStatus() == JoinStatus.ACTIVE)
+                            .forEach(member -> userIds.add(member.getUser().getId()));
 
-                    autoPayments.add(autoPayment);
+                    if (!userIds.isEmpty()) {
+                        AutoPayment autoPayment = new AutoPayment(team.getId(), rule.getDepositAmt(), userIds);
+                        autoPayments.add(autoPayment);
+                    }
                 }
             }
         }
@@ -269,7 +271,26 @@ public class TeamService {
         return autoPayments;
     }
 
+    public void expelMember(List<PayFail> payFails) {
 
+        for (PayFail payFail : payFails) {
+            int teamId = payFail.getTeamId();
+            List<Integer> userIds = payFail.getUserId();
+
+            for (Integer userId : userIds) {
+                Optional<Member> memberOptional = memberRepository.findByUserIdAndTeamId(userId, teamId);
+
+                if (memberOptional.isPresent()) {
+                    Member member = memberOptional.get();
+
+                    member.expelMember();
+
+                    memberRepository.save(member);
+                }
+            }
+        }
+
+    }
 }
 
 

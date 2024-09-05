@@ -14,7 +14,9 @@ import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Entity
@@ -32,6 +34,7 @@ public class Member {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @Enumerated(EnumType.STRING)
     @JoinColumn(name = "join_status")
     private JoinStatus joinStatus;
 
@@ -41,7 +44,6 @@ public class Member {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
     private LocalDateTime dropedAt;
 
     @OneToMany(mappedBy = "member")
@@ -64,6 +66,11 @@ public class Member {
         this.createdAt = createdAt;
         this.joinStatus = joinStatus;
         this.dropedAt = dropedAt;
+    }
+
+    public void expelMember(){
+        this.joinStatus = JoinStatus.DROP;
+        this.dropedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
     public Member() {
