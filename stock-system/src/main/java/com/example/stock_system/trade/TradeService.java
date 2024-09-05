@@ -1,5 +1,6 @@
 package com.example.stock_system.trade;
 
+import com.example.common.exception.ErrorCode;
 import com.example.stock_system.account.Account;
 import com.example.stock_system.account.AccountRepository;
 import com.example.stock_system.account.TeamAccount;
@@ -18,7 +19,11 @@ import com.example.stock_system.stocks.exception.StocksErrorCode;
 import com.example.stock_system.stocks.exception.StocksException;
 import com.example.stock_system.trade.dto.CreateTradeRequest;
 import com.example.stock_system.trade.dto.TradeDto;
+import com.example.stock_system.trade.exception.TradeException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +38,17 @@ public class TradeService {
     private final HoldingsRepository holdingsRepository;
     private final TradeRepository tradeRepository;
     private final TeamAccountRepository teamAccountRepository;
+
+    @RabbitListener(queues = "${spring.rabbitmq.mainToStock.name}")
+    public void createTrade(String message) {
+        CreateTradeRequest createTradeRequest;
+        try {
+            createTradeRequest = new ObjectMapper().readValue(message, CreateTradeRequest.class);
+        } catch (JsonProcessingException e) {
+            throw new TradeException(ErrorCode.JSON_PARSE_ERROR);
+        } catch (AmqpException e) {
+            throw new TradeException(ErrorCode.MQ_CONNECTION_FAILED);
+        }
 
         TeamAccount teamAccount = teamAccountRepository.findByTeamId(createTradeRequest.getTeamId())
                 .orElseThrow(() -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
