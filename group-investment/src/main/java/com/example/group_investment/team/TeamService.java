@@ -235,7 +235,6 @@ public class TeamService {
     }
 
 
-
     public List<AutoPayment> autoPayments() {
         List<Rule> rules = ruleRepository.findAll();
         LocalDate today = LocalDate.now();
@@ -252,7 +251,7 @@ public class TeamService {
 
             if (!payDate.isAfter(today)) {
                 if (period == RulePeriod.WEEK) {
-                    if (payDate.getDayOfWeek()==today.getDayOfWeek()) {
+                    if (payDate.getDayOfWeek() == today.getDayOfWeek()) {
                         isPayDate = true;
                     }
                 } else if (period == RulePeriod.MONTH) {
@@ -293,15 +292,15 @@ public class TeamService {
 
             for (Integer userId : userIds) {
                 Member member = memberRepository.findByUserIdAndTeamId(userId, teamId)
-                        .orElseThrow(()->new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-                    member.expelMember();
-                    memberRepository.save(member);
-                }
+                        .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+                member.expelMember();
+                memberRepository.save(member);
             }
         }
-
     }
+
 }
+
 
 
 
