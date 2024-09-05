@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +45,7 @@ public class TeamService {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int CODE_LENGTH = 6;
     private static final SecureRandom RANDOM = new SecureRandom();
-    private static final String baseUrl = AG_URL+":8081/";
+    private static final String baseUrl = AG_URL + ":8081/";
     private final InvitationRepository invitationRepository;
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
@@ -235,12 +234,13 @@ public class TeamService {
         return teamByUserResponses;
     }
 
+
+
     public List<AutoPayment> autoPayments() {
         List<Rule> rules = ruleRepository.findAll();
         LocalDate today = LocalDate.now();
 
         List<AutoPayment> autoPayments = new ArrayList<>();
-
 
         for (Rule rule : rules) {
             LocalDate payDate = rule.getPayDate();
@@ -250,20 +250,13 @@ public class TeamService {
             boolean isPayDate = false;
 
 
-            if (today.isEqual(payDate)) {
-                isPayDate = true;
-            } else {
-
+            if (!payDate.isAfter(today)) {
                 if (period == RulePeriod.WEEK) {
-                    long weeksBetween = ChronoUnit.WEEKS.between(payDate, today);
-                    if (weeksBetween >= 0 && weeksBetween % 1 == 0) {
+                    if (payDate.getDayOfWeek()==today.getDayOfWeek()) {
                         isPayDate = true;
                     }
-                }
-
-                else if (period == RulePeriod.MONTH) {
-                    long monthsBetween = ChronoUnit.MONTHS.between(payDate, today);
-                    if (monthsBetween >= 0 && payDate.getDayOfMonth() == today.getDayOfMonth()) {
+                } else if (period == RulePeriod.MONTH) {
+                    if (payDate.getDayOfMonth() == today.getDayOfMonth()) {
                         isPayDate = true;
                     }
                 }
@@ -271,21 +264,21 @@ public class TeamService {
 
 
             if (isPayDate) {
-                Optional<List<Member>> membersOptional = memberRepository.findByTeam(team);
+                List<Member> members = memberRepository.findByTeam(team)
+                        .orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
 
-                if (membersOptional.isPresent()) {
-                    List<Member> members = membersOptional.get();
-                    List<Integer> userIds = new ArrayList<>();
 
-                    members.stream()
-                            .filter(member -> member.getJoinStatus() == JoinStatus.ACTIVE)
-                            .forEach(member -> userIds.add(member.getUser().getId()));
+                List<Integer> userIds = new ArrayList<>();
 
-                    if (!userIds.isEmpty()) {
-                        AutoPayment autoPayment = new AutoPayment(team.getId(), rule.getDepositAmt(), userIds);
-                        autoPayments.add(autoPayment);
-                    }
+                members.stream()
+                        .filter(member -> member.getJoinStatus() == JoinStatus.ACTIVE)
+                        .forEach(member -> userIds.add(member.getUser().getId()));
+
+                if (!userIds.isEmpty()) {
+                    AutoPayment autoPayment = new AutoPayment(team.getId(), rule.getDepositAmt(), userIds);
+                    autoPayments.add(autoPayment);
                 }
+
             }
         }
 
