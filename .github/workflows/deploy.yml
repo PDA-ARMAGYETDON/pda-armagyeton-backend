@@ -92,8 +92,8 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "EC2_HOST=${{ secrets[matrix.env_var_prefix + '_EC2_HOST'] }}" >> $GITHUB_ENV
-          echo "EC2_PORT=${{ secrets[matrix.env_var_prefix + '_EC2_PORT'] }}" >> $GITHUB_ENV
+          echo "EC2_HOST=${{ secrets[format('{0}_EC2_HOST', matrix.env_var_prefix)] }}" >> $GITHUB_ENV
+          echo "EC2_PORT=${{ secrets[format('{0}_EC2_PORT', matrix.env_var_prefix)] }}" >> $GITHUB_ENV
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
