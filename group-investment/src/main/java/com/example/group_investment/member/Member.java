@@ -70,7 +70,7 @@ public class Member {
     }
 
     public void expelMember(){
-        this.joinStatus = DROP;
+        this.joinStatus = JoinStatus.DROP;
         this.dropedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
