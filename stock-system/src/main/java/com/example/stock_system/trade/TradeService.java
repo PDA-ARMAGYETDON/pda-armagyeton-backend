@@ -2,6 +2,8 @@ package com.example.stock_system.trade;
 
 import com.example.stock_system.account.Account;
 import com.example.stock_system.account.AccountRepository;
+import com.example.stock_system.account.TeamAccount;
+import com.example.stock_system.account.TeamAccountRepository;
 import com.example.stock_system.account.exception.AccountErrorCode;
 import com.example.stock_system.account.exception.AccountException;
 import com.example.stock_system.enums.TradeStatus;
@@ -30,10 +32,12 @@ public class TradeService {
     private final StocksRepository stocksRepository;
     private final HoldingsRepository holdingsRepository;
     private final TradeRepository tradeRepository;
+    private final TeamAccountRepository teamAccountRepository;
 
-    public void createTrade(CreateTradeRequest createTradeRequest) {
-        Account account = accountRepository.findById(createTradeRequest.getAccountId())
-                .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
+        TeamAccount teamAccount = teamAccountRepository.findByTeamId(createTradeRequest.getTeamId())
+                .orElseThrow(() -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
+
+        Account account = teamAccount.getAccount();
 
         Stocks stocks = stocksRepository.findByCode(createTradeRequest.getStockCode())
                 .orElseThrow(() -> new StocksException(StocksErrorCode.STOCKS_NOT_FOUND));

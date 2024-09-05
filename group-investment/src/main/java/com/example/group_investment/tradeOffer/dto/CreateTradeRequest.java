@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 public class CreateTradeRequest {
-    private int accountId;
+    private int teamId;
     private TradeType tradeType;
     private String stockCode;
     private int quantity;
@@ -16,8 +16,8 @@ public class CreateTradeRequest {
     }
 
     @Builder
-    public CreateTradeRequest(int accountId, TradeType tradeType, String stockCode, int quantity, int price) {
-        this.accountId = accountId;
+    public CreateTradeRequest(int teamId, TradeType tradeType, String stockCode, int quantity, int price) {
+        this.teamId = teamId;
         this.tradeType = tradeType;
         this.stockCode = stockCode;
         this.quantity = quantity;

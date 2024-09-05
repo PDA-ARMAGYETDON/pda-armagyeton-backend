@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class CreateTradeRequest {
-    private int accountId;
+    private int teamId;
     private TradeType tradeType;
     private String stockCode;
     private int quantity;

@@ -41,6 +41,7 @@ public class TradeOfferService {
     private final TeamRepository teamRepository;
     private final RuleRepository ruleRepository;
     private final TradeOfferVoteRepository tradeOfferVoteRepository;
+
     private final TradeOfferConverter tradeOfferConverter;
     private final TradeOfferCommunicator tradeOfferCommunicator;
     private final RabbitTemplate rabbitTemplate;
@@ -106,8 +107,10 @@ public class TradeOfferService {
         Member member = memberRepository.findByUserIdAndTeamId(userId, teamId).orElseThrow(
                 () -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-        Rule rule = ruleRepository.findByTeam(teamRepository.findById(teamId).orElseThrow(
-                () -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND))).orElseThrow(
+        Team team = teamRepository.findById(teamId).orElseThrow(
+                () -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+
+        Rule rule = ruleRepository.findByTeam(team).orElseThrow(
                 () -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
 
         TradeOffer tradeOffer = tradeOfferRepository.findById(tradeOfferId).orElseThrow(
