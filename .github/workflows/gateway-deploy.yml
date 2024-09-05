@@ -44,7 +44,7 @@ jobs:
         with:
           host: ${EC2_HOST}
           username: ec2-user
-          key: ${{ env.EC2_KEY }}
+          password: ${{ env.EC2_KEY }}
           script: |
             fuser -k ${{ env.EC2_PORT }}/tcp
             sudo rm -rf /home/ec2-user/${{ env.NAME }}/*.jar
