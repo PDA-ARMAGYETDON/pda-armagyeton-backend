@@ -42,7 +42,7 @@ jobs:
         with:
           host: ${{ env.EC2_HOST }}
           username: ubuntu
-#          password: ${{ env.EC2_KEY }}
+          password: ${{ env.EC2_KEY }}
           source: ${{ env.NAME }}/build/libs/*.jar
           target: /home/ubuntu/${{ env.NAME }}.jar
 
@@ -52,7 +52,7 @@ jobs:
           host: ${{ env.EC2_HOST }}
           port: 22
           username: ec2-user
-#          password: ${{ env.EC2_KEY }}
+          password: ${{ env.EC2_KEY }}
           script: |
             fuser -k ${{ env.EC2_PORT }}/tcp
             sudo rm -rf /home/ec2-user/${{ env.NAME }}/*.jar

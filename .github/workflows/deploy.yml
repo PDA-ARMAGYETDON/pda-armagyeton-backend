@@ -85,14 +85,14 @@
 #            echo "EC2_PORT=${{ secrets.INVEST_REFERENCES_EC2_PORT }}" >> $GITHUB_ENV
 #          fi
 #        shell: bash
-##      - name: Set environment variables
-##        run: |
-##          echo "EC2_HOST=${{ secrets[format('{0}_EC2_HOST', matrix.prefix)] }}" >> $GITHUB_ENV
-##          echo "EC2_PORT=${{ secrets[format('{0}_EC2_PORT', matrix.prefix)] }}" >> $GITHUB_ENV
-##          echo "EC2_HOST: ${{ env.EC2_HOST }}"
-##          echo "EC2_PORT: ${{ env.EC2_PORT }}"
-##          echo "EC2_HOST: ${EC2_HOST}"
-##          echo "EC2_PORT: ${EC2_PORT}"
+#      - name: Set environment variables
+#        run: |
+#          echo "EC2_HOST=${{ secrets[format('{0}_EC2_HOST', matrix.prefix)] }}" >> $GITHUB_ENV
+#          echo "EC2_PORT=${{ secrets[format('{0}_EC2_PORT', matrix.prefix)] }}" >> $GITHUB_ENV
+#          echo "EC2_HOST: ${{ env.EC2_HOST }}"
+#          echo "EC2_PORT: ${{ env.EC2_PORT }}"
+#          echo "EC2_HOST: ${EC2_HOST}"
+#          echo "EC2_PORT: ${EC2_PORT}"
 #
 #      - name: Set up JDK 17
 #        uses: actions/setup-java@v3
