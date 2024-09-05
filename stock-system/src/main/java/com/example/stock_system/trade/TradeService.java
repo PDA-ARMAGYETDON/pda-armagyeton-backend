@@ -65,7 +65,7 @@ public class TradeService {
         } else {
             Holdings holdings = holdingsRepository.findByAccountAndStockCode(account, stocks)
                     .orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUND));
-            List<Trade> trades = tradeRepository.findAllByAccountAndStocksAndTypeAndStatus(account, stocks, TradeType.SELL, TradeStatus.PENDING)
+            List<Trade> trades = tradeRepository.findAllByAccountAndStockCodeAndTypeAndStatus(account, stocks, TradeType.SELL, TradeStatus.PENDING)
                     .orElseGet(Collections::emptyList);
 
             int tradeQuantity = 0;

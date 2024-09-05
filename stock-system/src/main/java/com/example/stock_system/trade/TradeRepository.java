@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface TradeRepository extends JpaRepository<Trade, Integer> {
-    Optional<List<Trade>> findAllByAccountAndStocksAndTypeAndStatus(Account account, Stocks stocks, TradeType type, TradeStatus status);
+    Optional<List<Trade>> findAllByAccountAndStockCodeAndTypeAndStatus(Account account, Stocks stockCode, TradeType type, TradeStatus status);
 
     List<Trade> findByStatusAndStockCodeAndPriceAndType(TradeStatus status, Stocks stockCode, int price, TradeType type);
 }
