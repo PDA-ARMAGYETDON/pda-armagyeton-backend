@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/teams")
@@ -54,6 +56,12 @@ public class TeamController {
     public ApiResponse confirmTeam() {
         teamService.confirmTeam();
         return new ApiResponse<>(200, true, "모임을 확정했습니다.", null);
+    }
+
+    @PostMapping("/autoPayment")
+    public ApiResponse getAutoPaymentGroups(){
+        List<AutoPayment> autoPayments = teamService.autoPayments();
+        return new ApiResponse<>(200,true,"완료",autoPayments);
     }
 
 }

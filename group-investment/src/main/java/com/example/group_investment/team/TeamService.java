@@ -1,6 +1,7 @@
 package com.example.group_investment.team;
 
 import com.example.group_investment.enums.MemberRole;
+import com.example.group_investment.enums.RulePeriod;
 import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
@@ -19,14 +20,17 @@ import com.example.group_investment.user.User;
 import com.example.group_investment.user.UserRepository;
 import com.example.group_investment.user.exception.UserErrorCode;
 import com.example.group_investment.user.exception.UserException;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -207,4 +211,66 @@ public class TeamService {
                 .build();
         teamRepository.save(updatedTeam);
     }
+
+    public List<AutoPayment> autoPayments() {
+
+        List<Rule> rules = ruleRepository.findAll();
+        LocalDate today = LocalDate.now();
+
+        List<AutoPayment> autoPayments = new ArrayList<>();
+
+
+        for (Rule rule : rules) {
+            LocalDate payDate = rule.getPayDate();
+            RulePeriod period = rule.getPeriod();
+            Team team = rule.getTeam();
+
+            boolean isPayDate = false;
+
+
+            if (today.isEqual(payDate)) {
+                isPayDate = true;
+            } else {
+
+                if (period == RulePeriod.WEEK) {
+                    long weeksBetween = ChronoUnit.WEEKS.between(payDate, today);
+                    if (weeksBetween >= 0 && weeksBetween % 1 == 0) {
+                        isPayDate = true;
+                    }
+                }
+
+                else if (period == RulePeriod.MONTH) {
+                    long monthsBetween = ChronoUnit.MONTHS.between(payDate, today);
+                    if (monthsBetween >= 0 && payDate.getDayOfMonth() == today.getDayOfMonth()) {
+                        isPayDate = true;
+                    }
+                }
+            }
+
+
+            if (isPayDate) {
+
+                Optional<List<Member>> membersOptional = memberRepository.findByTeam(team);
+
+                if (membersOptional.isPresent()) {
+                    List<Member> members = membersOptional.get();
+                    List<Integer> userIds = new ArrayList<>();
+
+                    for (Member member : members) {
+                        userIds.add(member.getUser().getId());
+                    }
+                    AutoPayment autoPayment = new AutoPayment(team.getId(), rule.getDepositAmt(), userIds);
+
+                    autoPayments.add(autoPayment);
+                }
+            }
+        }
+
+        return autoPayments;
+    }
+
+
 }
+
+
+
