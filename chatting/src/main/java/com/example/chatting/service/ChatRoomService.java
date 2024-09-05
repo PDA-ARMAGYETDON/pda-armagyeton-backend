@@ -44,7 +44,15 @@ public class ChatRoomService {
 
     public void sendMessage(ChatMessage messageDto) {
 
-        messageTemplate.convertAndSend("/sub/chat/room/"+messageDto.getGroupId(), messageDto);
-        chatMessageRepository.save(messageDto);
+        Long generatedId = redisTemplate.opsForValue().increment("chatMessage:id");
+
+        int id = generatedId != null ? generatedId.intValue() : 0;
+        ChatMessage updatedMessageDto = messageDto.toBuilder()
+                .id(id)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        messageTemplate.convertAndSend("/sub/chat/room/"+messageDto.getTeamId(), updatedMessageDto);
+        chatMessageRepository.save(updatedMessageDto);
     }
 }
