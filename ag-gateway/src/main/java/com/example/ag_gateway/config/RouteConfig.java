@@ -48,7 +48,7 @@ public class RouteConfig {
     @Bean
     public RouterFunction<ServerResponse> groupRouterFunctionsMethod() {
         return route("group-investment")
-                .route(path("/api/users/**", "/api/groups/**", "/api/auth/**"), http(groupInvestmentUrl))
+                .route(path("/api/users/**", "/api/groups/**", "/api/auth/**", "/api/teams/**"), http(groupInvestmentUrl))
                 .build();
     }
 
