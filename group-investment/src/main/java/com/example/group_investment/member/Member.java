@@ -32,6 +32,7 @@ public class Member {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @Enumerated(EnumType.STRING)
     @JoinColumn(name = "join_status")
     private JoinStatus joinStatus;
 
