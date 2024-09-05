@@ -4,7 +4,6 @@ import com.example.chatting.domain.ChatMessage;
 import com.example.chatting.domain.ChatRoom;
 import com.example.chatting.exception.ChatErrorCode;
 import com.example.chatting.exception.ChatException;
-import com.example.chatting.repository.ChatMsRepository;
 import com.example.chatting.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +26,8 @@ import java.util.Set;
 public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
-    private final ChatMsRepository chatMessageRepository;
     private final SimpMessageSendingOperations messageTemplate;
-    private final RedisTemplate<String, ChatMessage> redisTemplateForMessage;  // 수정된 부분
+    private final RedisTemplate<String, ChatMessage> redisTemplateForMessage;
 
     @Value("${redis.chatroom.prefix}")
     private String prefix;
