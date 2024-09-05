@@ -78,7 +78,7 @@ public class TeamController {
 
     @Operation(summary = "멤버 방출",description = "돈을 안낸 멤버를 방출한다.")
     @PostMapping("/expelMember")
-    public ApiResponse expelMember(List<PayFail> payFails){
+    public ApiResponse expelMember(@RequestBody List<PayFail> payFails){
         teamService.expelMember(payFails);
         return new ApiResponse<>(200,true,"완료",null);
     }
