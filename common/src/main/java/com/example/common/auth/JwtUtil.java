@@ -1,4 +1,4 @@
-package com.example.group_investment.auth.utils;
+package com.example.common.auth;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -19,10 +19,10 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String getLoginId(String token){
+    public int getUserId(String token){
         return Jwts.parser().verifyWith(secretKey).build()
                 .parseSignedClaims(token).getPayload()
-                .get("username", String.class);
+                .get("userId", Integer.class);
     }
 
     public int getTeamId(String token){
@@ -52,9 +52,9 @@ public class JwtUtil {
                 .getExpiration().before(new Date());
     }
 
-    public String createJwt(String loginId, Integer teamId, boolean isTeam){
+    public String createJwt(int loginId, Integer teamId, boolean isTeam){
         return Jwts.builder()
-                .claim("username", loginId)
+                .claim("userId", loginId)
                 .claim("teamId", teamId)
                 .claim("isTeamExist", isTeam)
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -64,5 +64,13 @@ public class JwtUtil {
     }
 
 
+    public String extractToken(String authHeader) {
+        return authHeader.substring(7);
+    }
 
+    public boolean containsTeam(String jwtToken) {
+        return Jwts.parser().verifyWith(secretKey).build()
+                .parseSignedClaims(jwtToken).getPayload()
+                .containsKey("teamId");
+    }
 }

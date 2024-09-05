@@ -5,6 +5,6 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface ChatMsRepository extends CrudRepository<ChatMessage, Long> {
-    List<ChatMessage> findByGroupId(Long groupId);
+public interface ChatMsRepository extends CrudRepository<ChatMessage, Integer> {
+    List<ChatMessage> findByTeamId(int teamId);
 }
