@@ -4,4 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TeamAccountRepository extends JpaRepository<TeamAccount, Integer> {
 
+    TeamAccount findByTeamId(int teamId);
+
 }
