@@ -1,0 +1,94 @@
+name: CI/CD for Multi-Module Gradle Spring Boot Application
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    strategy:
+      matrix:
+        module: ['ag-gateway', 'alarm', 'chatting', 'group-investment', 'invest-references', 'stock-system']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle for ${{ matrix.module }}
+        run: ./gradlew :${{ matrix.module }}:build
+
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    strategy:
+      matrix:
+        include:
+          - module: 'ag-gateway'
+            ec2_host: ${{ secrets.GATEWAY_EC2_HOST }}
+            port: ${{ secrets.GATEWAY_EC2_PORT }}
+          - module: 'group-investment'
+            ec2_host: ${{ secrets.GROUP_INVESTMENT_EC2_HOST }}
+            port: ${{ secrets.GROUP_INVESTMENT_EC2_PORT }}
+          - module: 'stock-system'
+            ec2_host: ${{ secrets.STOCK_SYSTEM_EC2_HOST }}
+            port: ${{ secrets.STOCK_SYSTEM_EC2_PORT }}
+          - module: 'chatting'
+            ec2_host: ${{ secrets.CHAT_EC2_HOST }}
+            port: ${{ secrets.CHAT_EC2_PORT }}
+          - module: 'alarm'
+            ec2_host: ${{ secrets.ALARM_EC2_HOST }}
+            port: ${{ secrets.ALARM_EC2_PORT }}
+          - module: 'invest-references'
+            ec2_host: ${{ secrets.INVEST_REFERENCES_EC2_HOST }}
+            port: ${{ secrets.INVEST_REFERENCES_EC2_PORT }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle for ${{ matrix.module }}
+        run: ./gradlew :${{ matrix.module }}:bootJar
+
+      - name: Copy jar to EC2 for ${{ matrix.module }}
+        uses: appleboy/scp-action@v0.1.5
+        with:
+          host: ${{ matrix.ec2_host }}
+          username: ec2-user
+          key: ${{ secrets.EC2_KEY }}
+          source: ${{ matrix.module }}/build/libs/*.jar
+          target: /home/ec2-user/${{ matrix.module }}/
+
+      - name: Restart service on EC2 for ${{ matrix.module }}
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ matrix.ec2_host }}
+          username: ec2-user
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            fuser -k ${{ matrix.port }}/tcp
+            sudo rm -rf /home/ec2-user/${{ matrix.module }}/*.jar
+            nohup env $(cat /home/ubuntu/${{ matrix.module }}.env | xargs) java -jar /home/ubuntu/${{ matrix.module }}.jar &
