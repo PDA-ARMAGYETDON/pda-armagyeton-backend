@@ -21,6 +21,7 @@ public class Account {
 
     private int userId;
 
+    private String name;
     private String accountNumber;
     private int deposit;
     private int totalEvluAmt;
@@ -46,13 +47,16 @@ public class Account {
     public Account() {
     }
 
-    public Account(String accountNumber) {
+    public Account(String name,int userId,String accountNumber) {
+        this.name = name;
+        this.userId = userId;
         this.accountNumber = accountNumber;
     }
 
     @Builder
-    public Account(String accountNumber, int userId, int deposit, int totalEvluAmt, int totalPchsAmt, int totalEvluPfls, double totalEvluPflsRt) {
+    public Account(String accountNumber, int userId, String name,int deposit, int totalEvluAmt, int totalPchsAmt, int totalEvluPfls, double totalEvluPflsRt) {
         this.accountNumber = accountNumber;
+        this.name = name;
         this.userId = userId;
         this.deposit = deposit;
         this.totalEvluAmt = totalEvluAmt;
