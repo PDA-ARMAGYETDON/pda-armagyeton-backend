@@ -42,7 +42,7 @@ public class AgUserDetails implements UserDetails {
         return user.getLoginId();
     }
 
-    public int getId(){
+    public int getUserId(){
         return user.getId();
     }
 

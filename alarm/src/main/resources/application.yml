@@ -1,19 +1,38 @@
 spring:
   application:
-    name:
-      alarm
+    name: alarm
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${ALARM_URL}
+    username: ${ALARM_USERNAME}
+    password: ${ALARM_PASSWORD}
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 
   rabbitmq:
-    host: 3.38.242.178
-    port: 5672
-    username: test
-    password: test
+    host: ${MQ_HOST}
+    port: ${MQ_PORT}
+    username: ${MQ_USERNAME}
+    password: ${MQ_PASSWORD}
     exchange:
       name: (AMQP default)
+    reg-token-queue:
+      name: main_to_alarm
     recvChatQueue:
       name: chat_to_alarm
     recvStockQueue:
       name: stock_to_alarm
+
+fcm:
+  service:
+    key: ./serviceAccountKey.json
 
 server:
   port: 8085

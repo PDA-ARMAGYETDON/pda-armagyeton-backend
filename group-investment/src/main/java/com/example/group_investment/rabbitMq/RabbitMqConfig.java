@@ -26,14 +26,14 @@ public class RabbitMqConfig {
     @Value("${spring.rabbitmq.password}")
     private String rabbitmqPassword;
 
-    @Value("${spring.rabbitmq.sendQueue.name}")
-    private String sendQueueName;
+    @Value("${spring.rabbitmq.queue.name}")
+    private String QueueName;
+
 
     @Bean
-    public Queue stockToAlarmQueue() {
-        return new Queue(sendQueueName, true);
+    public Queue mainToAlarmQueue() {
+        return new Queue(QueueName, true);
     }
-
 
     @Bean
     public ConnectionFactory connectionFactory() {

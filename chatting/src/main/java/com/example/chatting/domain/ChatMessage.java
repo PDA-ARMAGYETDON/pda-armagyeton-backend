@@ -1,24 +1,26 @@
 package com.example.chatting.domain;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
+@Builder(toBuilder = true)
 @Getter
-@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @RedisHash("ChatMessage")
 public class ChatMessage implements Serializable {
     @Id
-    private Long id;
+    private int id;
 
     @Indexed
-    private Long groupId;
-    private Long userId;
+    private int teamId;
+    private int userId;
+    private String name;
     private String message;
+    private LocalDateTime createdAt;
 }

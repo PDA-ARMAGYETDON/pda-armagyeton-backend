@@ -7,13 +7,13 @@ spring:
     url: ${RDS_URL}
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
-  
+
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
 
   ag:
@@ -28,14 +28,14 @@ spring:
     secret: ${JWT_SECRET}
 
   rabbitmq:
-    host: 3.38.242.178
-    port: 5672
-    username: test
-    password: test
+    host: ${MQ_HOST}
+    port: ${MQ_PORT}
+    username: ${MQ_USERNAME}
+    password: ${MQ_PASSWORD}
     exchange:
       name: (AMQP default)
-    sendQueue:
-      name: main_to_stock
+    queue:
+      name: main_to_alarm
 
 server:
   port: 8081

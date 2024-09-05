@@ -49,6 +49,15 @@ public class RedisConfig {
     }
 
     @Bean
+    public RedisTemplate<String, Object> redisTemplateForGenericObject(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        return template;
+    }
+
+    @Bean
     public ValueOperations<String, ChatMessage> valueOperations(RedisTemplate<String, ChatMessage> redisTemplate) {
         return redisTemplate.opsForValue();
     }

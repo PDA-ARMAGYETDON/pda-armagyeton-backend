@@ -22,7 +22,7 @@ public class ChatRoomController {
     @PostMapping("/room")
     public ResponseEntity<String> create(@RequestBody ChatRoom chatroom) {
         try {
-            chatRoomService.createChatRoom(chatroom.getGroupId());
+            chatRoomService.createChatRoom(chatroom.getTeamId());
             return ResponseEntity.status(HttpStatus.CREATED).body("채팅방 생성되었습니다.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating chat room");
@@ -30,7 +30,7 @@ public class ChatRoomController {
     }
 
     @GetMapping("/room")
-    public ResponseEntity<List<ChatMessageResponse>> getMessages(@RequestParam("groupId") Long groupId) {
+    public ResponseEntity<List<ChatMessageResponse>> getMessages(@RequestParam("groupId") int groupId) {
         try {
             List<ChatMessage> messages = chatRoomService.selectChatMessageList(groupId);
 
