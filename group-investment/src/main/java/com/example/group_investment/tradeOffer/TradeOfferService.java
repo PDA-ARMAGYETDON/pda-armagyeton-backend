@@ -22,6 +22,8 @@ import com.example.group_investment.tradeOffer.exception.TradeOfferException;
 import com.example.group_investment.tradeOffer.utils.TradeOfferCommunicator;
 import com.example.group_investment.tradeOffer.utils.TradeOfferConverter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,8 +43,10 @@ public class TradeOfferService {
     private final TradeOfferVoteRepository tradeOfferVoteRepository;
     private final TradeOfferConverter tradeOfferConverter;
     private final TradeOfferCommunicator tradeOfferCommunicator;
+    private final RabbitTemplate rabbitTemplate;
 
-    private final MqSender mqSender;
+    @Value("${spring.rabbitmq.main-stock-queue.name}")
+    private String mainStockQueue;
 
     public void createTradeOffer(CreateTradeOfferRequest createTradeOfferRequest) {
         // FIXME: 토큰으로 사용자 아이디와 모임 아이디 가져와야함

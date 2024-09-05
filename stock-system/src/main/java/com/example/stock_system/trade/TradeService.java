@@ -17,6 +17,7 @@ import com.example.stock_system.stocks.exception.StocksException;
 import com.example.stock_system.trade.dto.CreateTradeRequest;
 import com.example.stock_system.trade.dto.TradeDto;
 import lombok.AllArgsConstructor;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
