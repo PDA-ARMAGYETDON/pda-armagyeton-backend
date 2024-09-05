@@ -14,7 +14,7 @@ import java.io.Serializable;
 @RedisHash("ChatRoom")
 public class ChatRoom implements Serializable {
     @Id
-    private Long groupId;
+    private int teamId;
     //private String name;
 
 }
