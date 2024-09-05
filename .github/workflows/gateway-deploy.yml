@@ -30,11 +30,17 @@ jobs:
       - name: Build with Gradle for ${{ env.NAME }}
         run: ./gradlew :${{ env.NAME }}:bootJar
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
       - name: Copy jar to EC2 for ${{ env.NAME }}
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ env.EC2_HOST }}
-          port: 22
           username: ubuntu
           password: ${{ env.EC2_KEY }}
           source: ${{ env.NAME }}/build/libs/*.jar
