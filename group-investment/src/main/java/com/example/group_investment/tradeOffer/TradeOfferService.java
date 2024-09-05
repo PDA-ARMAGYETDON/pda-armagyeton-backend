@@ -1,5 +1,6 @@
 package com.example.group_investment.tradeOffer;
 
+import com.example.common.exception.ErrorCode;
 import com.example.group_investment.enums.Choice;
 import com.example.group_investment.enums.OfferStatus;
 import com.example.group_investment.enums.TradeType;
@@ -7,7 +8,6 @@ import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.exception.MemberErrorCode;
 import com.example.group_investment.member.exception.MemberException;
-import com.example.group_investment.rabbitMq.MqSender;
 import com.example.group_investment.rule.Rule;
 import com.example.group_investment.rule.RuleRepository;
 import com.example.group_investment.rule.exception.RuleErrorCode;
@@ -21,7 +21,10 @@ import com.example.group_investment.tradeOffer.exception.TradeOfferErrorCode;
 import com.example.group_investment.tradeOffer.exception.TradeOfferException;
 import com.example.group_investment.tradeOffer.utils.TradeOfferCommunicator;
 import com.example.group_investment.tradeOffer.utils.TradeOfferConverter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -124,40 +127,40 @@ public class TradeOfferService {
 
         tradeOfferVoteRepository.save(tradeOfferVoteDto.toEntity());
 
+        if (tradeOffer.getOfferStatus() != OfferStatus.PROGRESS) {
+            throw new TradeOfferException(TradeOfferErrorCode.TRADE_OFFER_EXPIRED);
+        }
+
+        if (tradeOffer.isUrgent()) {
+            if (tradeOffer.getOfferAt().plusMinutes(30).isBefore(LocalDateTime.now())) {
+                tradeOffer.expireTradeOffer();
+                tradeOfferRepository.save(tradeOffer);
+                throw new TradeOfferException(TradeOfferErrorCode.TRADE_OFFER_EXPIRED);
+            }
+        }
+
         if (voteTradeOfferRequest.getChoice() == Choice.PROS) {
             tradeOffer.vote(true);
-        } else tradeOffer.vote(false);
-
-        if (tradeOffer.isUrgent() && (tradeOffer.getUpvotes() + tradeOffer.getDownvotes()) >= rule.getUrgentTradeUpvotes()) {
-            if (tradeOffer.getUpvotes() >= rule.getUrgentTradeUpvotes()) {
-                tradeOffer.approveTradeOffer();
-
-            } else {
-                tradeOffer.expireTradeOffer();
-            }
-            tradeOfferRepository.save(tradeOffer);
-            CreateTradeRequest createTradeRequest = new CreateTradeRequest().builder()
-                    .tradeType(tradeOffer.getTradeType())
-                    .stockCode(tradeOffer.getStockCode())
-                    .quantity(tradeOffer.getQuantity())
-                    .price(tradeOffer.getWantPrice())
-                    .build();
-            mqSender.send(createTradeRequest);
-        } else if (!tradeOffer.isUrgent() && (tradeOffer.getUpvotes() + tradeOffer.getDownvotes()) >= rule.getTradeUpvotes()) {
-            if (tradeOffer.getUpvotes() >= rule.getTradeUpvotes()) {
-                tradeOffer.approveTradeOffer();
-            } else {
-                tradeOffer.expireTradeOffer();
-            }
-            tradeOfferRepository.save(tradeOffer);
-            CreateTradeRequest createTradeRequest = new CreateTradeRequest().builder()
-                    .tradeType(tradeOffer.getTradeType())
-                    .stockCode(tradeOffer.getStockCode())
-                    .quantity(tradeOffer.getQuantity())
-                    .price(tradeOffer.getWantPrice())
-                    .build();
-            mqSender.send(createTradeRequest);
+        } else {
+            tradeOffer.vote(false);
         }
+
+        if (tradeOffer.getUpvotes() >= (tradeOffer.isUrgent() ? rule.getUrgentTradeUpvotes() : rule.getTradeUpvotes())) {
+            tradeOffer.approveTradeOffer();
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String objToJson = objectMapper.writeValueAsString(tradeOfferConverter.tradeOfferToCreateTradeRequest(tradeOffer));
+                rabbitTemplate.convertAndSend(mainStockQueue, objToJson);
+            } catch (JsonProcessingException e) {
+                throw new TradeOfferException(ErrorCode.JSON_PARSE_ERROR);
+            } catch (AmqpException e) {
+                throw new TradeOfferException(ErrorCode.MQ_CONNECTION_FAILED);
+            }
+        } else if (tradeOffer.getDownvotes() > (team.getHeadCount() - (tradeOffer.isUrgent() ? rule.getUrgentTradeUpvotes() : rule.getTradeUpvotes()))) {
+            tradeOffer.expireTradeOffer();
+        }
+
+        tradeOfferRepository.save(tradeOffer);
 
         return new VoteTradeOfferResponse().builder()
                 .offerStatus(tradeOffer.getOfferStatus())
