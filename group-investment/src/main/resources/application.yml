@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: group-investment
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${RDS_URL}
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
+  
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  ag:
+    url: ${AG_URL}
+
+  devtools:
+    restart:
+      enabled: true # auto restart
+      additional-exclude: static/**,public/**
+
+  jwt:
+    secret: ${JWT_SECRET}
+
+  rabbitmq:
+    host: ${MQ_HOST}
+    port: ${MQ_PORT}
+    username: ${MQ_USERNAME}
+    password: ${MQ_PASSWORD}
+    exchange:
+      name: (AMQP default)
+    queue:
+      name: main_to_alarm
+
+server:
+  port: 8081
+
+logging:
+  level:
+    root: info

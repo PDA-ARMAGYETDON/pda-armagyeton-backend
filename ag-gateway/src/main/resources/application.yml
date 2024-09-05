@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: ag-gateway
+  jwt:
+    secret: ${JWT_SECRET}
+
+url:
+  client: ${CLIENT_URL}
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: info
+
+route:
+  url:
+    group-investment: ${GROUP_INVESTMENT_URL}
+    stock-system: ${STOCK_SYSTEM_URL}
+    invest-reference: ${INVEST_REFERENCES_URL}
+    chatting: ${CHAT_URL}
+    alarm: ${ALARM_URL}
+
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  webjars:
+    prefix: ${ARMAGYETDON_URL}
+  swagger-ui:
+    operations-sorter: alpha
+    use-root-path: true
+    urls:
+      - url: /v3/api-docs
+        name: API Gateway Service
+      - url: ${GROUP_INVESTMENT_URL}/v3/api-docs
+        name: Group Investment Service
+      - url: ${CHAT_URL}/v3/api-docs
+        name: Chatting Service
+      - url: ${ALARM_URL}/v3/api-docs
+        name: Alarm Service
+      - url: ${STOCK_SYSTEM_URL}/v3/api-docs
+        name: Stock System Service
+      - url: ${INVEST_REFERENCES_URL}/v3/api-docs
+        name: Invest References Service

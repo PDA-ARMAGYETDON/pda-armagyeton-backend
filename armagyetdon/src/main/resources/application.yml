@@ -1,5 +1,0 @@
-spring:
-  application:
-    name: armagyetdon
-server:
-  port: 8081
