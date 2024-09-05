@@ -1,5 +1,7 @@
-package com.example.ag_gateway.authorization;
+package com.example.ag_gateway.config;
 
+import com.example.ag_gateway.authorization.JwtFilter;
+import com.example.ag_gateway.authorization.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +34,6 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((requests) -> requests
-//                                .requestMatchers("/api/users/login", "/api/users/signup").permitAll()
                                 .anyRequest().permitAll())
                 .addFilterBefore(new JwtFilter(jwtUtil), BasicAuthenticationFilter.class)
         ;

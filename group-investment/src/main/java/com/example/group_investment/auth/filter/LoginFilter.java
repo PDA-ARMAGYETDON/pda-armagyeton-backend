@@ -1,14 +1,15 @@
 package com.example.group_investment.auth.filter;
 
+import com.example.common.auth.JwtUtil;
 import com.example.group_investment.auth.AgUserDetails;
 import com.example.group_investment.auth.AgUserDetailsService;
-import com.example.group_investment.auth.utils.JwtUtil;
 import com.example.group_investment.auth.exception.AuthoErrorCode;
 import com.example.group_investment.auth.exception.AuthoException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import java.io.IOException;
 import java.util.Map;
 
+@Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
@@ -38,7 +40,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String password;
 
         try {
-            if (request.getContentType().equalsIgnoreCase("application/json")) {
+            log.info("[LoginFilter의 attemptAuthentication] "+ request.getContentType());
+            if (request.getContentType().startsWith("application/json")) {
                 // JSON 데이터 파싱
                 System.out.println("application/json");
                 Map<String, String> requestBody = new ObjectMapper().readValue(request.getInputStream(), Map.class);
@@ -66,12 +69,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
         AgUserDetails userDetails = (AgUserDetails) authentication.getPrincipal();
 
-        String loginId = userDetails.getUsername();
-        int id = userDetails.getId();
-        boolean isTeamExist = userDetailsService.isTeamExist(id);
-        Integer teamId = isTeamExist ? userDetailsService.getTeamId(id) : null;
+        int userId = userDetails.getUserId();
+        boolean isTeamExist = userDetailsService.isTeamExist(userId);
+        Integer teamId = isTeamExist ? userDetailsService.getTeamId(userId) : null;
 
-        String token = jwtUtil.createJwt(loginId, teamId, isTeamExist);
+        String token = jwtUtil.createJwt(userId, teamId, isTeamExist);
 
         response.addHeader("Authorization", "Bearer " + token);
     }
