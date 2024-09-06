@@ -50,7 +50,7 @@ jobs:
           host: ${{ env.EC2_HOST }}
           username: ubuntu
           port: 22
-          key: ${{ env.EC2_KEY }}
+          password: ${{ env.EC2_KEY }}
           source: ${{ env.NAME }}/build/libs/*.jar
           target: /home/ubuntu/${{ env.NAME }}.jar
 
