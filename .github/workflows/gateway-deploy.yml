@@ -47,33 +47,35 @@ jobs:
 #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 
-#      - name: 서비스 중지 및 jar 파일 삭제
-#        uses: appleboy/ssh-action@v1.0.3
-#        with:
-#          host: ${{ env.EC2_HOST }}
-#          username: ubuntu
-#          key: ${{ env.EC2_PEM_KEY }}
-#          port: 22
-#          timeout: 120s
-#          script: |
-#            lsof -t -i tcp:8080 | xargs kill -9
-#            sudo rm -rf /home/ec2-user/${{ env.NAME }}/*.jar
-
-      - name: Copy jar to EC2 for ${{ env.NAME }}
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ env.EC2_HOST }}
-          username: ubuntu
-          port: 22
-          key: ${{ env.EC2_PEM_KEY }}
-          source: ${{ env.NAME }}/build/libs/*.jar
-          target: /home/ubuntu/${{ env.NAME }}.jar
-          timeout: 120s
-
-      - name: 서비스 실행
+      - name: 서비스 중지 및 jar 파일 삭제
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ env.EC2_HOST }}
           username: ubuntu
           key: ${{ env.EC2_PEM_KEY }}
-          script: nohup env $(cat /home/ubuntu/${{ env.NAME }}.env | xargs) java -jar /home/ubuntu/${{ env.NAME }}-1.0.0.jar &
+          port: 22
+          script: |
+            git pull origin main
+            /home/ubuntu/${{ env.NAME }}/gradlew :${{ env.NAME }}:bootJar
+            lsof -t -i tcp:8080 | xargs kill -9
+            sudo rm -rf /home/ubuntu/${{ env.NAME }}/*.jar
+            nohup env $(cat /home/ubuntu/${{ env.NAME }}.env | xargs) java -jar /home/ubuntu/${{ env.NAME }}-1.0.0.jar &
+
+#      - name: Copy jar to EC2 for ${{ env.NAME }}
+#        uses: appleboy/scp-action@v0.1.7
+#        with:
+#          host: ${{ env.EC2_HOST }}
+#          username: ubuntu
+#          port: 22
+#          key: ${{ env.EC2_PEM_KEY }}
+#          source: ${{ env.NAME }}/build/libs/*.jar
+#          target: /home/ubuntu/${{ env.NAME }}.jar
+#          timeout: 120s
+#
+#      - name: 서비스 실행
+#        uses: appleboy/ssh-action@v1.0.3
+#        with:
+#          host: ${{ env.EC2_HOST }}
+#          username: ubuntu
+#          key: ${{ env.EC2_PEM_KEY }}
+#          script: nohup env $(cat /home/ubuntu/${{ env.NAME }}.env | xargs) java -jar /home/ubuntu/${{ env.NAME }}-1.0.0.jar &
