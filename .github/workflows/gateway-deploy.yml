@@ -58,6 +58,7 @@ jobs:
           key: ${{ env.EC2_PEM_KEY }}
           source: ${{ env.NAME }}/build/libs/*.jar
           target: /home/ubuntu/${{ env.NAME }}.jar
+          timeout: 120s
 
       - name: Restart service on EC2 for ${{ env.NAME }}
         uses: appleboy/ssh-action@v0.1.5
