@@ -1,5 +1,7 @@
 package com.example.stock_system.rabbitMq;
 
+import com.example.common.exception.ErrorCode;
+import com.example.stock_system.stocks.exception.StocksException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +30,10 @@ public class MqSender<D> {
 
             rabbitTemplate.convertAndSend(sendQueueName, objToJson);
 
-            //TODO: 테스트 후 삭제 할 것
-            System.out.println("보낸 큐 이름: " + sendQueueName);
-            System.out.println("[Stock] Send: '" + data.toString() + "'");
+            log.info("[{}] 알림 전송 완료", sendQueueName);
 
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            log.error("Object -> Json convert Error");
+            throw new StocksException(ErrorCode.JACKSON_PROCESS_ERROR);
         }
     }
 }

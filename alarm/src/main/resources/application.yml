@@ -1,6 +1,8 @@
 spring:
   application:
     name: alarm
+  jwt:
+    secret: ${JWT_SECRET}
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -16,6 +18,12 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  jwt:
+    secret: ${JWT_SECRET}
+
+  ag:
+    url: ${AG_URL}
+
   rabbitmq:
     host: ${MQ_HOST}
     port: ${MQ_PORT}
@@ -27,7 +35,7 @@ spring:
       name: main_to_alarm
     recvChatQueue:
       name: chat_to_alarm
-    recvStockQueue:
+    stockTradeQueue:
       name: stock_to_alarm
 
 fcm:

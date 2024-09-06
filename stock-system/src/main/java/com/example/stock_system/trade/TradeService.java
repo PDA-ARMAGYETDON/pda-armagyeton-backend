@@ -13,6 +13,8 @@ import com.example.stock_system.holdings.Holdings;
 import com.example.stock_system.holdings.HoldingsRepository;
 import com.example.stock_system.holdings.exception.HoldingsErrorCode;
 import com.example.stock_system.holdings.exception.HoldingsException;
+import com.example.stock_system.holdings.dto.ToAlarmDto;
+import com.example.stock_system.rabbitMq.MqSender;
 import com.example.stock_system.stocks.Stocks;
 import com.example.stock_system.stocks.StocksRepository;
 import com.example.stock_system.stocks.exception.StocksErrorCode;
@@ -25,11 +27,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class TradeService {
@@ -38,6 +44,10 @@ public class TradeService {
     private final HoldingsRepository holdingsRepository;
     private final TradeRepository tradeRepository;
     private final TeamAccountRepository teamAccountRepository;
+    private final RabbitTemplate rabbitTemplate;
+
+    @Value("${spring.rabbitmq.sendQueue.name}")
+    private String sendQueueName;
 
     @RabbitListener(queues = "${spring.rabbitmq.mainToStock.name}")
     public void createTrade(String message) {
@@ -117,9 +127,18 @@ public class TradeService {
                 account.buyStock(requiredAmount);
                 accountRepository.save(account);
 
-                System.out.println("매수 완료 - 주식 코드: " + stockCode + ", 거래 ID: " + trade.getId());
+                //알람 전송 파트
+                int teamId = teamAccountRepository.findByAccountId(account.getUserId()).orElseThrow(
+                        () -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND)).getTeamId();
+
+                MqSender<ToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
+                ToAlarmDto data = new ToAlarmDto(teamId, account.getName(), findStock.getName(), trade.getQuantity(), true);
+
+                mqSender.send(data);
+
+
             } else {
-                System.out.println("매수 실패 - 예치금 부족, 거래 ID: " + trade.getId());
+                log.info("매수 실패 - 예치금 부족, 거래 ID: {}", trade.getId());
             }
         }
     }
@@ -152,8 +171,18 @@ public class TradeService {
             account.sellStock(profitLoss);
             accountRepository.save(account);
 
+            //알람 전송 파트
+            int teamId = teamAccountRepository.findByAccountId(account.getUserId()).orElseThrow(
+                    () -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND)).getTeamId();
+
+            MqSender<ToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
+            ToAlarmDto data = new ToAlarmDto(teamId, account.getName(), findStock.getName(), trade.getQuantity(), false);
+
+            mqSender.send(data);
+
             System.out.println("매도 완료 - 주식 코드: " + stockCode + ", 거래 ID: " + trade.getId());
         }
 
     }
+
 }

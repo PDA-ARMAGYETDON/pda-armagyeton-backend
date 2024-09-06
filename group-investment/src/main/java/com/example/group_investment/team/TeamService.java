@@ -1,6 +1,8 @@
 package com.example.group_investment.team;
 
+import com.example.group_investment.enums.JoinStatus;
 import com.example.group_investment.enums.MemberRole;
+import com.example.group_investment.enums.RulePeriod;
 import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
@@ -25,8 +27,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +45,7 @@ public class TeamService {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int CODE_LENGTH = 6;
     private static final SecureRandom RANDOM = new SecureRandom();
-    private static final String baseUrl = AG_URL+":8081/";
+    private static final String baseUrl = AG_URL + ":8081/";
     private final InvitationRepository invitationRepository;
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
@@ -136,7 +140,7 @@ public class TeamService {
         Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
         RuleDto ruleDto = rule.fromEntity(rule);
         //2-3. is 모임장
-        int isLeader = 0; 
+        int isLeader = 0;
         if (memberRepository.findByUserIdAndTeamId(userId, teamId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
                 .getRole() == MemberRole.LEADER)
             isLeader = 1;
@@ -229,4 +233,74 @@ public class TeamService {
         }
         return teamByUserResponses;
     }
+
+
+    public List<AutoPayment> autoPayments() {
+        List<Rule> rules = ruleRepository.findAll();
+        LocalDate today = LocalDate.now();
+
+        List<AutoPayment> autoPayments = new ArrayList<>();
+
+        for (Rule rule : rules) {
+            LocalDate payDate = rule.getPayDate();
+            RulePeriod period = rule.getPeriod();
+            Team team = rule.getTeam();
+
+            boolean isPayDate = false;
+
+
+            if (!payDate.isAfter(today)) {
+                if (period == RulePeriod.WEEK) {
+                    if (payDate.getDayOfWeek() == today.getDayOfWeek()) {
+                        isPayDate = true;
+                    }
+                } else if (period == RulePeriod.MONTH) {
+                    if (payDate.getDayOfMonth() == today.getDayOfMonth()) {
+                        isPayDate = true;
+                    }
+                }
+            }
+
+
+            if (isPayDate) {
+                List<Member> members = memberRepository.findByTeam(team)
+                        .orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+
+
+                List<Integer> userIds = new ArrayList<>();
+
+                members.stream()
+                        .filter(member -> member.getJoinStatus() == JoinStatus.ACTIVE)
+                        .forEach(member -> userIds.add(member.getUser().getId()));
+
+                if (!userIds.isEmpty()) {
+                    AutoPayment autoPayment = new AutoPayment(team.getId(), rule.getDepositAmt(), userIds);
+                    autoPayments.add(autoPayment);
+                }
+
+            }
+        }
+
+        return autoPayments;
+    }
+
+    public void expelMember(List<PayFail> payFails) {
+
+        for (PayFail payFail : payFails) {
+            int teamId = payFail.getTeamId();
+            List<Integer> userIds = payFail.getUserId();
+
+            for (Integer userId : userIds) {
+                Member member = memberRepository.findByUserIdAndTeamId(userId, teamId)
+                        .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+                member.expelMember();
+                memberRepository.save(member);
+            }
+        }
+    }
+
 }
+
+
+
+

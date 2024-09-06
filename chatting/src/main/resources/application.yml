@@ -1,29 +1,42 @@
 spring:
   application:
     name: chatting
+  jwt:
+    secret: ${JWT_SECRET}
+  ag:
+    url: ${AG_URL}
 
   rabbitmq:
-    host: 3.38.242.178
-    port: 5672
-    username: test
-    password: test
+    host: ${MQ_HOST}
+    port: ${MQ_PORT}
+    username: ${MQ_USERNAME}
+    password: ${MQ_PASSWORD}
     exchange:
       name: (AMQP default)
-    recvChatQueue:
+    queue:
       name: chat_to_alarm
 
   data:
     redis:
       host: localhost
       port: 6379
+    cache:
+      type: redis
 
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
 redis:
   chatroom:
     prefix: "chat:"
+  cache:
+    ttl: 1200
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT}
 
 chat:
   path: http://localhost:8082
 
 server:
-  port: 8082
+  port: 8084
