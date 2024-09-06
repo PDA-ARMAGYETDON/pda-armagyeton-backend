@@ -1,5 +1,6 @@
 package com.example.group_investment.team;
 
+import com.example.group_investment.enums.Category;
 import com.example.group_investment.team.dto.*;
 import com.example.group_investment.team.dto.CreateTeamRequest;
 import com.example.group_investment.team.dto.CreateTeamResponse;
@@ -32,6 +33,12 @@ public class TeamController {
     public ApiResponse<DetailTeamResponse> selectTeamRules(@RequestAttribute("teamId") int teamId) {
         DetailTeamResponse detailTeamResponse = teamService.selectTeamRules(teamId);
         return new ApiResponse<>(200, true, "팀의 모임 원칙을 조회했습니다.",detailTeamResponse);
+    }
+
+    @Operation(summary = "팀의 카테고리를 조회하는 API")
+    @GetMapping("/{id}/category")
+    public ApiResponse<Category> getCategoryName(@PathVariable("id") int id) {
+        return new ApiResponse<>(200, true,"팀의 카테고리를 조회했습니다.", teamService.getCategoryName(id));
     }
 
     @Operation(summary = "팀을 생성하는 API")
