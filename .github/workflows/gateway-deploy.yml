@@ -53,6 +53,7 @@ jobs:
           host: ${{ env.EC2_HOST }}
           username: ubuntu
           key: ${{ env.EC2_PEM_KEY }}
+          timeout: 120s
           script: |
             lsof -t -i tcp:8080 | xargs kill -9 
             sudo rm -rf /home/ec2-user/${{ env.NAME }}/*.jar
