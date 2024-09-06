@@ -76,7 +76,7 @@ public class FcmService {
     //토픽 구독
     public void subscribeToTopics(String fcmToken, ArrayList<Integer> groupIds) {
         for (Integer groupId : groupIds) {
-            String topic = String.valueOf(groupId); // 그룹 번호를 토픽 이름으로 설정
+            String topic = String.valueOf(groupId);
             try {
                 FirebaseMessaging.getInstance().subscribeToTopic(Arrays.asList(fcmToken), topic);
                 log.info("[FCM] : 그룹 {} 구독 성공 ", topic);
