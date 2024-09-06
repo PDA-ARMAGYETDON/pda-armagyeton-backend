@@ -9,7 +9,7 @@ allprojects {
     apply plugin: 'io.spring.dependency-management'
 
     group = 'com.example'
-    version = '0.0.1'
+    version = '1.0.0'
 
     repositories {
         mavenCentral()
@@ -31,4 +31,5 @@ subprojects {
     dependencies {
 
     }
+
 }
