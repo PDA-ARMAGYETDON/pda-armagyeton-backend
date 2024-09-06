@@ -70,7 +70,7 @@ public class TradeService {
                         () -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND)).getTeamId();
 
                 MqSender<ToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
-                ToAlarmDto data = new ToAlarmDto(teamId, findStock.getName(), trade.getQuantity(), trade.getPrice(), true);
+                ToAlarmDto data = new ToAlarmDto(teamId, account.getName(), findStock.getName(), trade.getQuantity(), true);
 
                 mqSender.send(data);
 
@@ -113,7 +113,7 @@ public class TradeService {
                     () -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND)).getTeamId();
 
             MqSender<ToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
-            ToAlarmDto data = new ToAlarmDto(teamId, findStock.getName(), trade.getQuantity(), trade.getPrice(), false);
+            ToAlarmDto data = new ToAlarmDto(teamId, account.getName(), findStock.getName(), trade.getQuantity(), false);
 
             mqSender.send(data);
 
