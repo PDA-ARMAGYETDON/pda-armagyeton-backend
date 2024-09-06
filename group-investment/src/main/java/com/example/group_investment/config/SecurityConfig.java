@@ -50,13 +50,13 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/api/users/login", "/api/users/signup",
-                                "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                "/swagger-ui/**", "/v3/api-docs/**", "/api/backend/**").permitAll()
                         .anyRequest().authenticated());
 
         http
                 .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, userDetailsService), UsernamePasswordAuthenticationFilter.class)
-                .logout((logoutConfig)->
+                .logout((logoutConfig) ->
                         logoutConfig
                                 .logoutUrl("/api/users/logout")
 
@@ -64,7 +64,7 @@ public class SecurityConfig {
         ;
 
         http
-                .sessionManagement((session)->session
+                .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
