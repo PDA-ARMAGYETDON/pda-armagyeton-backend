@@ -47,16 +47,17 @@ jobs:
 #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 
-      - name: 서비스 중지 및 jar 파일 삭제
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ env.EC2_HOST }}
-          username: ubuntu
-          key: ${{ env.EC2_PEM_KEY }}
-          timeout: 120s
-          script: |
-            lsof -t -i tcp:8080 | xargs kill -9 
-            sudo rm -rf /home/ec2-user/${{ env.NAME }}/*.jar
+#      - name: 서비스 중지 및 jar 파일 삭제
+#        uses: appleboy/ssh-action@v1.0.3
+#        with:
+#          host: ${{ env.EC2_HOST }}
+#          username: ubuntu
+#          key: ${{ env.EC2_PEM_KEY }}
+#          port: 22
+#          timeout: 120s
+#          script: |
+#            lsof -t -i tcp:8080 | xargs kill -9
+#            sudo rm -rf /home/ec2-user/${{ env.NAME }}/*.jar
 
       - name: Copy jar to EC2 for ${{ env.NAME }}
         uses: appleboy/scp-action@v0.1.7
