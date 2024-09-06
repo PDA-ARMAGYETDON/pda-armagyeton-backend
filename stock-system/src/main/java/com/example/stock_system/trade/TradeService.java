@@ -43,7 +43,7 @@ public class TradeService {
                     existingHolding.addData(trade.getQuantity(), requiredAmount);
                     holdingsRepository.save(existingHolding);
                 } else {
-                    Holdings newHolding = new Holdings(account, findStock, trade.getQuantity(), requiredAmount);
+                    Holdings newHolding = new Holdings(account, findStock, findStock.getName(), trade.getQuantity(), requiredAmount);
                     holdingsRepository.save(newHolding);
                 }
                 account.buyStock(requiredAmount);
