@@ -2,6 +2,7 @@ package com.example.alarm.firebase;
 
 
 import com.example.alarm.firebase.dto.FcmTokenResponseDto;
+import com.example.alarm.firebase.dto.StockAlarmDto;
 import com.example.alarm.firebase.exception.AlarmException;
 import com.example.common.exception.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,13 +45,32 @@ public class FcmService {
 
     }
 
-    private void sendNotificationToTopic(String topic, String title, String body) {
-        Message fcmMessage = Message.builder()
-                .setTopic(topic)
-                .setNotification(Notification.builder().setTitle(title).setBody(body).build())
-                .build();
+    @RabbitListener(queues = "${spring.rabbitmq.stockTradeQueue.name}")
+    private void stockTradeAlarmToTopic(String message) {
 
-        FirebaseMessaging.getInstance().sendAsync(fcmMessage);
+        try {
+            StockAlarmDto alarmDto = new ObjectMapper().readValue(message, StockAlarmDto.class);
+            StringBuilder sb = new StringBuilder(alarmDto.getStockName() + " " + alarmDto.getQuantity() + "주를 ");
+
+            if (alarmDto.isBuy()) {
+                sb.append("매수하였습니다.");
+            } else {
+                sb.append("매도하였습니다.");
+            }
+
+            String topic = String.valueOf(alarmDto.getTeamId());
+            String title = "[" + alarmDto.getTeamName() + "]";
+            String body = sb.toString();
+
+            Message fcmMessage = Message.builder()
+                    .setTopic(topic)
+                    .setNotification(Notification.builder().setTitle(title).setBody(body).build())
+                    .build();
+
+            FirebaseMessaging.getInstance().sendAsync(fcmMessage);
+        } catch (JsonProcessingException e) {
+            throw new AlarmException(ErrorCode.JSON_PARSE_ERROR);
+        }
     }
 
     //토픽 구독
