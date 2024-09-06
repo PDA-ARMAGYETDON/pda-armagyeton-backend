@@ -35,7 +35,7 @@ spring:
       name: main_to_alarm
     recvChatQueue:
       name: chat_to_alarm
-    recvStockQueue:
+    stockTradeQueue:
       name: stock_to_alarm
 
 fcm:
