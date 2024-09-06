@@ -42,7 +42,7 @@ public class HoldingsService {
             String stockCode = stockData[0].toString();
             int currentPrice = Integer.parseInt(stockData[1].toString());
 
-            Holdings holding = holdingsList.stream().filter(h -> h.getStockCode().getCode().equals(stockCode)).findFirst().orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUNT));
+            Holdings holding = holdingsList.stream().filter(h -> h.getStockCode().getCode().equals(stockCode)).findFirst().orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUND));
 
             int evluAmt = currentPrice * holding.getHldgQty();
             int evluPfls = evluAmt - holding.getPchsAmt();

@@ -4,6 +4,7 @@ import com.example.group_investment.member.Member;
 import com.example.group_investment.team.Team;
 import com.example.group_investment.tradeOffer.TradeOffer;
 import com.example.group_investment.tradeOffer.dto.CreateTradeOfferRequest;
+import com.example.group_investment.tradeOffer.dto.CreateTradeRequest;
 import com.example.group_investment.tradeOffer.dto.TradeOfferDto;
 import com.example.group_investment.tradeOffer.dto.TradeOfferResponse;
 import lombok.AllArgsConstructor;
@@ -59,6 +60,16 @@ public class TradeOfferConverter {
                 .wantPrice(createTradeOfferRequest.getWantPrice())
                 .quantity(createTradeOfferRequest.getQuantity())
                 .code(createTradeOfferRequest.getCode())
+                .build();
+    }
+
+    public CreateTradeRequest tradeOfferToCreateTradeRequest(TradeOffer tradeOffer) {
+        return new CreateTradeRequest().builder()
+                .teamId(tradeOffer.getTeam().getId())
+                .stockCode(tradeOffer.getStockCode())
+                .tradeType(tradeOffer.getTradeType())
+                .price(tradeOffer.getWantPrice())
+                .quantity(tradeOffer.getQuantity())
                 .build();
     }
 }

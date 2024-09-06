@@ -29,9 +29,17 @@ public class RabbitMqConfig {
     @Value("${spring.rabbitmq.sendQueue.name}")
     private String sendQueueName;
 
+    @Value("${spring.rabbitmq.mainToStock.name}")
+    private String mainToStockQueueName;
+
     @Bean
     public Queue stockToAlarmQueue() {
         return new Queue(sendQueueName, true);
+    }
+
+    @Bean
+    public Queue mainToStockQueue() {
+        return new Queue(mainToStockQueueName, true);
     }
 
 

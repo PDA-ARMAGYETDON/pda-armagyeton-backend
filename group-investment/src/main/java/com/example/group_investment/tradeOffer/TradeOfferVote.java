@@ -1,9 +1,9 @@
-package com.example.group_investment.tradeOfferVote;
+package com.example.group_investment.tradeOffer;
 
 import com.example.group_investment.enums.Choice;
 import com.example.group_investment.member.Member;
-import com.example.group_investment.tradeOffer.TradeOffer;
 import jakarta.persistence.*;
+import lombok.Builder;
 
 @Entity
 public class TradeOfferVote {
@@ -21,4 +21,14 @@ public class TradeOfferVote {
 
     @Enumerated(EnumType.STRING)
     private Choice choice;
+
+    public TradeOfferVote() {
+    }
+
+    @Builder
+    public TradeOfferVote(Member member, TradeOffer tradeOffer, Choice choice) {
+        this.member = member;
+        this.tradeOffer = tradeOffer;
+        this.choice = choice;
+    }
 }

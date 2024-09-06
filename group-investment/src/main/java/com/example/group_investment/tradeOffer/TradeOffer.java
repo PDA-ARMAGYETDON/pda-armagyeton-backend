@@ -65,7 +65,19 @@ public class TradeOffer {
         this.stockCode = stockCode;
     }
 
+    public void approveTradeOffer() {
+        this.offerStatus = OfferStatus.APPROVED;
+    }
+
     public void expireTradeOffer() {
         this.offerStatus = OfferStatus.REJECTED;
+    }
+
+    public void vote(boolean isUpvote) {
+        if (isUpvote) {
+            this.upvotes++;
+        } else {
+            this.downvotes++;
+        }
     }
 }
