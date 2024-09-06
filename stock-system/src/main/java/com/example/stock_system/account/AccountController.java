@@ -31,9 +31,10 @@ public class AccountController {
 
     @Operation(summary = "팀 계좌 생성",description = "비밀번호를 입력값으로 받아 팀 계좌를 생성해줍니다.")
     @PostMapping("/team")
-    public ApiResponse<AccountDto> createTeamAccount(@RequestBody CreateAccountRequest createAccountRequest){
+    public ApiResponse<AccountDto> createTeamAccount(@RequestBody CreateAccountRequest createAccountRequest, @RequestAttribute int teamId){
         Account savedAccount = accountService.createTeamAccount();
         accountService.createAccountPInfo(savedAccount,createAccountRequest);
+        accountService.createRanking(savedAccount,teamId);
         return new ApiResponse<>(201, true, "모임 계좌가 생성되었습니다.", null);
     }
 
