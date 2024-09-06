@@ -125,11 +125,15 @@ public class TradeOfferService {
                 .choice(voteTradeOfferRequest.getChoice())
                 .build();
 
-        tradeOfferVoteRepository.save(tradeOfferVoteDto.toEntity());
-
         if (tradeOffer.getOfferStatus() != OfferStatus.PROGRESS) {
             throw new TradeOfferException(TradeOfferErrorCode.TRADE_OFFER_EXPIRED);
         }
+
+        if (tradeOfferVoteRepository.existsByTradeOfferAndMember(tradeOffer, member)) {
+            throw new TradeOfferException(TradeOfferErrorCode.ALREADY_VOTED);
+        }
+
+        tradeOfferVoteRepository.save(tradeOfferVoteDto.toEntity());
 
         if (tradeOffer.isUrgent()) {
             if (tradeOffer.getOfferAt().plusMinutes(30).isBefore(LocalDateTime.now())) {
