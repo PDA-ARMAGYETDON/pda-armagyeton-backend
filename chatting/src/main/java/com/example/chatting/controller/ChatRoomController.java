@@ -5,6 +5,8 @@ import com.example.chatting.domain.ChatMessage;
 import com.example.chatting.domain.ChatRoom;
 import com.example.chatting.dto.ChatMessageResponse;
 import com.example.chatting.service.ChatRoomService;
+import com.example.common.dto.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,30 +23,20 @@ public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
 
-    @PostMapping("/room")
-    public ResponseEntity<String> create(@RequestBody ChatRoom chatroom) {
-        try {
-            chatRoomService.createChatRoom(chatroom.getTeamId());
-            return ResponseEntity.status(HttpStatus.CREATED).body("채팅방 생성되었습니다.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating chat room");
-        }
+    @Operation(summary = "팀 채팅방을 생성하는 API")
+    @PostMapping("/rooms")
+    public ApiResponse create(@RequestAttribute("teamId") int teamId) {
+        chatRoomService.createChatRoom(teamId);
+        return new ApiResponse<>(201, true, "채팅방이 생성되었습니다.", null);
     }
 
-    @GetMapping("/room")
-    public ResponseEntity<List<ChatMessageResponse>> getMessages(@RequestParam("teamId") int teamId) {
+    @Operation(summary = "팀의 채팅내역 조회하는 API")
+    @GetMapping("/rooms")
+    public ApiResponse<List<ChatMessageResponse>> getMessages(@RequestAttribute("teamId") int teamId) {
 
-        List<ChatMessage> messages = chatRoomService.selectChatMessageList(teamId);
+        List<ChatMessageResponse> messageDtos = chatRoomService.selectChatMessageList(teamId);
 
-        if (messages.isEmpty()) {
-            log.warn("팀 ID {}에 대한 메시지가 없습니다.", teamId);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
-
-        List<ChatMessageResponse> messageDtos = messages.stream()
-                .map(message -> new ChatMessageResponse(message.getUserId(), message.getMessage()))
-                .toList();
-        return ResponseEntity.ok(messageDtos);
+        return new ApiResponse<>(200, true,"팀의 채팅방 내역을 조회했습니다.", messageDtos);
 
     }
 
