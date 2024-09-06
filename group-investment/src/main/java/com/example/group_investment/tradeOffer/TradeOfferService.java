@@ -52,10 +52,7 @@ public class TradeOfferService {
     @Value("${spring.rabbitmq.main-stock-queue.name}")
     private String mainStockQueue;
 
-    public void createTradeOffer(CreateTradeOfferRequest createTradeOfferRequest) {
-        // FIXME: 토큰으로 사용자 아이디와 모임 아이디 가져와야함
-        int userId = 1;
-        int teamId = 1;
+    public void createTradeOffer(int userId, int teamId, CreateTradeOfferRequest createTradeOfferRequest) {
 
         Member member = memberRepository.findByUserIdAndTeamId(userId, teamId).orElseThrow(
                 () -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
@@ -80,10 +77,7 @@ public class TradeOfferService {
         }
     }
 
-    public GetAllTradeOffersResponse getAllTradeOffers(TradeType type, int page, int size) {
-        // FIXME: 토큰으로 사용자 아이디와 모임 아이디 가져와야함
-        int userId = 1;
-        int teamId = 1;
+    public GetAllTradeOffersResponse getAllTradeOffers(int teamId, TradeType type, int page, int size) {
 
         Team team = teamRepository.findById(teamId).orElseThrow(
                 () -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
