@@ -48,7 +48,7 @@ jobs:
 
 
       - name: 서비스 중지 및 jar 파일 삭제
-        uses: appleboy/ssh-action@v0.1.5
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ env.EC2_HOST }}
           username: ubuntu
@@ -70,7 +70,7 @@ jobs:
           timeout: 120s
 
       - name: 서비스 실행
-        uses: appleboy/ssh-action@v0.1.5
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ env.EC2_HOST }}
           username: ubuntu
