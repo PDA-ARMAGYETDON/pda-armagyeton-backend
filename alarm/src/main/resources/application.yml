@@ -33,7 +33,7 @@ spring:
       name: (AMQP default)
     reg-token-queue:
       name: main_to_alarm
-    recvChatQueue:
+    chatToAlarmQueue:
       name: chat_to_alarm
     stockTradeQueue:
       name: stock_to_alarm

@@ -11,9 +11,9 @@ import com.example.stock_system.enums.TradeStatus;
 import com.example.stock_system.enums.TradeType;
 import com.example.stock_system.holdings.Holdings;
 import com.example.stock_system.holdings.HoldingsRepository;
+import com.example.stock_system.holdings.dto.ToAlarmDto;
 import com.example.stock_system.holdings.exception.HoldingsErrorCode;
 import com.example.stock_system.holdings.exception.HoldingsException;
-import com.example.stock_system.holdings.dto.ToAlarmDto;
 import com.example.stock_system.rabbitMq.MqSender;
 import com.example.stock_system.stocks.Stocks;
 import com.example.stock_system.stocks.StocksRepository;
@@ -25,11 +25,10 @@ import com.example.stock_system.trade.exception.TradeException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -46,8 +45,6 @@ public class TradeService {
     private final TeamAccountRepository teamAccountRepository;
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${spring.rabbitmq.sendQueue.name}")
-    private String sendQueueName;
 
     @RabbitListener(queues = "${spring.rabbitmq.mainToStock.name}")
     public void createTrade(String message) {
@@ -135,7 +132,6 @@ public class TradeService {
                 ToAlarmDto data = new ToAlarmDto(teamId, account.getName(), findStock.getName(), trade.getQuantity(), true);
 
                 mqSender.send(data);
-
 
             } else {
                 log.info("매수 실패 - 예치금 부족, 거래 ID: {}", trade.getId());
