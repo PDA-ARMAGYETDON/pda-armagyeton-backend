@@ -47,12 +47,13 @@ jobs:
 #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 
-      - name: Restart service on EC2 for ${{ env.NAME }}
+      - name: 서비스 중지 및 jar 파일 삭제
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ env.EC2_HOST }}
           username: ubuntu
-          password: ${{ env.EC2_KEY }}
+          port: ${{ env.EC2_PORT }}
+          key: ${{ env.EC2_PEM_KEY }}
           script: |
             lsof -t -i tcp:8080 | xargs kill -9 
             sudo rm -rf /home/ec2-user/${{ env.NAME }}/*.jar
@@ -68,10 +69,11 @@ jobs:
           target: /home/ubuntu/${{ env.NAME }}.jar
           timeout: 120s
 
-      - name: Restart service on EC2 for ${{ env.NAME }}
+      - name: 서비스 실행
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ env.EC2_HOST }}
           username: ubuntu
-          password: ${{ env.EC2_KEY }}
+          port: ${{ env.EC2_PORT }}
+          key: ${{ env.EC2_PEM_KEY }}
           script: nohup env $(cat /home/ubuntu/${{ env.NAME }}.env | xargs) java -jar /home/ubuntu/${{ env.NAME }}-1.0.0.jar &
