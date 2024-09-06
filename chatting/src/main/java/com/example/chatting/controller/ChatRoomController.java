@@ -24,15 +24,15 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
     @Operation(summary = "팀 채팅방을 생성하는 API")
-    @PostMapping("/rooms")
-    public ApiResponse create(@RequestAttribute("teamId") int teamId) {
+    @PostMapping("/rooms/{id}")
+    public ApiResponse create(@PathVariable("id") int teamId) {
         chatRoomService.createChatRoom(teamId);
         return new ApiResponse<>(201, true, "채팅방이 생성되었습니다.", null);
     }
 
     @Operation(summary = "팀의 채팅내역 조회하는 API")
-    @GetMapping("/rooms")
-    public ApiResponse<List<ChatMessageResponse>> getMessages(@RequestAttribute("teamId") int teamId) {
+    @GetMapping("/rooms/{id}")
+    public ApiResponse<List<ChatMessageResponse>> getMessages(@PathVariable("id") int teamId) {
 
         List<ChatMessageResponse> messageDtos = chatRoomService.selectChatMessageList(teamId);
 
