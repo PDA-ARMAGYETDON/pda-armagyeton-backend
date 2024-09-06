@@ -1,5 +1,6 @@
 package com.example.group_investment.team;
 
+import com.example.group_investment.enums.Category;
 import com.example.group_investment.enums.MemberRole;
 import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.member.Member;
@@ -228,5 +229,10 @@ public class TeamService {
             teamByUserResponses.add(new TeamByUserResponse(member.getTeam().getId(), member.getTeam().getStatus()));
         }
         return teamByUserResponses;
+    }
+
+    public Category getCategoryName(int teamId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        return team.getCategory();
     }
 }
