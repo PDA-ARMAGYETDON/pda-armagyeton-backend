@@ -2,6 +2,8 @@ package com.example.alarm.firebase;
 
 
 import com.example.alarm.firebase.dto.FcmTokenResponseDto;
+import com.example.alarm.firebase.exception.AlarmException;
+import com.example.common.exception.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -37,8 +39,7 @@ public class FcmService {
             subscribeToTopics(fcmTokenResponseDto.getFcmToken(), fcmTokenResponseDto.getTeamIds());
 
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            log.error("Json -> Object convert Error!!");
+            throw new AlarmException(ErrorCode.JSON_PARSE_ERROR);
         }
 
     }
@@ -55,13 +56,13 @@ public class FcmService {
     //토픽 구독
     public void subscribeToTopics(String fcmToken, ArrayList<Integer> groupIds) {
         for (Integer groupId : groupIds) {
-            String topic = "group_" + groupId; // 그룹 번호를 토픽 이름으로 설정
+            String topic = String.valueOf(groupId); // 그룹 번호를 토픽 이름으로 설정
             try {
                 FirebaseMessaging.getInstance().subscribeToTopic(Arrays.asList(fcmToken), topic);
                 log.info("[FCM] : 그룹 {} 구독 성공 ", topic);
             } catch (FirebaseMessagingException e) {
-                e.printStackTrace();
                 log.info("[FCM] : 그룹 {} 구독 실패 ", topic);
+                throw new AlarmException(ErrorCode.JSON_PARSE_ERROR);
             }
         }
     }

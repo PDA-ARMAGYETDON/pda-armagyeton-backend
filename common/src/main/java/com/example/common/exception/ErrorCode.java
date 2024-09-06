@@ -34,6 +34,9 @@ public enum ErrorCode {
     // com.fasterxml.jackson.core Processing Error
     JACKSON_PROCESS_ERROR(400, "AG007", "Jackson 파싱에 실패했습니다."),
 
+    // firebase message 오류
+    FIREBASE_PROCESS_ERROR(400, "AG008", "FCM 메세징에 실패하였습니다."),
+
     // 권한이 없음
     FORBIDDEN_ERROR(403, "AG301", "접근할 수 있는 권한이 없습니다."),
 

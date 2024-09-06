@@ -120,8 +120,6 @@ public class TradeService {
             System.out.println("매도 완료 - 주식 코드: " + stockCode + ", 거래 ID: " + trade.getId());
         }
 
-
     }
-
 
 }
