@@ -6,8 +6,12 @@ import com.example.chatting.dto.ChatMessageResponse;
 import com.example.chatting.exception.ChatErrorCode;
 import com.example.chatting.exception.ChatException;
 import com.example.chatting.repository.ChatRoomRepository;
+import com.example.common.exception.ErrorCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -29,9 +33,13 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final SimpMessageSendingOperations messageTemplate;
     private final RedisTemplate<String, ChatMessage> redisTemplateForMessage;
+    private final RabbitTemplate rabbitTemplate;
 
     @Value("${redis.chatroom.prefix}")
     private String prefix;
+
+    @Value("${spring.rabbitmq.queue.name}")
+    private String sendQueueName;
 
     @Transactional
     public void createChatRoom(int teamId) {
@@ -76,6 +84,17 @@ public class ChatRoomService {
         redisTemplateForMessage.opsForZSet().add(key, updatedMessageDto, score);
 
         messageTemplate.convertAndSend("/sub/chat/room/" + messageDto.getTeamId(), updatedMessageDto);
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String objToJson = objectMapper.writeValueAsString(updatedMessageDto);
+
+            rabbitTemplate.convertAndSend(sendQueueName, objToJson);
+            
+        } catch (JsonProcessingException e) {
+            throw new ChatException(ErrorCode.JSON_PARSE_ERROR);
+        }
+
     }
 }
 
