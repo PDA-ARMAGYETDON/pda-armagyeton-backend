@@ -33,7 +33,7 @@ public class User {
 //    private String role;
 
     @OneToMany(mappedBy = "user")
-    private List<Member> members = new ArrayList<>();
+    private List<Member> members;
 
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private UserPInfo userPInfo;

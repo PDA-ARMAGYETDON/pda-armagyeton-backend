@@ -34,7 +34,7 @@ spring:
     password: ${MQ_PASSWORD}
     exchange:
       name: (AMQP default)
-    queue:
+    fcm-queue:
       name: main_to_alarm
 
 server:

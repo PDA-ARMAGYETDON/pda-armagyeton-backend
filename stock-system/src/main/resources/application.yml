@@ -19,7 +19,8 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
+
 
   rabbitmq:
     host: 3.38.242.178
