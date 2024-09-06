@@ -46,15 +46,23 @@ jobs:
 #          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
 #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: print
-        run: echo ${{ env.SCP_PORT }}
+
+      - name: Restart service on EC2 for ${{ env.NAME }}
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: ubuntu
+          password: ${{ env.EC2_KEY }}
+          script: |
+            lsof -t -i tcp:8080 | xargs kill -9 
+            sudo rm -rf /home/ec2-user/${{ env.NAME }}/*.jar
 
       - name: Copy jar to EC2 for ${{ env.NAME }}
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ env.EC2_HOST }}
           username: ubuntu
-          port: ${{ env.SCP_PORT }}
+          port: 22
           key: ${{ env.EC2_PEM_KEY }}
           source: ${{ env.NAME }}/build/libs/*.jar
           target: /home/ubuntu/${{ env.NAME }}.jar
@@ -64,9 +72,6 @@ jobs:
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ env.EC2_HOST }}
-          username: ec2-user
+          username: ubuntu
           password: ${{ env.EC2_KEY }}
-          script: |
-            fuser -k ${{ env.EC2_PORT }}/tcp
-            sudo rm -rf /home/ec2-user/${{ env.NAME }}/*.jar
-            nohup env $(cat /home/ubuntu/${{ env.NAME }}.env | xargs) java -jar /home/ubuntu/${{ env.NAME }}.jar &
+          script: nohup env $(cat /home/ubuntu/${{ env.NAME }}.env | xargs) java -jar /home/ubuntu/${{ env.NAME }}-1.0.0.jar &
