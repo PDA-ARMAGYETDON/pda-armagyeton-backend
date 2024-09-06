@@ -7,6 +7,7 @@ public enum AccountErrorCode {
     ACCOUNT_NOT_FOUND(404, "AG401", "계좌가 존재하지 않습니다."),
     PRIVATE_ACCOUNT_NOT_FOUND(404, "AG402", "개인계좌가 존재하지 않습니다."),
     TEAM_ACCOUNT_NOT_FOUND(404, "AG402", "모임계좌, 혹은 모임이 존재하지 않습니다."),
+    GROUP_INVESTMENT_SERVER_BAD_REQUEST(400, "AG403", "모임 투자 서버 요청에 실패했습니다."),
     ;
 
     private final int status;
