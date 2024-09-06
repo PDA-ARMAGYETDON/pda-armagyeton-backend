@@ -1,6 +1,7 @@
 package com.example.stock_system.realTimeStock;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +21,12 @@ public class RealTimeStockController {
         this.realTimeStockService = realTimeStockService;
     }
 
-    @Operation(summary = "웹소켓 연결",description = "실시간 종목 시세 조회를 위한 웹소켓 연결")
-    @PostMapping("/start")
+//    @Operation(summary = "웹소켓 연결",description = "실시간 종목 시세 조회를 위한 웹소켓 연결")
+//    @PostMapping("/start")
+    @PostConstruct
     public void startWebSocketSession() throws IOException {
         realTimeStockService.start();
+        System.out.println("연결이 되었습니다.");
     }
 
     @Operation(summary = "웹소켓 연결종료",description = "실시간 종목 시세 조회를 위한 웹소켓 연결 종료")
