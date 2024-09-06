@@ -7,6 +7,7 @@ import lombok.Getter;
 
 @Getter
 public class TradeOfferResponse {
+    private int tradeOfferId;
     private String userName;
     private TradeType tradeType;
     private String stockName;
@@ -17,12 +18,14 @@ public class TradeOfferResponse {
     private OfferStatus offerStatus;
     private int upvotes;
     private int downvotes;
+    private boolean isVote;
 
     public TradeOfferResponse() {
     }
 
     @Builder
-    public TradeOfferResponse(String userName, TradeType tradeType, String stockName, int wantPrice, int quantity, String offerAt, boolean isUrgent, OfferStatus offerStatus, int upvotes, int downvotes) {
+    public TradeOfferResponse(int tradeOfferId, String userName, TradeType tradeType, String stockName, int wantPrice, int quantity, String offerAt, boolean isUrgent, OfferStatus offerStatus, int upvotes, int downvotes, boolean isVote) {
+        this.tradeOfferId = tradeOfferId;
         this.userName = userName;
         this.tradeType = tradeType;
         this.stockName = stockName;
@@ -33,5 +36,6 @@ public class TradeOfferResponse {
         this.offerStatus = offerStatus;
         this.upvotes = upvotes;
         this.downvotes = downvotes;
+        this.isVote = isVote;
     }
 }

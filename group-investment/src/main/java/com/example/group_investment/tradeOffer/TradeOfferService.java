@@ -103,7 +103,22 @@ public class TradeOfferService {
             }
         }
 
-        List<TradeOfferResponse> tradeOfferResponses = tradeOfferConverter.tradeOfferListToTradeOfferResponseList(tradeOffers);
+        List<TradeOfferResponse> tradeOfferResponses = tradeOffers.stream()
+                .map(tradeOffer -> new TradeOfferResponse().builder()
+                        .tradeOfferId(tradeOffer.getId())
+                        .userName(tradeOffer.getMember().getUser().getName())
+                        .stockName(tradeOfferCommunicator.getStockNameFromStockSystem(tradeOffer.getStockCode()).getName())
+                        .tradeType(tradeOffer.getTradeType())
+                        .offerStatus(tradeOffer.getOfferStatus())
+                        .wantPrice(tradeOffer.getWantPrice())
+                        .quantity(tradeOffer.getQuantity())
+                        .offerAt(tradeOffer.getOfferAt().toLocalDate().toString())
+                        .isUrgent(tradeOffer.isUrgent())
+                        .upvotes(tradeOffer.getUpvotes())
+                        .downvotes(tradeOffer.getDownvotes())
+                        .isVote(tradeOfferVoteRepository.existsByTradeOfferAndMember(tradeOffer, tradeOffer.getMember()))
+                        .build())
+                .toList();
 
         return new GetAllTradeOffersResponse().builder()
                 .tradeOfferResponses(tradeOfferResponses)
