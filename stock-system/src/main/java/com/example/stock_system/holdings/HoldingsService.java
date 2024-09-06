@@ -2,14 +2,24 @@ package com.example.stock_system.holdings;
 
 import com.example.stock_system.account.Account;
 import com.example.stock_system.account.AccountRepository;
+import com.example.stock_system.account.TeamAccount;
+import com.example.stock_system.account.TeamAccountRepository;
 import com.example.stock_system.account.exception.AccountErrorCode;
 import com.example.stock_system.account.exception.AccountException;
+import com.example.stock_system.enums.TradeStatus;
+import com.example.stock_system.enums.TradeType;
 import com.example.stock_system.holdings.dto.HoldingsDto;
 import com.example.stock_system.holdings.dto.SaveClosingPrice;
 import com.example.stock_system.holdings.exception.HoldingsErrorCode;
 import com.example.stock_system.holdings.exception.HoldingsException;
+import com.example.stock_system.stocks.Stocks;
+import com.example.stock_system.stocks.StocksRepository;
 import com.example.stock_system.stocks.StocksService;
 import com.example.stock_system.stocks.dto.StockCurrentPrice;
+import com.example.stock_system.stocks.exception.StocksErrorCode;
+import com.example.stock_system.stocks.exception.StocksException;
+import com.example.stock_system.trade.Trade;
+import com.example.stock_system.trade.TradeRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,6 +35,9 @@ public class HoldingsService {
     private final HoldingsRepository holdingsRepository;
     private final AccountRepository accountRepository;
     private final StocksService stocksService;
+    private final TeamAccountRepository teamAccountRepository;
+    private final StocksRepository stocksRepository;
+    private final TradeRepository tradeRepository;
 
     public List<HoldingsDto> getHoldings(int accountId) {
         Account account = accountRepository.findById(accountId).orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
@@ -77,4 +90,30 @@ public class HoldingsService {
 
     }
 
+    public Integer getNumOfHoldings(int teamId, String code) {
+        TeamAccount teamAccount = teamAccountRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
+
+        Account account = teamAccount.getAccount();
+        Stocks stocks = stocksRepository.findByCode(code)
+                .orElseThrow(() -> new StocksException(StocksErrorCode.STOCKS_NOT_FOUND));
+        Holdings holdings = holdingsRepository.findByAccountAndStockCode(account, stocks)
+                .orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUND));
+
+        return holdings.getHldgQty();
+    }
+
+    public Integer getAvailableAsset(int teamId) {
+        TeamAccount teamAccount = teamAccountRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
+
+        Account account = teamAccount.getAccount();
+
+        List<Trade> trades = tradeRepository.findAllByAccountAndTypeAndStatus(account, TradeType.BUY, TradeStatus.PENDING)
+                .orElseGet(() -> List.of());
+
+        int pendingBuyAmount = trades.stream().mapToInt(trade -> trade.getPrice() * trade.getQuantity()).sum();
+
+        return account.getDeposit() - pendingBuyAmount;
+    }
 }

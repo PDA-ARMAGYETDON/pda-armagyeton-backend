@@ -63,6 +63,16 @@ public class TradeOfferService {
         Rule rule = ruleRepository.findByTeam(team).orElseThrow(
                 () -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
 
+        if (createTradeOfferRequest.getTradeType() == TradeType.SELL) {
+            if (createTradeOfferRequest.getQuantity() > (tradeOfferCommunicator.getNumOfHoldingsFromStockSystem(teamId, createTradeOfferRequest.getCode()) + tradeOfferCommunicator.getNumOfPendingTradeFromStockSystem(teamId, createTradeOfferRequest.getCode()))) {
+                throw new TradeOfferException(TradeOfferErrorCode.HOLDINGS_NOT_ENOUGH);
+            }
+        } else {
+            if (createTradeOfferRequest.getQuantity() * createTradeOfferRequest.getWantPrice() > tradeOfferCommunicator.getAvailableAssetFromStockSystem(teamId)) {
+                throw new TradeOfferException(TradeOfferErrorCode.ASSET_NOT_ENOUGH);
+            }
+        }
+
         TradeOfferDto tradeOfferDto;
         if (createTradeOfferRequest.getTradeType() == TradeType.SELL && tradeOfferCommunicator.getPrdyVrssRtFromStockSystem(createTradeOfferRequest.getCode()) <= ((-1) * rule.getPrdyVrssRt())) {
             tradeOfferDto = tradeOfferConverter.createTradeOfferRequestToUrgentTradeOfferDto(createTradeOfferRequest, member, team);

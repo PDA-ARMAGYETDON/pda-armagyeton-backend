@@ -15,4 +15,7 @@ public interface TradeRepository extends JpaRepository<Trade, Integer> {
     Optional<List<Trade>> findAllByAccountAndStockCodeAndTypeAndStatus(Account account, Stocks stockCode, TradeType type, TradeStatus status);
 
     List<Trade> findByStatusAndStockCodeAndPriceAndType(TradeStatus status, Stocks stockCode, int price, TradeType type);
+
+    Optional<List<Trade>> findAllByAccountAndTypeAndStatus(Account account, TradeType tradeType, TradeStatus tradeStatus);
+
 }
