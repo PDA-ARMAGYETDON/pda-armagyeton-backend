@@ -35,7 +35,7 @@ public class RabbitMqConfig {
 
     @Bean
     public Queue mainToAlarmQueue() {
-        return new Queue(alarmQueueName, true);
+        return new Queue(QueueName, true);
     }
 
     @Bean
