@@ -27,12 +27,12 @@ jobs:
 
       - name: Set environment variables
         run: |
-          echo "EC2_HOST=${{ secrets[format('{0}_EC2_HOST', matrix.prefix)] }}" >> $GITHUB_ENV
-          echo "EC2_PORT=${{ secrets[format('{0}_EC2_PORT', matrix.prefix)] }}" >> $GITHUB_ENV
-          echo "EC2_HOST: ${{ env.EC2_HOST }}"
-          echo "EC2_PORT: ${{ env.EC2_PORT }}"
-          echo "EC2_HOST: ${EC2_HOST}"
-          echo "EC2_PORT: ${EC2_PORT}"
+          echo "EC2_HOST2=${{ secrets[format('{0}_EC2_HOST', matrix.prefix)] }}" >> $GITHUB_ENV
+          echo "EC2_PORT2=${{ secrets[format('{0}_EC2_PORT', matrix.prefix)] }}" >> $GITHUB_ENV
+          echo "EC2_HOST2: ${{ env.EC2_HOST }}"
+          echo "EC2_PORT2: ${{ env.EC2_PORT }}"
+          echo "EC2_HOST2: ${EC2_HOST2}"
+          echo "EC2_PORT2: ${EC2_PORT2}"
           
           echo "E=33" >> $GITHUB_ENV
           echo "E: ${E}"
