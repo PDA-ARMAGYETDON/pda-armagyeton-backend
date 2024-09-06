@@ -18,6 +18,7 @@ jobs:
       EC2_PORT: ${{ secrets.GATEWAY_EC2_PORT }}
       EC2_KEY: ${{ secrets.EC2_KEY }}
       AWS_ROLE: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      PORT: ${{ secrets.SCP_PORT }}
 
     steps:
       - name: Checkout code
@@ -39,7 +40,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: 'ap-northeast-2'
-          role-to-assume: ${{ env.AWS_ROLE }}
+          role-to-assume: ${{ env.AWS_ROLE }} # IAM Role ARN
 #          role-session-name: 'github-actions-role-role'
 #          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
 #          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -49,7 +50,7 @@ jobs:
         with:
           host: ${{ env.EC2_HOST }}
           username: ubuntu
-          port: 22
+          port: ${{ env.SCP_PORT }}
           password: ${{ env.EC2_KEY }}
           source: ${{ env.NAME }}/build/libs/*.jar
           target: /home/ubuntu/${{ env.NAME }}.jar
