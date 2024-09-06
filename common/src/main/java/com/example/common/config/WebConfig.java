@@ -30,7 +30,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOriginPatterns(gatewayUrl)
                 .allowedHeaders("*")
                 .allowedMethods("*")
-                .allowCredentials(true);
+                .allowCredentials(true)
+                .allowedHeaders("Authorization");
     }
 
     @Override
