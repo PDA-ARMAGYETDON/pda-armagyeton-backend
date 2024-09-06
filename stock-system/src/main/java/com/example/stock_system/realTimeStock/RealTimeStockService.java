@@ -1,5 +1,8 @@
 package com.example.stock_system.realTimeStock;
 
+import com.example.stock_system.holdings.dto.HoldingsDto;
+import com.example.stock_system.holdings.exception.HoldingsErrorCode;
+import com.example.stock_system.holdings.exception.HoldingsException;
 import com.example.stock_system.stocks.StocksService;
 import com.example.stock_system.stocks.dto.StockName;
 import com.example.stock_system.trade.TradeService;
@@ -306,6 +309,26 @@ public class RealTimeStockService {
         if (totalSumSink != null) {
             totalSumSink.tryEmitNext(totalSum);
         }
+    }
+
+    public Flux<HoldingsDto> getRealTimeHoldings(List<HoldingsDto> holdingsDtoList, List<String> stockCodes) {
+        return allStockDataSink.asFlux()
+                .filter(stockData -> stockCodes.contains(stockData[1].toString()))  // 주식 코드를 필터링
+                .map(stockData -> {
+                    String stockCode = stockData[1].toString();
+                    int currentPrice = Integer.parseInt(stockData[2].toString());
+
+                    HoldingsDto holdingsDto = holdingsDtoList.stream()
+                            .filter(dto -> dto.getStockCode().equals(stockCode))
+                            .findFirst()
+                            .orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUNT));
+
+                    int evluAmt = currentPrice * holdingsDto.getHldgQty(); // 평가 금액
+                    int evluPfls = evluAmt - holdingsDto.getPchsAmt(); // 평가 손익
+                    double evluPflsRt = (double) evluPfls / holdingsDto.getPchsAmt() * 100; // 평가 손익률
+
+                    return new HoldingsDto(holdingsDto.getHldgQty(), holdingsDto.getPchsAmt(), evluAmt, evluPfls, evluPflsRt, stockCode,holdingsDto.getStockName());
+                });
     }
 
 
