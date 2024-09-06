@@ -9,11 +9,11 @@ public class ToAlarmDto {
 
     private int teamId;
 
+    private String teamName;
+
     private String stockName;
 
     private int quantity;
-
-    private int price;
 
     private boolean isBuy;
 
