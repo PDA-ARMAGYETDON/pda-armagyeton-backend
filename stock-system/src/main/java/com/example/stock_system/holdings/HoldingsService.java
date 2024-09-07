@@ -49,15 +49,22 @@ public class HoldingsService {
         return realTimeStockService.getRealTimeHoldings(holdingsDtoList, stockCodes);
     }
 
+    @Scheduled(cron = "0 59 15 * * MON-FRI", zone = "Asia/Seoul")
+    public void updateHoldingsWithCurrentPriceAtEndOfDay() {
+        updateHoldingsWithCurrentPrice();
+    }
+
+    @Scheduled(cron = "0 10 15 * * MON-FRI", zone = "Asia/Seoul")
+    public void updateHoldingsWithCurrentPriceAtMiddleOfDay() {
+        updateHoldingsWithCurrentPrice();
+    }
 
 
-    @Scheduled(cron = "0 15 15 * * MON-FRI", zone = "Asia/Seoul")
     public void updateHoldingsWithCurrentPrice() {
         List<Holdings> holdingsList = holdingsRepository.findAll();
 
         for (Holdings holding : holdingsList) {
             String stockCode = holding.getStockCode().getCode();
-
 
             StockCurrentPrice stockCurrentPrice = stocksService.getCurrentData(stockCode);
 
