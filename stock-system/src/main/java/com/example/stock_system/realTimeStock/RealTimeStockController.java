@@ -1,16 +1,16 @@
 package com.example.stock_system.realTimeStock;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
-@RequestMapping("/api/stocks/realtime")
+@RequestMapping("/api/realtime")
 public class RealTimeStockController {
 
     private final RealTimeStockService realTimeStockService;
@@ -20,10 +20,10 @@ public class RealTimeStockController {
         this.realTimeStockService = realTimeStockService;
     }
 
-    @Operation(summary = "웹소켓 연결",description = "실시간 종목 시세 조회를 위한 웹소켓 연결")
-    @PostMapping("/start")
+    @PostConstruct
     public void startWebSocketSession() throws IOException {
         realTimeStockService.start();
+        System.out.println("연결이 되었습니다.");
     }
 
     @Operation(summary = "웹소켓 연결종료",description = "실시간 종목 시세 조회를 위한 웹소켓 연결 종료")
@@ -37,13 +37,6 @@ public class RealTimeStockController {
     public Flux<Object[]> streamByStockCode(@PathVariable String stockCode) {
         realTimeStockService.streamByStockCode(stockCode);
         return realTimeStockService.getStockDataStream(stockCode);
-    }
-
-    @Operation(summary = "복수 종목 시세 합계 조회",description = "리스트로 받은 복수 종목들의 실시간 시세 합계를 조회")
-    @PostMapping(value = "/sum", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<Integer> streamSumByStockCodes(@RequestBody List<String> stockCodes) {
-        realTimeStockService.streamByStockCodes(stockCodes);
-        return realTimeStockService.getTotalSumStream();
     }
 
     @Operation(summary = "단일 종목 조회 종료",description = "단일 종목의 실시간 시세를 조회 종료")

@@ -51,4 +51,55 @@ public class TradeOfferCommunicator {
 
         return prdyVrssRt.getData();
     }
+
+    public int getNumOfHoldingsFromStockSystem(int teamId, String code) {
+        WebClient webClient = webClientBuilder.build();
+
+        ApiResponse<Integer> numOfHoldings = webClient.get()
+                .uri(AG_URL + ":8082/api/backend/holdings/count?teamId=" + teamId + "&code=" + code)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<Integer>>() {
+                })
+                .block();
+
+        if (!numOfHoldings.isSuccess()) {
+            throw new TradeOfferException(TradeOfferErrorCode.STOCKS_SERVER_BAD_REQUEST);
+        }
+
+        return numOfHoldings.getData();
+    }
+
+    public int getNumOfPendingTradeFromStockSystem(int teamId, String code) {
+        WebClient webClient = webClientBuilder.build();
+
+        ApiResponse<Integer> numOfPendingTrade = webClient.get()
+                .uri(AG_URL + ":8082/api/backend/trades/count?teamId=" + teamId + "&code=" + code)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<Integer>>() {
+                })
+                .block();
+
+        if (!numOfPendingTrade.isSuccess()) {
+            throw new TradeOfferException(TradeOfferErrorCode.STOCKS_SERVER_BAD_REQUEST);
+        }
+
+        return numOfPendingTrade.getData();
+    }
+
+    public int getAvailableAssetFromStockSystem(int teamId) {
+        WebClient webClient = webClientBuilder.build();
+
+        ApiResponse<Integer> restAsset = webClient.get()
+                .uri(AG_URL + ":8082/api/backend/accounts/asset?teamId=" + teamId)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<Integer>>() {
+                })
+                .block();
+
+        if (!restAsset.isSuccess()) {
+            throw new TradeOfferException(TradeOfferErrorCode.STOCKS_SERVER_BAD_REQUEST);
+        }
+
+        return restAsset.getData();
+    }
 }

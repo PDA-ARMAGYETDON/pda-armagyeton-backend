@@ -1,14 +1,26 @@
 package com.example.stock_system.account;
 
+import com.example.common.dto.ApiResponse;
 import com.example.stock_system.account.dto.*;
 import com.example.stock_system.account.exception.AccountErrorCode;
 import com.example.stock_system.account.exception.AccountException;
+import com.example.stock_system.holdings.Holdings;
+import com.example.stock_system.holdings.HoldingsRepository;
+import com.example.stock_system.holdings.dto.HoldingsDto;
+import com.example.stock_system.realTimeStock.RealTimeStockService;
+import com.example.stock_system.stocks.StocksService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -19,6 +31,9 @@ public class AccountService {
     private final AccountDtoConverter accountDtoConverter;
     private final RestTemplate restTemplate;
     private final TeamAccountRepository teamAccountRepository;
+    private final RealTimeStockService realTimeStockService;
+    private final HoldingsRepository holdingsRepository;
+    private final StocksService stocksService;
 
     public AccountDto getAccount(int id) {
         Account account = accountRepository.findById(id).orElseThrow(
@@ -106,7 +121,7 @@ public class AccountService {
         List<Account> accounts = accountRepository.findByUserId(id).orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
         return accounts.stream()
                 .filter(account -> account.getAccountNumber().startsWith("81901"))
-                .findFirst()  // 첫 번째 매칭되는 계좌 찾기
+                .findFirst()
                 .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
 
 
@@ -127,4 +142,88 @@ public class AccountService {
                 ApiResponser.class
         );
     }
+
+
+    public Flux<GetTeamAccountResponse> getRealTimeSumByTeamId(int teamId) {
+        return Mono.fromCallable(() -> teamAccountRepository.findByTeamId(teamId)
+                        .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND))
+                        .getAccount())
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMapMany(account ->
+                        Mono.fromCallable(() -> holdingsRepository.findByAccount(account))
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .flatMapMany(holdingsList -> {
+                                    if (holdingsList.isEmpty()) {
+                                        return Flux.just(GetTeamAccountResponse.builder()
+                                                .accountNumber(account.getAccountNumber())
+                                                .totalPchsAmt(0)
+                                                .totalEvluAmt(0)
+                                                .totalEvluPfls(0)
+                                                .totalEvluPflsRt(0.0)
+                                                .deposit(account.getDeposit())
+                                                .totalAsset(account.getDeposit())
+                                                .build());
+                                    }
+
+                                    List<String> stockCodes = holdingsList.stream()
+                                            .map(holding -> holding.getStockCode().getCode())
+                                            .collect(Collectors.toList());
+
+                                    List<HoldingsDto> holdingsDtoList = holdingsList.stream()
+                                            .map(HoldingsDto::new)
+                                            .collect(Collectors.toList());
+
+                                    return realTimeStockService.getRealTimeHoldingsWithTotalSum(account, holdingsDtoList, stockCodes, teamId);
+                                })
+                );
+    }
+
+
+    public int allStockSell(int teamId) {
+        Account account = teamAccountRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND))
+                .getAccount();
+
+        List<Holdings> holdings = holdingsRepository.findByAccount(account);
+        int sumPrice = 0;
+
+        for (Holdings holding : holdings) {
+            int price = stocksService.getCurrentData(holding.getStockCode().getCode()).getCurrentPrice();
+            price *= holding.getHldgQty();
+            sumPrice += price;
+            // 주식 매도 후 삭제 (추후 활성화 할 예정)
+            // holdingsRepository.delete(holding);
+        }
+
+        String url = "http://localhost:8081/api/teams/member";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Integer> entity = new HttpEntity<>(teamId, headers);
+        ResponseEntity<ApiResponse> response = restTemplate.postForEntity(url, entity, ApiResponse.class);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Integer> memberUserIds = objectMapper.convertValue(response.getBody().getData(), new TypeReference<List<Integer>>() {});
+
+        int memberCount = memberUserIds.size();
+
+        if (memberCount > 0) {
+            int amountPerMember = sumPrice / memberCount;
+
+            for (Integer userId : memberUserIds) {
+                Account personalAccount = getPersonalAccount(userId);
+                personalAccount.sellStock(amountPerMember);  // 개인 계좌에 입금
+                accountRepository.save(personalAccount);  // 변경 사항 저장
+            }
+        }
+
+        return sumPrice;  // 총 판매 금액 반환
+    }
+
+
+    public void stopRealTimeStream(int teamId) {
+        realTimeStockService.stopStreamingByTeamId(teamId);
+    }
+
+
 }

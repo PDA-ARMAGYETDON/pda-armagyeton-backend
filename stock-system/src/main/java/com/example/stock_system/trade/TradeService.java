@@ -11,25 +11,31 @@ import com.example.stock_system.enums.TradeStatus;
 import com.example.stock_system.enums.TradeType;
 import com.example.stock_system.holdings.Holdings;
 import com.example.stock_system.holdings.HoldingsRepository;
+import com.example.stock_system.holdings.dto.ToAlarmDto;
 import com.example.stock_system.holdings.exception.HoldingsErrorCode;
 import com.example.stock_system.holdings.exception.HoldingsException;
-import com.example.stock_system.holdings.dto.ToAlarmDto;
 import com.example.stock_system.rabbitMq.MqSender;
 import com.example.stock_system.stocks.Stocks;
 import com.example.stock_system.stocks.StocksRepository;
 import com.example.stock_system.stocks.exception.StocksErrorCode;
 import com.example.stock_system.stocks.exception.StocksException;
 import com.example.stock_system.trade.dto.CreateTradeRequest;
+import com.example.stock_system.trade.dto.GetAllTradesResponse;
 import com.example.stock_system.trade.dto.TradeDto;
+import com.example.stock_system.trade.dto.TradeResponse;
 import com.example.stock_system.trade.exception.TradeException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -37,7 +43,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TradeService {
     private final AccountRepository accountRepository;
     private final StocksRepository stocksRepository;
@@ -121,7 +127,7 @@ public class TradeService {
                     existingHolding.addData(trade.getQuantity(), requiredAmount);
                     holdingsRepository.save(existingHolding);
                 } else {
-                    Holdings newHolding = new Holdings(account, findStock, trade.getQuantity(), requiredAmount);
+                    Holdings newHolding = new Holdings(account, findStock, findStock.getName(), trade.getQuantity(), requiredAmount);
                     holdingsRepository.save(newHolding);
                 }
                 account.buyStock(requiredAmount);
@@ -183,6 +189,25 @@ public class TradeService {
             System.out.println("매도 완료 - 주식 코드: " + stockCode + ", 거래 ID: " + trade.getId());
         }
 
+    }
+
+    public Integer getNumOfSellingTrades(int teamId, String code) {
+        TeamAccount teamAccount = teamAccountRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
+
+        Account account = teamAccount.getAccount();
+        Stocks stocks = stocksRepository.findByCode(code)
+                .orElseThrow(() -> new StocksException(StocksErrorCode.STOCKS_NOT_FOUND));
+
+        List<Trade> trades = tradeRepository.findAllByAccountAndStockCodeAndTypeAndStatus(account, stocks, TradeType.SELL, TradeStatus.PENDING)
+                .orElseGet(Collections::emptyList);
+
+        int tradeQuantity = 0;
+        for (Trade trade : trades) {
+            tradeQuantity += trade.getQuantity();
+        }
+
+        return tradeQuantity;
     }
 
 }

@@ -5,7 +5,9 @@ import com.example.group_investment.member.Member;
 import com.example.group_investment.team.Team;
 import com.example.group_investment.tradeOffer.TradeOffer;
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 public class TradeOfferDto {
     private Member member;
     private Team team;
