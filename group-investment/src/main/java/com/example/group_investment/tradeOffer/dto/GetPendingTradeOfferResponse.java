@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 public class GetPendingTradeOfferResponse {
     private String stockName;
-    private int tradePrice;
     private int quantity;
     private String offerMemberName;
     private int Upvotes;
@@ -14,9 +13,8 @@ public class GetPendingTradeOfferResponse {
     private boolean isUrgent;
 
     @Builder
-    public GetPendingTradeOfferResponse(String stockName, int tradePrice, int quantity, String offerMemberName, int Upvotes, int Downvotes, boolean isUrgent) {
+    public GetPendingTradeOfferResponse(String stockName, int quantity, String offerMemberName, int Upvotes, int Downvotes, boolean isUrgent) {
         this.stockName = stockName;
-        this.tradePrice = tradePrice;
         this.quantity = quantity;
         this.offerMemberName = offerMemberName;
         this.Upvotes = Upvotes;

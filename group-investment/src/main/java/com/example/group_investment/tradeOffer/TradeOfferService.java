@@ -206,7 +206,6 @@ public class TradeOfferService {
         return tradeOffers.stream()
                 .map(tradeOffer -> GetPendingTradeOfferResponse.builder()
                         .stockName(tradeOfferCommunicator.getStockNameFromStockSystem(tradeOffer.getStockCode()).getName())
-                        .tradePrice(tradeOffer.getWantPrice())
                         .quantity(tradeOffer.getQuantity())
                         .offerMemberName(tradeOffer.getMember().getUser().getName())
                         .Upvotes(tradeOffer.getUpvotes())
