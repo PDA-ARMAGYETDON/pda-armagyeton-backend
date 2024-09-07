@@ -30,7 +30,7 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -297,6 +297,15 @@ public class TeamService {
                 memberRepository.save(member);
             }
         }
+    }
+
+    public List<Integer> selectMemberByTeam(int teamId) {
+        List<Member> members = memberRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        return members.stream()
+                .map(member -> member.getUser().getId())
+                .collect(Collectors.toList());
     }
 
 }
