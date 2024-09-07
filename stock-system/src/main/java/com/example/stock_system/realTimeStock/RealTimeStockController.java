@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/stocks/realtime")
+@RequestMapping("/api/realtime")
 public class RealTimeStockController {
 
     private final RealTimeStockService realTimeStockService;
