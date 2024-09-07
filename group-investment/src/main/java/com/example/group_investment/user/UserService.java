@@ -28,7 +28,11 @@ public class UserService {
     private final MemberRepository memberRepository;
     private final RabbitTemplate rabbitTemplate;
 
-    public GetUserResponse get(int id) {
+    public GetUserResponse get(int jwtUserId, int id) {
+        if (jwtUserId != id) {
+            throw new UserException(UserErrorCode.FORBIDDEN_ERROR);
+        }
+
         return userRepository.findById(id)
                 .map(user -> GetUserResponse.builder()
                         .loginId(user.getLoginId())
