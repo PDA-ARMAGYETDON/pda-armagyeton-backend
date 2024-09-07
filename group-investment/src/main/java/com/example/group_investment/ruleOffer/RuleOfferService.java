@@ -10,6 +10,8 @@ import com.example.group_investment.rule.RuleRepository;
 import com.example.group_investment.rule.exception.RuleErrorCode;
 import com.example.group_investment.rule.exception.RuleException;
 import com.example.group_investment.ruleOffer.dto.*;
+import com.example.group_investment.ruleOfferVote.RuleOfferVote;
+import com.example.group_investment.ruleOfferVote.RuleOfferVoteRepository;
 import com.example.group_investment.team.Team;
 import com.example.group_investment.team.TeamRepository;
 import com.example.group_investment.team.exception.TeamErrorCode;
@@ -18,6 +20,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +31,7 @@ public class RuleOfferService {
     private final RuleRepository ruleRepository;
     private final TeamRepository teamRepository;
     private final MemberRepository memberRepository;
+    private final RuleOfferVoteRepository ruleOfferVoteRepository;
 
     public CreateROfferResponse create(int teamId, CreateROfferRequest request) {
         // 규칙 제안 생성하기
@@ -56,7 +60,7 @@ public class RuleOfferService {
                 .type(type).build();
     }
 
-    public GetROfferResponse get(int teamId) {
+    public GetROfferResponse get(int teamId, int userId) {
         // 규칙 제안 조회하기
         // 규칙 제안을 각 타입별로 type에 따라 Join된 테이블에서 조회
 
@@ -64,18 +68,21 @@ public class RuleOfferService {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
 
+        // 멤버 id 찾기
+        Member member = memberRepository.findByUserIdAndTeamId(userId,teamId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
         // repository에서 규칙 제안 조회
         // 규칙타입 Disband GetROfferResponseType
-        List<GetROfferResponseDisband> offersDisband = getGetROfferResponseDisbands(rule);
+        List<GetROfferResponseDisband> offersDisband = getGetROfferResponseDisbands(rule, member);
 
         // 규칙타입 PayFee
-        List<GetROfferResponsePayFee> offersPayFee = getGetROfferResponsePayFees(rule);
+        List<GetROfferResponsePayFee> offersPayFee = getGetROfferResponsePayFees(rule, member);
 
         // 규칙타입 UpvoteNumber
-        List<GetROfferResponseUpvoteNumber> offersUpvoteNumber = getGetROfferResponseUpvoteNumbers(rule);
+        List<GetROfferResponseUpvoteNumber> offersUpvoteNumber = getGetROfferResponseUpvoteNumbers(rule, member);
 
         // 규칙타입 UrgentSale
-        List<GetROfferResponseUrgentSale> offersUrgentSale = getGetROfferResponseUrgentSales(rule);
+        List<GetROfferResponseUrgentSale> offersUrgentSale = getGetROfferResponseUrgentSales(rule, member);
 
         return GetROfferResponse.builder()
                 .disbandOffers(offersDisband)
@@ -85,7 +92,7 @@ public class RuleOfferService {
                 .build();
     }
 
-    private List<GetROfferResponseDisband> getGetROfferResponseDisbands(Rule rule) {
+    private List<GetROfferResponseDisband> getGetROfferResponseDisbands(Rule rule, Member member) {
         List<RuleOffer> offers = ruleOfferRepository.findAllByRtypeAndRule(RuleType.DISBAND, rule);
 
         return offers.stream()
@@ -93,6 +100,9 @@ public class RuleOfferService {
                 .map(ruleOffer -> (ROfferDisband) ruleOffer)
                 .map(offerDisband -> GetROfferResponseDisband.builder()
                         .type(RuleType.DISBAND)
+                        .id(offerDisband.getId())
+                        .status(offerDisband.getStatus())
+                        .isVote(checkIfVoteExists(member, offerDisband))
                         .upvotes(offerDisband.getUpvotes())
                         .downvotes(offerDisband.getDownvotes())
                         .totalvotes(offerDisband.getTotalvotes())
@@ -103,13 +113,16 @@ public class RuleOfferService {
                 .collect(Collectors.toList());
     }
 
-    private List<GetROfferResponsePayFee> getGetROfferResponsePayFees(Rule rule) {
+    private List<GetROfferResponsePayFee> getGetROfferResponsePayFees(Rule rule, Member member) {
         List<RuleOffer> offers = ruleOfferRepository.findAllByRtypeAndRule(RuleType.PAY_FEE, rule);
         List<GetROfferResponsePayFee> offersPayFee = offers.stream()
                 .filter(ruleOffer -> ruleOffer instanceof ROfferPayFee)
                 .map(ruleOffer -> (ROfferPayFee) ruleOffer)
                 .map(offerPayFee -> GetROfferResponsePayFee.builder()
                         .type(RuleType.PAY_FEE)
+                        .id(offerPayFee.getId())
+                        .status(offerPayFee.getStatus())
+                        .isVote(checkIfVoteExists(member, offerPayFee))
                         .upvotes(offerPayFee.getUpvotes())
                         .downvotes(offerPayFee.getDownvotes())
                         .totalvotes(offerPayFee.getTotalvotes())
@@ -122,13 +135,16 @@ public class RuleOfferService {
         return offersPayFee;
     }
 
-    private List<GetROfferResponseUpvoteNumber> getGetROfferResponseUpvoteNumbers(Rule rule) {
+    private List<GetROfferResponseUpvoteNumber> getGetROfferResponseUpvoteNumbers(Rule rule, Member member) {
         List<RuleOffer> offers = ruleOfferRepository.findAllByRtypeAndRule(RuleType.UPVOTE_NUMBER, rule);
         List<GetROfferResponseUpvoteNumber> offersUpvoteNumber = offers.stream()
                 .filter(ruleOffer -> ruleOffer instanceof ROfferUpvotesNumber)
                 .map(ruleOffer -> (ROfferUpvotesNumber) ruleOffer)
                 .map(offerUpvoteNumber -> GetROfferResponseUpvoteNumber.builder()
                         .type(RuleType.UPVOTE_NUMBER)
+                        .id(offerUpvoteNumber.getId())
+                        .status(offerUpvoteNumber.getStatus())
+                        .isVote(checkIfVoteExists(member, offerUpvoteNumber))
                         .upvotes(offerUpvoteNumber.getUpvotes())
                         .downvotes(offerUpvoteNumber.getDownvotes())
                         .totalvotes(offerUpvoteNumber.getTotalvotes())
@@ -139,13 +155,16 @@ public class RuleOfferService {
         return offersUpvoteNumber;
     }
 
-    private List<GetROfferResponseUrgentSale> getGetROfferResponseUrgentSales(Rule rule) {
+    private List<GetROfferResponseUrgentSale> getGetROfferResponseUrgentSales(Rule rule, Member member) {
         List<RuleOffer> offers = ruleOfferRepository.findAllByRtypeAndRule(RuleType.URGENT_SALE, rule);
         List<GetROfferResponseUrgentSale> offersUrgentSale = offers.stream()
                 .filter(ruleOffer -> ruleOffer instanceof ROfferUrgentSale)
                 .map(ruleOffer -> (ROfferUrgentSale) ruleOffer)
                 .map(offerUrgentSale -> GetROfferResponseUrgentSale.builder()
                         .type(RuleType.URGENT_SALE)
+                        .id(offerUrgentSale.getId())
+                        .status(offerUrgentSale.getStatus())
+                        .isVote(checkIfVoteExists(member, offerUrgentSale))
                         .upvotes(offerUrgentSale.getUpvotes())
                         .downvotes(offerUrgentSale.getDownvotes())
                         .totalvotes(offerUrgentSale.getTotalvotes())
@@ -155,5 +174,10 @@ public class RuleOfferService {
                 )
                 .collect(Collectors.toList());
         return offersUrgentSale;
+    }
+
+    public boolean checkIfVoteExists(Member member, RuleOffer ruleOffer) {
+        return ruleOfferVoteRepository.existsByMemberAndRuleOffer(member, ruleOffer);
+         // 존재하면 true, 존재하지 않으면 false
     }
 }

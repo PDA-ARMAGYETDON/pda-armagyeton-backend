@@ -32,10 +32,11 @@ public class RuleOfferController {
             description = "response는 규칙의 타입 별로 리스트를 뽑아 줍니다."
     )
     @GetMapping("/api/groups/{id}/rules/offers")
-    public ApiResponse<GetROfferResponse> get(@PathVariable int id){
+    public ApiResponse<GetROfferResponse> get(@PathVariable int id, @RequestAttribute("userId") int userId){
         return new ApiResponse(200,
                 true,
                 "Rule 제안 조회에 성공했습니다.",
-                ruleOfferService.get(id));
+                ruleOfferService.get(id, userId));
     }
+
 }
