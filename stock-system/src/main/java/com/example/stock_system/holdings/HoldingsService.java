@@ -10,6 +10,8 @@ import com.example.stock_system.enums.TradeStatus;
 import com.example.stock_system.enums.TradeType;
 import com.example.stock_system.holdings.dto.HoldingsDto;
 import com.example.stock_system.holdings.dto.SaveClosingPrice;
+
+import com.example.stock_system.realTimeStock.RealTimeStockService;
 import com.example.stock_system.holdings.exception.HoldingsErrorCode;
 import com.example.stock_system.holdings.exception.HoldingsException;
 import com.example.stock_system.stocks.Stocks;
@@ -33,45 +35,53 @@ import java.util.stream.Collectors;
 public class HoldingsService {
 
     private final HoldingsRepository holdingsRepository;
-    private final AccountRepository accountRepository;
+    private final TeamAccountRepository teamAccountRepository;
     private final StocksService stocksService;
+    private final RealTimeStockService realTimeStockService;
     private final TeamAccountRepository teamAccountRepository;
     private final StocksRepository stocksRepository;
     private final TradeRepository tradeRepository;
 
-    public List<HoldingsDto> getHoldings(int accountId) {
-        Account account = accountRepository.findById(accountId).orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
+    public List<HoldingsDto> getHoldingsByTeamId(int teamId) {
+        Account account = teamAccountRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND))
+                .getAccount();
 
-        List<Holdings> holdingsList = holdingsRepository.findByAccount(account);
-        return holdingsList.stream().map(HoldingsDto::new).collect(Collectors.toList());
+        List<Holdings> holdings = holdingsRepository.findByAccount(account);
+
+        return holdings.stream()
+                .map(HoldingsDto::new)
+                .collect(Collectors.toList());
+
     }
 
-    public Flux<HoldingsDto> getRealTimeHoldings(int accountId, Flux<Object[]> stockDataFlux) {
-        Account account = accountRepository.findById(accountId).orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
+    public Flux<HoldingsDto> getRealTimeHoldingsByTeamId(int teamId) {
+        List<HoldingsDto> holdingsDtoList = getHoldingsByTeamId(teamId);
 
-        List<Holdings> holdingsList = holdingsRepository.findByAccount(account);
+        List<String> stockCodes = holdingsDtoList.stream()
+                .map(HoldingsDto::getStockCode)
+                .collect(Collectors.toList());
 
-        return stockDataFlux.filter(stockData -> holdingsList.stream().anyMatch(holding -> holding.getStockCode().getCode().equals(stockData[0].toString()))).map(stockData -> {
-            String stockCode = stockData[0].toString();
-            int currentPrice = Integer.parseInt(stockData[1].toString());
 
-            Holdings holding = holdingsList.stream().filter(h -> h.getStockCode().getCode().equals(stockCode)).findFirst().orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUND));
-
-            int evluAmt = currentPrice * holding.getHldgQty();
-            int evluPfls = evluAmt - holding.getPchsAmt();
-            double evluPflsRt = (double) evluPfls / holding.getPchsAmt() * 100;
-
-            return new HoldingsDto(holding, evluAmt, evluPfls, evluPflsRt);
-        });
+        return realTimeStockService.getRealTimeHoldings(holdingsDtoList, stockCodes);
     }
 
-    @Scheduled(cron = "0 15 15 * * MON-FRI", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 59 15 * * MON-FRI", zone = "Asia/Seoul")
+    public void updateHoldingsWithCurrentPriceAtEndOfDay() {
+        updateHoldingsWithCurrentPrice();
+    }
+
+    @Scheduled(cron = "0 10 15 * * MON-FRI", zone = "Asia/Seoul")
+    public void updateHoldingsWithCurrentPriceAtMiddleOfDay() {
+        updateHoldingsWithCurrentPrice();
+    }
+
+
     public void updateHoldingsWithCurrentPrice() {
         List<Holdings> holdingsList = holdingsRepository.findAll();
 
         for (Holdings holding : holdingsList) {
             String stockCode = holding.getStockCode().getCode();
-
 
             StockCurrentPrice stockCurrentPrice = stocksService.getCurrentData(stockCode);
 

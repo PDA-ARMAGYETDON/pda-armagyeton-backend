@@ -17,6 +17,7 @@ public class Holdings {
     @JoinColumn(name = "account_id")
     private Account account;
 
+    private String stockName;
     private int hldgQty;
     private int pchsAmt;
     private int evluAmt;
@@ -28,11 +29,13 @@ public class Holdings {
     private Stocks stockCode;
 
 
-    public Holdings(Account account, Stocks stockCode,int hldgQty,int pchsAmt) {
+    public Holdings(Account account, Stocks stockCode,String stockName,int hldgQty,int pchsAmt) {
         this.account = account;
         this.hldgQty = hldgQty;     //보유수량
         this.pchsAmt = pchsAmt;     //매입 금액
         this.stockCode = stockCode;
+        this.stockName = stockName;
+
     }
 
     public Holdings() {

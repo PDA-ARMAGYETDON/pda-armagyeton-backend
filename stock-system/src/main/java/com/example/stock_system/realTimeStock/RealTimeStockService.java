@@ -1,5 +1,10 @@
 package com.example.stock_system.realTimeStock;
 
+import com.example.stock_system.account.Account;
+import com.example.stock_system.account.dto.GetTeamAccountResponse;
+import com.example.stock_system.holdings.dto.HoldingsDto;
+import com.example.stock_system.holdings.exception.HoldingsErrorCode;
+import com.example.stock_system.holdings.exception.HoldingsException;
 import com.example.stock_system.stocks.StocksService;
 import com.example.stock_system.stocks.dto.StockName;
 import com.example.stock_system.trade.TradeService;
@@ -18,6 +23,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,9 +61,10 @@ public class RealTimeStockService {
     private Sinks.Many<Object[]> allStockDataSink;
     private Sinks.Many<Object[]> dataOnlySink;
     private final Map<String, Sinks.Many<Object[]>> individualStockSinks = new ConcurrentHashMap<>();
-    private Sinks.Many<Integer> totalSumSink;
     private final Map<String, Boolean> isStreamingActiveMap = new ConcurrentHashMap<>();
+    private final Map<Integer, Disposable> activeStreams = new ConcurrentHashMap<>();
 
+    private final Map<String, HoldingsDto> holdingsMap = new ConcurrentHashMap<>();
     @Autowired
     public RealTimeStockService(WebClient.Builder webClientBuilder,StocksService stocksService,TradeService tradeService) {
         this.webClient = webClientBuilder.build();
@@ -82,7 +90,6 @@ public class RealTimeStockService {
         }
 
         List<String> stockCodes = getStockCodes();
-
         int maxProcessableCodes = Math.min(stockCodes.size(), appKeys.size() * 40);
         int stockCodeIndex = 0;
 
@@ -125,7 +132,6 @@ public class RealTimeStockService {
         allStockDataSink = null;
         dataOnlySink = null;
         individualStockSinks.clear();
-        totalSumSink = null;
         isStreamingActiveMap.clear();
         System.out.println("모든 WebSocket 연결 종료 및 스트림 정리.");
     }
@@ -278,39 +284,25 @@ public class RealTimeStockService {
         System.out.println("스트리밍 중지됨 - 주식 코드: " + stockCode);
     }
 
-    public void streamByStockCodes(List<String> stockCodes) {
-        System.out.println("특정 주식 코드 리스트로 스트리밍 시작 - 코드들: " + stockCodes);
 
-        if (totalSumSink != null) {
-            totalSumSink.tryEmitComplete();
-        }
-        totalSumSink = Sinks.many().multicast().onBackpressureBuffer();
+    public Flux<HoldingsDto> getRealTimeHoldings(List<HoldingsDto> holdingsDtoList, List<String> stockCodes) {
+        return allStockDataSink.asFlux()
+                .filter(stockData -> stockCodes.contains(stockData[1].toString()))  // 주식 코드를 필터링
+                .map(stockData -> {
+                    String stockCode = stockData[1].toString();
+                    int currentPrice = Integer.parseInt(stockData[2].toString());
 
-        Map<String, Integer> stockPrices = new ConcurrentHashMap<>();
+                    HoldingsDto holdingsDto = holdingsDtoList.stream()
+                            .filter(dto -> dto.getStockCode().equals(stockCode))
+                            .findFirst()
+                            .orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUND));
 
-        stockCodes.forEach(stockCode -> {
-            isStreamingActiveMap.put(stockCode, true);
+                    int evluAmt = currentPrice * holdingsDto.getHldgQty(); // 평가 금액
+                    int evluPfls = evluAmt - holdingsDto.getPchsAmt(); // 평가 손익
+                    double evluPflsRt = (double) evluPfls / holdingsDto.getPchsAmt() * 100; // 평가 손익률
 
-            allStockDataSink.asFlux()
-                    .filter(data -> stockCode.equals(data[0]))
-                    .map(data -> Integer.parseInt(data[1].toString()))
-                    .subscribe(price -> {
-                        stockPrices.put(stockCode, price);
-                        calculateTotalSum(stockPrices);
-                    });
-        });
-    }
-
-    private void calculateTotalSum(Map<String, Integer> stockPrices) {
-        int totalSum = stockPrices.values().stream().mapToInt(Integer::intValue).sum();
-        if (totalSumSink != null) {
-            totalSumSink.tryEmitNext(totalSum);
-        }
-    }
-
-
-    public Flux<Integer> getTotalSumStream() {
-        return totalSumSink.asFlux().delayElements(Duration.ofMillis(100));
+                    return new HoldingsDto(holdingsDto.getHldgQty(), holdingsDto.getPchsAmt(), evluAmt, evluPfls, evluPflsRt, stockCode,holdingsDto.getStockName());
+                });
     }
 
     public void stopStreaming() {
@@ -321,4 +313,72 @@ public class RealTimeStockService {
     private void handleError(Throwable error) {
         System.err.println("웹 소켓 에러 발생: " + error.getMessage());
     }
+
+
+    public Flux<GetTeamAccountResponse> getRealTimeHoldingsWithTotalSum(Account account, List<HoldingsDto> holdingsDtoList, List<String> stockCodes, int teamId) {
+        if (activeStreams.containsKey(teamId)) {
+            activeStreams.get(teamId).dispose();
+        }
+
+        Flux<GetTeamAccountResponse> responseFlux = allStockDataSink.asFlux()
+                .filter(stockData -> stockCodes.contains(stockData[1].toString()))  // 주식 코드를 필터링
+                .map(stockData -> {
+                    String stockCode = stockData[1].toString();
+                    int currentPrice = Integer.parseInt(stockData[2].toString());
+
+                    HoldingsDto holdingsDto = holdingsDtoList.stream()
+                            .filter(dto -> dto.getStockCode().equals(stockCode))
+                            .findFirst()
+                            .orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUND));
+
+                    int evluAmt = currentPrice * holdingsDto.getHldgQty();
+                    int evluPfls = evluAmt - holdingsDto.getPchsAmt();
+                    double evluPflsRt = (double) evluPfls / holdingsDto.getPchsAmt() * 100;
+
+                    holdingsDto = new HoldingsDto(holdingsDto.getHldgQty(), holdingsDto.getPchsAmt(), evluAmt, evluPfls, evluPflsRt, stockCode, holdingsDto.getStockName());
+                    holdingsMap.put(stockCode, holdingsDto);
+
+                    int totalPchsAmt = holdingsMap.values().stream().mapToInt(HoldingsDto::getPchsAmt).sum();
+                    int totalEvluAmt = holdingsMap.values().stream().mapToInt(HoldingsDto::getEvluAmt).sum();
+                    int totalEvluPfls = totalEvluAmt - totalPchsAmt;
+                    double totalEvluPflsRt = totalPchsAmt > 0 ? (double) totalEvluPfls / totalPchsAmt * 100 : 0.0;
+                    totalEvluPflsRt = roundToTwoDecimalPlaces(totalEvluPflsRt);
+                    int deposit = account.getDeposit();
+                    int totalAsset = totalEvluAmt + deposit;
+
+                    return GetTeamAccountResponse.builder()
+                            .accountNumber(account.getAccountNumber())
+                            .totalPchsAmt(totalPchsAmt)
+                            .totalEvluAmt(totalEvluAmt)
+                            .totalEvluPfls(totalEvluPfls)
+                            .totalEvluPflsRt(totalEvluPflsRt)
+                            .deposit(deposit)
+                            .totalAsset(totalAsset)
+                            .build();
+                })
+                .doOnSubscribe(subscription -> {
+                    activeStreams.put(teamId, (Disposable) subscription);
+                })
+                .doFinally(signalType -> {
+                    activeStreams.remove(teamId);
+                });
+
+        return responseFlux;
+    }
+
+
+
+
+    public void stopStreamingByTeamId(int teamId) {
+        if (activeStreams.containsKey(teamId)) {
+            activeStreams.get(teamId).dispose();
+            activeStreams.remove(teamId);
+        }
+    }
+    private double roundToTwoDecimalPlaces(double value) {
+        BigDecimal bd = BigDecimal.valueOf(value);
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+
 }
