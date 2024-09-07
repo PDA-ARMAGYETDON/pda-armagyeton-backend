@@ -191,4 +191,28 @@ public class TradeOfferService {
                 .downvotes(tradeOffer.getDownvotes())
                 .build();
     }
+
+    public List<GetPendingTradeOfferResponse> getProgressTradeOffers(int teamId, int page, int size) {
+        Team team = teamRepository.findById(teamId).orElseThrow(
+                () -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        System.out.println("team: " + team.getName());
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "offerAt"));
+
+        Page<TradeOffer> tradeOffers = tradeOfferRepository.findAllByTeamAndOfferStatus(team, OfferStatus.PROGRESS, pageable);
+
+        System.out.println("tradeOffers: " + tradeOffers.getSize());
+
+        return tradeOffers.stream()
+                .map(tradeOffer -> GetPendingTradeOfferResponse.builder()
+                        .stockName(tradeOfferCommunicator.getStockNameFromStockSystem(tradeOffer.getStockCode()).getName())
+                        .tradePrice(tradeOffer.getWantPrice())
+                        .quantity(tradeOffer.getQuantity())
+                        .offerMemberName(tradeOffer.getMember().getUser().getName())
+                        .Upvotes(tradeOffer.getUpvotes())
+                        .Downvotes(tradeOffer.getDownvotes())
+                        .isUrgent(tradeOffer.isUrgent())
+                        .build())
+                .toList();
+    }
 }
