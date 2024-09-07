@@ -44,8 +44,8 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         if (jwtUtil.containsTeam(jwtToken)) {
             teamId = jwtUtil.getTeamId(jwtToken);
-            request.setAttribute("teamId", teamId);
         }
+        request.setAttribute("teamId", teamId);
 
         log.info("[INTERCEPTOR] userId : " + userId + ", teamId : " + teamId);
 
