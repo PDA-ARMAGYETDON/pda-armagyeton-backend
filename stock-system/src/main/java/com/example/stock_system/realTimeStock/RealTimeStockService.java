@@ -164,7 +164,7 @@ public class RealTimeStockService {
         ReactorNettyWebSocketClient client = new ReactorNettyWebSocketClient();
         Disposable connection = client.execute(URI.create(realTimeStockUrl), session ->
                 handleWebSocketSession(session, stockCodes, approvalKey)
-        ).subscribe();;
+        ).subscribe();
         connections.add(connection);
     }
 
@@ -295,7 +295,7 @@ public class RealTimeStockService {
                     HoldingsDto holdingsDto = holdingsDtoList.stream()
                             .filter(dto -> dto.getStockCode().equals(stockCode))
                             .findFirst()
-                            .orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUNT));
+                            .orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUND));
 
                     int evluAmt = currentPrice * holdingsDto.getHldgQty(); // 평가 금액
                     int evluPfls = evluAmt - holdingsDto.getPchsAmt(); // 평가 손익
@@ -329,7 +329,7 @@ public class RealTimeStockService {
                     HoldingsDto holdingsDto = holdingsDtoList.stream()
                             .filter(dto -> dto.getStockCode().equals(stockCode))
                             .findFirst()
-                            .orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUNT));
+                            .orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUND));
 
                     int evluAmt = currentPrice * holdingsDto.getHldgQty();
                     int evluPfls = evluAmt - holdingsDto.getPchsAmt();
