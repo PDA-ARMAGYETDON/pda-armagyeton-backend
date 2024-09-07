@@ -53,6 +53,7 @@ public class UserService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .address(request.getAddress())
+                .addressDetail(request.getAddressDetail())
                 .build();
 
         userRepository.save(createdUser);

@@ -25,5 +25,6 @@ public class SignUpRequest {
     @NotNull
     private String name;
     private String address;
+    private String addressDetail;
 
 }
