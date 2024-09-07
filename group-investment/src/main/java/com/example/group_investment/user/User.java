@@ -43,4 +43,11 @@ public class User {
         return !members.isEmpty();
     }
 
+    public void updateUserInfo(String email, String name, String address, String addressDetail) {
+        this.email = email;
+        this.name = name;
+        this.address = address;
+        this.addressDetail = addressDetail;
+    }
+
 }

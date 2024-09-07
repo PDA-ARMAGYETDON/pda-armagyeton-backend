@@ -44,6 +44,13 @@ public class UserController {
         return new ApiResponse<>(200, true, "사용 가능한 이메일 입니다.", null);
     }
 
+
+    @PutMapping("/api/users")
+    public ApiResponse<UpdateResponse> updateUser(@RequestAttribute("userId") int userId, @RequestBody UpdateRequest request) {
+        return new ApiResponse<>(200, true, "사용자 정보를 성공적으로 수정했습니다.", userService.updateUser(userId, request));
+    }
+
+
     @PostMapping("/api/users/fcm/issue")
     @Operation(summary = "FCM 토큰 발급", description = "유저 ID 와 FCM 토큰을 받아 alarm 모듈에 전송")
     public ApiResponse<?> saveFcmToken(@RequestBody FcmTokenRequestDto fcmTokenRequestDto) {
@@ -52,5 +59,8 @@ public class UserController {
         
         return new ApiResponse<>(200, true, "토큰을 등록하였습니다.", null);
     }
+
+
+
 
 }
