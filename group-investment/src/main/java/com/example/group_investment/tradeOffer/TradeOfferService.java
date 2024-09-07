@@ -52,10 +52,7 @@ public class TradeOfferService {
     @Value("${spring.rabbitmq.main-stock-queue.name}")
     private String mainStockQueue;
 
-    public void createTradeOffer(CreateTradeOfferRequest createTradeOfferRequest) {
-        // FIXME: 토큰으로 사용자 아이디와 모임 아이디 가져와야함
-        int userId = 1;
-        int teamId = 1;
+    public void createTradeOffer(int userId, int teamId, CreateTradeOfferRequest createTradeOfferRequest) {
 
         Member member = memberRepository.findByUserIdAndTeamId(userId, teamId).orElseThrow(
                 () -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
@@ -65,6 +62,16 @@ public class TradeOfferService {
 
         Rule rule = ruleRepository.findByTeam(team).orElseThrow(
                 () -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
+
+        if (createTradeOfferRequest.getTradeType() == TradeType.SELL) {
+            if (createTradeOfferRequest.getQuantity() > (tradeOfferCommunicator.getNumOfHoldingsFromStockSystem(teamId, createTradeOfferRequest.getCode()) + tradeOfferCommunicator.getNumOfPendingTradeFromStockSystem(teamId, createTradeOfferRequest.getCode()))) {
+                throw new TradeOfferException(TradeOfferErrorCode.HOLDINGS_NOT_ENOUGH);
+            }
+        } else {
+            if (createTradeOfferRequest.getQuantity() * createTradeOfferRequest.getWantPrice() > tradeOfferCommunicator.getAvailableAssetFromStockSystem(teamId)) {
+                throw new TradeOfferException(TradeOfferErrorCode.ASSET_NOT_ENOUGH);
+            }
+        }
 
         TradeOfferDto tradeOfferDto;
         if (createTradeOfferRequest.getTradeType() == TradeType.SELL && tradeOfferCommunicator.getPrdyVrssRtFromStockSystem(createTradeOfferRequest.getCode()) <= ((-1) * rule.getPrdyVrssRt())) {
@@ -80,10 +87,7 @@ public class TradeOfferService {
         }
     }
 
-    public GetAllTradeOffersResponse getAllTradeOffers(TradeType type, int page, int size) {
-        // FIXME: 토큰으로 사용자 아이디와 모임 아이디 가져와야함
-        int userId = 1;
-        int teamId = 1;
+    public GetAllTradeOffersResponse getAllTradeOffers(int teamId, TradeType type, int page, int size) {
 
         Team team = teamRepository.findById(teamId).orElseThrow(
                 () -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
@@ -99,7 +103,22 @@ public class TradeOfferService {
             }
         }
 
-        List<TradeOfferResponse> tradeOfferResponses = tradeOfferConverter.tradeOfferListToTradeOfferResponseList(tradeOffers);
+        List<TradeOfferResponse> tradeOfferResponses = tradeOffers.stream()
+                .map(tradeOffer -> new TradeOfferResponse().builder()
+                        .tradeOfferId(tradeOffer.getId())
+                        .userName(tradeOffer.getMember().getUser().getName())
+                        .stockName(tradeOfferCommunicator.getStockNameFromStockSystem(tradeOffer.getStockCode()).getName())
+                        .tradeType(tradeOffer.getTradeType())
+                        .offerStatus(tradeOffer.getOfferStatus())
+                        .wantPrice(tradeOffer.getWantPrice())
+                        .quantity(tradeOffer.getQuantity())
+                        .offerAt(tradeOffer.getOfferAt().toLocalDate().toString())
+                        .isUrgent(tradeOffer.isUrgent())
+                        .upvotes(tradeOffer.getUpvotes())
+                        .downvotes(tradeOffer.getDownvotes())
+                        .isVote(tradeOfferVoteRepository.existsByTradeOfferAndMember(tradeOffer, tradeOffer.getMember()))
+                        .build())
+                .toList();
 
         return new GetAllTradeOffersResponse().builder()
                 .tradeOfferResponses(tradeOfferResponses)
