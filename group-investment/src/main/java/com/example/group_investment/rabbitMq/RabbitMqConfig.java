@@ -27,7 +27,7 @@ public class RabbitMqConfig {
     private String rabbitmqPassword;
 
     @Value("${spring.rabbitmq.fcm-queue.name}")
-    private String QueueName;
+    private String queueName;
 
     @Value("${spring.rabbitmq.main-stock-queue.name}")
     private String stockQueueName;
@@ -35,7 +35,7 @@ public class RabbitMqConfig {
 
     @Bean
     public Queue mainToAlarmQueue() {
-        return new Queue(alarmQueueName, true);
+        return new Queue(queueName, true);
     }
 
     @Bean
