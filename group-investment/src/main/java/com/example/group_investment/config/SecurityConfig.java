@@ -5,6 +5,7 @@ import com.example.group_investment.auth.AgUserDetailsService;
 import com.example.group_investment.auth.filter.JwtFilter;
 import com.example.group_investment.auth.filter.LoginFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +32,9 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final AgUserDetailsService userDetailsService;
 
+    @Value("spring.ag.url")
+    private String gatewayUrl;
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
@@ -46,7 +50,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedHeaders(Collections.singletonList("*"));
         config.setAllowedMethods(Collections.singletonList("*"));
-        config.setAllowedOriginPatterns(Collections.singletonList("http://localhost:5173")); // ⭐️ 허용할 origin
+        config.setAllowedOriginPatterns(Collections.singletonList(gatewayUrl)); // ⭐️ gateway 허용
         config.setAllowCredentials(true);
         config.setExposedHeaders(Collections.singletonList("Authorization"));
 
@@ -69,11 +73,14 @@ public class SecurityConfig {
         http
                 .httpBasic(AbstractHttpConfigurer::disable);
 
-
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/api/users/login", "/api/users/signup",
-                                "/swagger-ui/**", "/v3/api-docs/**", "/api/backend/**").permitAll()
+                        .requestMatchers(
+                                "/api/users/login", "/api/users/signup",
+                                "/swagger-ui/**", "/v3/api-docs/**",
+                                "/api/backend/**",
+                                "/api/users/valid/**"
+                        ).permitAll()
                         .anyRequest().authenticated());
 
         http
@@ -82,7 +89,6 @@ public class SecurityConfig {
                 .logout((logoutConfig) ->
                         logoutConfig
                                 .logoutUrl("/api/users/logout")
-
                                 .logoutSuccessUrl("/"))
         ;
 

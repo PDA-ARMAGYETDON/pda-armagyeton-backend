@@ -1,5 +1,7 @@
 package com.example.group_investment.user;
 
+import com.example.common.exception.ErrorCode;
+import com.example.common.exception.GlobalException;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.user.dto.FcmTokenRequestDto;
 import com.example.group_investment.user.dto.FcmTokenResponseDto;
@@ -26,7 +28,11 @@ public class UserService {
     private final MemberRepository memberRepository;
     private final RabbitTemplate rabbitTemplate;
 
-    public GetUserResponse get(int id) {
+    public GetUserResponse get(int jwtUserId, int id) {
+        if (jwtUserId != id) {
+            throw new UserException(UserErrorCode.FORBIDDEN_ERROR);
+        }
+
         return userRepository.findById(id)
                 .map(user -> GetUserResponse.builder()
                         .loginId(user.getLoginId())
@@ -85,4 +91,15 @@ public class UserService {
     }
 
 
+    public void checkId(String loginId) {
+        userRepository.findByLoginId(loginId).ifPresent(user -> {
+            throw new UserException(UserErrorCode.USER_ALREADY_EXISTS);
+        });
+    }
+
+    public void checkEmail(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
+            throw new UserException(UserErrorCode.EMAIL_ALREADY_EXISTS);
+        });
+    }
 }

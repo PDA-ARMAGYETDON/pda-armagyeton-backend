@@ -38,4 +38,8 @@ public class User {
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private UserPInfo userPInfo;
 
+    public Boolean containTeam(){
+        return !members.isEmpty();
+    }
+
 }

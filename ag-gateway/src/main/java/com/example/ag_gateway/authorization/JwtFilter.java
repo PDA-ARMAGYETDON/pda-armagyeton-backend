@@ -20,8 +20,13 @@ import java.util.List;
 @WebFilter(urlPatterns = "/api/**")
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
-    private final List<String> excludeUrls = Arrays.asList("/api/users/signup", "/api/users/login",
-            "/swagger-ui", "/v3/api-docs", "/api/teams/autoPayment", "/api/teams/expelMember");
+    private final List<String> excludeUrls = Arrays.asList(
+            "/api/users/signup", "/api/users/login",
+            "/swagger-ui", "/v3/api-docs",
+            "/api/teams/autoPayment", "/api/teams/expelMember",
+            "/api/backend",
+            "/api/teams/valid"
+    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

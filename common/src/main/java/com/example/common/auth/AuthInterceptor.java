@@ -15,8 +15,13 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     private final JwtUtil jwtUtil;
 
-    private final List<String> excludeUrls = Arrays.asList("/api/users/signup", "/api/users/login",
-            "/swagger-ui", "/v3/api-docs", "/api/backend", "/api/teams/autoPayment", "/api/teams/expelMember");
+    private final List<String> excludeUrls = Arrays.asList(
+            "/api/users/signup", "/api/users/login",
+            "/swagger-ui", "/v3/api-docs",
+            "/api/backend",
+            "/api/teams/autoPayment", "/api/teams/expelMember",
+            "/api/users/valid"
+    );
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -39,8 +44,8 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         if (jwtUtil.containsTeam(jwtToken)) {
             teamId = jwtUtil.getTeamId(jwtToken);
-            request.setAttribute("teamId", teamId);
         }
+        request.setAttribute("teamId", teamId);
 
         log.info("[INTERCEPTOR] userId : " + userId + ", teamId : " + teamId);
 
