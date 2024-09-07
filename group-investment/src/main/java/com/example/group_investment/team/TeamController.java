@@ -20,7 +20,7 @@ public class TeamController {
 
     // TeamResponseDto를 만들어서 response해주세요.
     // ApiResponse를 사용해서 response 형식을 통일해주세요.
-    @Operation(summary = "유저가 속한 팀들의 pk와 status를 조회하는 API")
+    @Operation(summary = "유저가 속한 팀들의 pk와 status, 이름, 카테고리를 조회하는 API(")
     @GetMapping("/users")
     public ApiResponse<List<TeamByUserResponse>> selectTeamByUser(@RequestAttribute("userId") int userId) {
         List<TeamByUserResponse> teamByUserResponse = teamService.selectTeamByUser(userId);
