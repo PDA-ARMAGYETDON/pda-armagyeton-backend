@@ -9,8 +9,10 @@ import com.example.group_investment.user.UserRepository;
 import com.example.group_investment.user.exception.UserErrorCode;
 import com.example.group_investment.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -18,27 +20,19 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
 
-    public String updateToken(String jwtToken, int teamId) {
+    public String updateToken(int jwtUserId, int jwtTeamId, int teamId, String jwtToken) {
 
-        int currentUserId = jwtUtil.getUserId(jwtToken);
-        User user = userRepository.findById(currentUserId).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
-
-        int currentTeamId = 0;
-        // jwt에 teamId가 있는 경우
-        if (jwtUtil.containsTeam(jwtToken)) {
-            currentTeamId = jwtUtil.getTeamId(jwtToken);
+        if (jwtTeamId == teamId) {
+            return jwtToken;
         }
+
+        User user = userRepository.findById(jwtUserId).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
 
         // 팀에 속해있는지 확인
         if (!memberRepository.existsByUserAndTeamId(user, teamId)) {
             throw new AuthoException(AuthoErrorCode.NOT_TEAM_MEMBER);
         }
 
-        String newJwtToken = jwtToken;
-        if (teamId != currentTeamId) {
-            newJwtToken = jwtUtil.createJwt(currentUserId, teamId, jwtUtil.isTeamExist(jwtToken));
-        }
-
-        return newJwtToken;
+        return jwtUtil.createJwt(jwtUserId, teamId, user.containTeam());
     }
 }
