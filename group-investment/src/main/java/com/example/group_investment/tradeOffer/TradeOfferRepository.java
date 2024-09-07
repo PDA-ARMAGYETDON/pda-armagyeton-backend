@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TradeOfferRepository extends JpaRepository<TradeOffer, Integer> {
-    Page<TradeOffer> findAllByTeamIdAndTradeType(int memberId, TradeType tradeType, Pageable pageable);
+    Page<TradeOffer> findAllByTeamAndTradeType(Team team, TradeType tradeType, Pageable pageable);
 
     Page<TradeOffer> findAllByTeamAndOfferStatus(Team team, OfferStatus offerStatus, Pageable pageable);
 }

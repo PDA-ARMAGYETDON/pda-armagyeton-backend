@@ -94,7 +94,7 @@ public class TradeOfferService {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "offerAt"));
 
-        Page<TradeOffer> tradeOffers = tradeOfferRepository.findAllByTeamIdAndTradeType(team.getId(), type, pageable);
+        Page<TradeOffer> tradeOffers = tradeOfferRepository.findAllByTeamAndTradeType(team, type, pageable);
 
         for (TradeOffer tradeOffer : tradeOffers) {
             if (tradeOffer.getOfferStatus() == OfferStatus.PROGRESS && tradeOffer.isUrgent() && tradeOffer.getOfferAt().isBefore(LocalDateTime.now().plusMinutes(30))) {
