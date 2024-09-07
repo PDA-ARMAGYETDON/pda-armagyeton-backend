@@ -1,5 +1,6 @@
 package com.example.group_investment.ruleOffer.dto;
 
+import com.example.group_investment.enums.OfferStatus;
 import com.example.group_investment.enums.RuleType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -12,18 +13,22 @@ public class GetROfferResponseUpvoteNumber implements GetROfferResponseType{
 
     @Enumerated(EnumType.STRING)
     RuleType type;
+    int id;
     int upvotes;
     int downvotes;
     int totalvotes;
 
     int tradeUpvotes;
+    boolean isVote;
 
-    public GetROfferResponseUpvoteNumber(RuleType type, int upvotes, int downvotes, int totalVotes, int tradeUpvotes) {
+    public GetROfferResponseUpvoteNumber(RuleType type, int id, int upvotes, int downvotes, int totalVotes, int tradeUpvotes, boolean isVote) {
         this.type = type;
+        this.id = id;
         this.upvotes = upvotes;
         this.downvotes = downvotes;
         this.totalvotes = totalVotes;
         this.tradeUpvotes = tradeUpvotes;
+        this.isVote = isVote;
     }
 
 }
