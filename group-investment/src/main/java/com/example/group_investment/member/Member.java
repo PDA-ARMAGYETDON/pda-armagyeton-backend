@@ -6,7 +6,7 @@ import com.example.group_investment.ruleOffer.RuleOffer;
 import com.example.group_investment.ruleOfferVote.RuleOfferVote;
 import com.example.group_investment.team.Team;
 import com.example.group_investment.tradeOffer.TradeOffer;
-import com.example.group_investment.tradeOfferVote.TradeOfferVote;
+import com.example.group_investment.tradeOffer.TradeOfferVote;
 import com.example.group_investment.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -37,7 +37,6 @@ public class Member {
     private Team team;
 
     @Enumerated(EnumType.STRING)
-
     @JoinColumn(name = "join_status")
     private JoinStatus joinStatus;
 

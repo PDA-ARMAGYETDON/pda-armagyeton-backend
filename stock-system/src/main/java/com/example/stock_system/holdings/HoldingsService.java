@@ -46,6 +46,7 @@ public class HoldingsService {
                 .map(HoldingsDto::getStockCode)
                 .collect(Collectors.toList());
 
+
         return realTimeStockService.getRealTimeHoldings(holdingsDtoList, stockCodes);
     }
 

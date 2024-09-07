@@ -3,6 +3,8 @@ spring:
     name: chatting
   jwt:
     secret: ${JWT_SECRET}
+  ag:
+    url: ${AG_URL}
 
   rabbitmq:
     host: ${MQ_HOST}
@@ -37,4 +39,4 @@ chat:
   path: http://localhost:8082
 
 server:
-  port: 8082
+  port: 8084

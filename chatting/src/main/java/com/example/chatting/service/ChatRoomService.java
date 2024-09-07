@@ -2,6 +2,7 @@ package com.example.chatting.service;
 
 import com.example.chatting.domain.ChatMessage;
 import com.example.chatting.domain.ChatRoom;
+import com.example.chatting.dto.ChatMessageResponse;
 import com.example.chatting.exception.ChatErrorCode;
 import com.example.chatting.exception.ChatException;
 import com.example.chatting.repository.ChatRoomRepository;
@@ -42,7 +43,7 @@ public class ChatRoomService {
     }
 
     @Cacheable(value = "chatMessages", key = "#teamId")
-    public List<ChatMessage> selectChatMessageList(int teamId) {
+    public List<ChatMessageResponse> selectChatMessageList(int teamId) {
 
         chatRoomRepository.findById(teamId).orElseThrow(
                 () -> new ChatException(ChatErrorCode.ROOM_NOT_FOUND));
@@ -50,8 +51,12 @@ public class ChatRoomService {
         String key = prefix + "room:" + teamId;
 
         Set<ChatMessage> messageSet = redisTemplateForMessage.opsForZSet().reverseRange(key, 0, 99);
+        List<ChatMessage> messages = List.copyOf(messageSet);
 
-        return List.copyOf(messageSet);
+        List<ChatMessageResponse> messageDtos = messages.stream()
+                .map(message -> new ChatMessageResponse(message.getUserId(), message.getName(), message.getMessage(), message.getCreatedAt()))
+                .toList();
+        return messageDtos;
 
     }
 
@@ -73,3 +78,4 @@ public class ChatRoomService {
         messageTemplate.convertAndSend("/sub/chat/room/" + messageDto.getTeamId(), updatedMessageDto);
     }
 }
+

@@ -1,0 +1,53 @@
+name: CI/CD for Multi-Module Gradle Spring Boot Application
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      NAME: 'ag-gateway'
+      EC2_HOST: ${{ secrets.GATEWAY_EC2_HOST }}
+      EC2_PORT: ${{ secrets.GATEWAY_EC2_PORT }}
+      EC2_KEY: ${{ secrets.EC2_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle for ${{ env.NAME }}
+        run: ./gradlew :${{ env.NAME }}:bootJar
+
+      - name: Copy jar to EC2 for ${{ env.NAME }}
+        uses: appleboy/scp-action@v0.1.5
+        with:
+          host: ${{ env.EC2_HOST }}
+          port: 22
+          username: ubuntu
+          password: ${{ env.EC2_KEY }}
+          source: ${{ env.NAME }}/build/libs/*.jar
+          target: /home/ubuntu/${{ env.NAME }}.jar
+
+      - name: Restart service on EC2 for ${{ env.NAME }}
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ env.EC2_HOST }}
+          port: 22
+          username: ec2-user
+          password: ${{ env.EC2_KEY }}
+          script: |
+            fuser -k ${{ env.EC2_PORT }}/tcp
+            sudo rm -rf /home/ec2-user/${{ env.NAME }}/*.jar
+            nohup env $(cat /home/ubuntu/${{ env.NAME }}.env | xargs) java -jar /home/ubuntu/${{ env.NAME }}.jar &

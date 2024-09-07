@@ -22,7 +22,7 @@ public class TradeOfferCommunicator {
         WebClient webClient = webClientBuilder.build();
 
         ApiResponse<StockName> stockName = webClient.get()
-                .uri(AG_URL + ":8083/api/stocks/names?code=" + code)
+                .uri(AG_URL + ":8082/api/backend/stocks/names?code=" + code)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<StockName>>() {
                 })
@@ -39,7 +39,7 @@ public class TradeOfferCommunicator {
         WebClient webClient = webClientBuilder.build();
 
         ApiResponse<Double> prdyVrssRt = webClient.get()
-                .uri(AG_URL + ":8083/api/stocks/prdyVrssRt?code=" + code)
+                .uri(AG_URL + ":8082/api/backend/stocks/prdyVrssRt?code=" + code)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<Double>>() {
                 })

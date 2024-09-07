@@ -29,10 +29,18 @@ public class RabbitMqConfig {
     @Value("${spring.rabbitmq.fcm-queue.name}")
     private String QueueName;
 
+    @Value("${spring.rabbitmq.main-stock-queue.name}")
+    private String stockQueueName;
+
 
     @Bean
     public Queue mainToAlarmQueue() {
-        return new Queue(QueueName, true);
+        return new Queue(alarmQueueName, true);
+    }
+
+    @Bean
+    public Queue mainToStockQueue() {
+        return new Queue(stockQueueName, true);
     }
 
     @Bean
