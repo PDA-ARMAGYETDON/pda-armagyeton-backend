@@ -84,8 +84,8 @@ public class TeamController {
     }
 
     @Operation(summary = "팀 id로 멤버찾기",description = "돈 다시 돌려줄때 teamId로 멤버 리스트 찾음")
-    @PostMapping("/member")
-    public ApiResponse selectMemberByTeam(@RequestBody int teamId){
+    @GetMapping("/member")
+    public ApiResponse selectMemberByTeam(@RequestParam int teamId){
         return new ApiResponse<>(200,true,"해당 팀 id의 유저 리스트",teamService.selectMemberByTeam(teamId));
     }
 
