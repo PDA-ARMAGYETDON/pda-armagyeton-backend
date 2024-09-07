@@ -15,7 +15,7 @@ import java.util.List;
 public class RankingController {
     private final RankingService rankingService;
 
-    @Operation(summary = "랭킹 조회 API")
+    @Operation(summary = "랭킹 조회 API, ex. teamRanking:1 은 Rankings[1] , 해당 구간에 팀이 없다면 -1")
     @GetMapping("/{id}")
     public ApiResponse<SelectRankingWithTeamResponse> selectRanking(@PathVariable int id, @RequestParam(value = "seedMoney", required = true) int seedMoney) {
         SelectRankingWithTeamResponse selectRankingWithTeamResponse = rankingService.selectRanking(id, seedMoney);
