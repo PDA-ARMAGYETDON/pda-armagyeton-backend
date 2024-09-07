@@ -1,6 +1,7 @@
 package com.example.invest_references;
 
 import com.example.common.dto.ApiResponse;
+import com.example.invest_references.dto.MarketIndexResponse;
 import com.example.invest_references.dto.News;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
@@ -18,5 +19,11 @@ public class InvestRefController {
     @GetMapping("/api/news")
     public ApiResponse<List<News>> getNews() {
         return new ApiResponse<>(200, true, "주요 뉴스를 가져왔습니다.", investRefService.getNews());
+    }
+
+    @Operation(summary = "코스피/코스닥 지수 조회", description = "네이버 증권에서 코스피/코스닥 지수를 가져옵니다.")
+    @GetMapping("/api/market-index")
+    public ApiResponse<MarketIndexResponse> getMarketIndex() {
+        return new ApiResponse<>(200, true, "코스피/코스닥 지수를 가져왔습니다.", investRefService.getMarketIndex());
     }
 }
