@@ -64,6 +64,7 @@ public class TeamService {
                 .category(createTeamRequest.getCategory())
                 .startAt(createTeamRequest.getStartAt())
                 .endAt(createTeamRequest.getEndAt())
+                .status(TeamStatus.PENDING)
                 .build();
         try {
             savedTeam = teamRepository.save(teamDto.toEntity());
@@ -156,9 +157,12 @@ public class TeamService {
             }
         }
         //2-5. 인원수 조회
-        // FIXME : 멤버
         int invitedMembers = memberRepository.countByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
+        //2-6. 팀의 초대 코드 조회
+        Invitation invitation = invitationRepository.findByTeam(team);
+        String invitedCode = invitation.getInviteCode();
+        
         return DetailPendingTeamResponse.builder()
                 .name(teamDto.getName())
                 .baseAmt(teamDto.getBaseAmt())
@@ -177,6 +181,7 @@ public class TeamService {
                 .invitedMembers(invitedMembers)
                 .isLeader(isLeader)
                 .isParticipating(isParticipating)
+                .invitedCode(invitedCode)
                 .build();
     }
 
