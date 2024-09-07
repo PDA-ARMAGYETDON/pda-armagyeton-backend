@@ -237,7 +237,8 @@ public class TeamService {
         List<Member> members = memberRepository.findByUser(user).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
         List<TeamByUserResponse> teamByUserResponses = new ArrayList<>();
         for (Member member : members) {
-            teamByUserResponses.add(new TeamByUserResponse(member.getTeam().getId(), member.getTeam().getStatus()));
+            if (member.getJoinStatus() == JoinStatus.ACTIVE)
+                teamByUserResponses.add(new TeamByUserResponse(member.getTeam().getId(), member.getTeam().getStatus(), member.getTeam().getName(),member.getTeam().getCategory()));
         }
         return teamByUserResponses;
     }
