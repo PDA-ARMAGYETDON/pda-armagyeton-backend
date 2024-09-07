@@ -50,9 +50,9 @@ public class TeamController {
     }
 
     @Operation(summary = "PENDING 상태 팀을 조회하는 API")
-    @GetMapping("/pending")
-    public ApiResponse<DetailPendingTeamResponse> selectDetails(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId) {
-        DetailPendingTeamResponse detailPendingTeamResponse = teamService.selectPendingDetails(userId, teamId);
+    @GetMapping("/{id}/pending")
+    public ApiResponse<DetailPendingTeamResponse> selectDetails(@RequestAttribute("userId") int userId, @PathVariable int id) {
+        DetailPendingTeamResponse detailPendingTeamResponse = teamService.selectPendingDetails(userId, id);
         return new ApiResponse<>(200, true, "초대를 받은 팀 정보를 조회했습니다.", detailPendingTeamResponse);
     }
 
