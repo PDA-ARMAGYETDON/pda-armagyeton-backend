@@ -1,15 +1,15 @@
-package com.example.stock_system.stocks.exception;
+package com.example.alarm.firebase.exception;
 
 import com.example.common.exception.ErrorCode;
 import com.example.common.exception.GlobalException;
 
-public class StocksException extends GlobalException {
+public class AlarmException extends GlobalException {
 
-    public StocksException(StocksErrorCode errorCode) {
+    public AlarmException(AlarmErrorCode errorCode) {
         super(errorCode.getMessage(), null, errorCode.getStatus(), errorCode.getDivisionCode());
     }
 
-    public StocksException(ErrorCode errorCode) {
+    public AlarmException(ErrorCode errorCode) {
         super(errorCode.getMessage(), null, errorCode.getStatus(), errorCode.getDivisionCode());
     }
 }

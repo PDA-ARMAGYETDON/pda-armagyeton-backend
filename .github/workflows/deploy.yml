@@ -1,0 +1,127 @@
+#name: CI/CD for Multi-Module Gradle Spring Boot Application
+#
+#on:
+#  push:
+#    branches:
+#      - main
+#
+#jobs:
+#  deploy:
+#    runs-on: ubuntu-latest
+#    env:
+#        GATEWAY_EC2_HOST: ${{ secrets.GATEWAY_EC2_HOST }}
+#        GATEWAY_EC2_PORT: ${{ secrets.GATEWAY_EC2_PORT }}
+#        GROUP_INVESTMENT_EC2_HOST: ${{ secrets.GROUP_INVESTMENT_EC2_HOST }}
+#        GROUP_INVESTMENT_EC2_PORT: ${{ secrets.GROUP_INVESTMENT_EC2_PORT }}
+#        STOCK_SYSTEM_EC2_HOST: ${{ secrets.STOCK_SYSTEM_EC2_HOST }}
+#        STOCK_SYSTEM_EC2_PORT: ${{ secrets.STOCK_SYSTEM_EC2_PORT }}
+#        CHAT_EC2_HOST: ${{ secrets.CHAT_EC2_HOST }}
+#        CHAT_EC2_PORT: ${{ secrets.CHAT_EC2_PORT }}
+#        ALARM_EC2_HOST: ${{ secrets.ALARM_EC2_HOST }}
+#        ALARM_EC2_PORT: ${{ secrets.ALARM_EC2_PORT }}
+#        INVEST_REFERENCES_EC2_HOST: ${{ secrets.INVEST_REFERENCES_EC2_HOST }}
+#        INVEST_REFERENCES_EC2_PORT: ${{ secrets.INVEST_REFERENCES_EC2_PORT }}
+#
+#    strategy:
+#      matrix:
+#        include:
+#          - module: 'ag-gateway'
+#            prefix: 'GATEWAY'
+#          - module: 'group-investment'
+#            prefix: 'GROUP_INVESTMENT'
+#          - module: 'stock-system'
+#            prefix: 'STOCK_SYSTEM'
+#          - module: 'chatting'
+#            prefix: 'CHAT'
+#          - module: 'alarm'
+#            prefix: 'ALARM'
+#          - module: 'invest-references'
+#            prefix: 'INVEST_REFERENCES'
+#
+#    #      matrix:
+##        include:
+##          - module: 'ag-gateway'
+##            ec2_host: ${{ env.GATEWAY_EC2_HOST }}
+##            port: ${{ env.GATEWAY_EC2_PORT }}
+##          - module: 'group-investment'
+##            ec2_host: ${{ env.GROUP_INVESTMENT_EC2_HOST }}
+##            port: ${{ env.GROUP_INVESTMENT_EC2_PORT }}
+##          - module: 'stock-system'
+##            ec2_host: ${{ env.STOCK_SYSTEM_EC2_HOST }}
+##            port: ${{ env.STOCK_SYSTEM_EC2_PORT }}
+##          - module: 'chatting'
+##            ec2_host: ${{ env.CHAT_EC2_HOST }}
+##            port: ${{ env.CHAT_EC2_PORT }}
+##          - module: 'alarm'
+##            ec2_host: ${{ env.ALARM_EC2_HOST }}
+##            port: ${{ env.ALARM_EC2_PORT }}
+##          - module: 'invest-references'
+##            ec2_host: ${{ env.INVEST_REFERENCES_EC2_HOST }}
+##            port: ${{ env.INVEST_REFERENCES_EC2_PORT }}
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Set environment variables
+#        run: |
+#          if [ "${{ matrix.prefix }}" == "GATEWAY" ]; then
+#            echo "EC2_HOST=${{ secrets.GATEWAY_EC2_HOST }}" >> $GITHUB_ENV
+#            echo "EC2_PORT=${{ secrets.GATEWAY_EC2_PORT }}" >> $GITHUB_ENV
+#          elif [ "${{ matrix.prefix }}" == "GROUP_INVESTMENT" ]; then
+#            echo "EC2_HOST=${{ secrets.GROUP_INVESTMENT_EC2_HOST }}" >> $GITHUB_ENV
+#            echo "EC2_PORT=${{ secrets.GROUP_INVESTMENT_EC2_PORT }}" >> $GITHUB_ENV
+#          elif [ "${{ matrix.prefix }}" == "STOCK_SYSTEM" ]; then
+#            echo "EC2_HOST=${{ secrets.STOCK_SYSTEM_EC2_HOST }}" >> $GITHUB_ENV
+#            echo "EC2_PORT=${{ secrets.STOCK_SYSTEM_EC2_PORT }}" >> $GITHUB_ENV
+#          elif [ "${{ matrix.prefix }}" == "CHAT" ]; then
+#            echo "EC2_HOST=${{ secrets.CHAT_EC2_HOST }}" >> $GITHUB_ENV
+#            echo "EC2_PORT=${{ secrets.CHAT_EC2_PORT }}" >> $GITHUB_ENV
+#          elif [ "${{ matrix.prefix }}" == "ALARM" ]; then
+#            echo "EC2_HOST=${{ secrets.ALARM_EC2_HOST }}" >> $GITHUB_ENV
+#            echo "EC2_PORT=${{ secrets.ALARM_EC2_PORT }}" >> $GITHUB_ENV
+#          elif [ "${{ matrix.prefix }}" == "INVEST_REFERENCES" ]; then
+#            echo "EC2_HOST=${{ secrets.INVEST_REFERENCES_EC2_HOST }}" >> $GITHUB_ENV
+#            echo "EC2_PORT=${{ secrets.INVEST_REFERENCES_EC2_PORT }}" >> $GITHUB_ENV
+#          fi
+#        shell: bash
+##      - name: Set environment variables
+##        run: |
+##          echo "EC2_HOST=${{ secrets[format('{0}_EC2_HOST', matrix.prefix)] }}" >> $GITHUB_ENV
+##          echo "EC2_PORT=${{ secrets[format('{0}_EC2_PORT', matrix.prefix)] }}" >> $GITHUB_ENV
+##          echo "EC2_HOST: ${{ env.EC2_HOST }}"
+##          echo "EC2_PORT: ${{ env.EC2_PORT }}"
+##          echo "EC2_HOST: ${EC2_HOST}"
+##          echo "EC2_PORT: ${EC2_PORT}"
+#
+#      - name: Set up JDK 17
+#        uses: actions/setup-java@v3
+#        with:
+#          java-version: '17'
+#          distribution: 'temurin'
+#
+#      - name: Grant execute permission for gradlew
+#        run: chmod +x gradlew
+#
+#      - name: Build with Gradle for ${{ matrix.module }}
+#        run: ./gradlew :${{ matrix.module }}:bootJar
+#
+#      - name: Copy jar to EC2 for ${{ matrix.module }} ${EC2_HOST}
+#        uses: appleboy/scp-action@v0.1.5
+#        with:
+#          host: ${EC2_HOST}
+#          username: ubuntu
+#          key: ${{ secrets.EC2_KEY }}
+#          source: ${{ matrix.module }}/build/libs/*.jar
+#          target: /home/ubuntu/${{ matrix.module }}.jar
+#
+#      - name: Restart service on EC2 for ${{ matrix.module }}
+#        uses: appleboy/ssh-action@v0.1.5
+#        with:
+#          host: ${EC2_HOST}
+#          username: ec2-user
+#          key: ${{ secrets.EC2_KEY }}
+#          script: |
+#            fuser -k ${EC2_PORT}/tcp
+#            sudo rm -rf /home/ec2-user/${{ matrix.module }}/*.jar
+#            nohup env $(cat /home/ubuntu/${{ matrix.module }}.env | xargs) java -jar /home/ubuntu/${{ matrix.module }}.jar &

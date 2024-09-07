@@ -6,7 +6,7 @@ public enum TradeStatus {
 
     private final String message;
 
-    TradeStatus(String message){
+    TradeStatus(String message) {
         this.message = message;
     }
 }

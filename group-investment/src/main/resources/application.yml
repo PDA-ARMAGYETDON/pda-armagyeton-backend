@@ -7,7 +7,7 @@ spring:
     url: ${RDS_URL}
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
-  
+
   jpa:
     properties:
       hibernate:
@@ -36,6 +36,8 @@ spring:
       name: (AMQP default)
     fcm-queue:
       name: main_to_alarm
+    main-stock-queue:
+      name: offer_to_trade
 
 server:
   port: 8081
