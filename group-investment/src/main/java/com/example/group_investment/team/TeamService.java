@@ -22,6 +22,7 @@ import com.example.group_investment.user.UserRepository;
 import com.example.group_investment.user.exception.UserErrorCode;
 import com.example.group_investment.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.mapping.Join;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,6 +94,7 @@ public class TeamService {
                 .team(savedTeam)
                 .user(user)
                 .role(MemberRole.LEADER)
+                .joinstatus(JoinStatus.ACTIVE)
                 .build();
         try {
             memberRepository.save(memberDto.toEntity());
@@ -162,7 +164,7 @@ public class TeamService {
         //2-6. 팀의 초대 코드 조회
         Invitation invitation = invitationRepository.findByTeam(team);
         String invitedCode = invitation.getInviteCode();
-        
+
         return DetailPendingTeamResponse.builder()
                 .name(teamDto.getName())
                 .baseAmt(teamDto.getBaseAmt())
@@ -192,6 +194,7 @@ public class TeamService {
                 .team(team)
                 .user(user)
                 .role(MemberRole.MEMBER)
+                .joinstatus(JoinStatus.ACTIVE)
                 .build();
         try {
             memberRepository.save(memberDto.toEntity());
