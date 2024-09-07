@@ -162,7 +162,7 @@ public class TeamService {
         int invitedMembers = memberRepository.countByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         //2-6. 팀의 초대 코드 조회
-        Invitation invitation = invitationRepository.findByTeam(team);
+        Invitation invitation = invitationRepository.findByTeam(team).orElseThrow(() -> new TeamException(TeamErrorCode.INVITATION_NOT_FOUND));
         String invitedCode = invitation.getInviteCode();
 
         return DetailPendingTeamResponse.builder()
