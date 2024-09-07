@@ -28,6 +28,20 @@ public class UserController {
         return new ApiResponse<>(201, true, "회원가입에 성공했습니다.", null);
     }
 
+    @Operation(summary = "아이디 중복 체크")
+    @PostMapping("/api/users/valid/id")
+    public ApiResponse<Boolean> checkId(@RequestBody ValidIdRequest request) {
+        userService.checkId(request.getLoginId());
+        return new ApiResponse<>(200, true, "사용 가능한 ID 입니다.", null);
+    }
+
+    @Operation(summary = "이메일 중복 체크")
+    @PostMapping("/api/users/valid/email")
+    public ApiResponse<Boolean> checkEmail(@RequestBody ValidEmailRequest request) {
+        userService.checkEmail(request.getEmail());
+        return new ApiResponse<>(200, true, "사용 가능한 이메일 입니다.", null);
+    }
+
     @PostMapping("/api/users/fcm/issue")
     @Operation(summary = "FCM 토큰 발급", description = "유저 ID 와 FCM 토큰을 받아 alarm 모듈에 전송")
     public ApiResponse<?> saveFcmToken(@RequestBody FcmTokenRequestDto fcmTokenRequestDto) {
