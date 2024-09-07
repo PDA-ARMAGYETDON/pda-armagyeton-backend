@@ -14,7 +14,9 @@ public class GetROfferResponseDisband implements GetROfferResponseType {
     @Enumerated(EnumType.STRING)
     RuleType type;
     int id;
+    OfferStatus status;
     int upvotes;
+
     int downvotes;
     int totalvotes;
 
@@ -23,9 +25,10 @@ public class GetROfferResponseDisband implements GetROfferResponseType {
 
     boolean isVote;
 
-    public GetROfferResponseDisband(RuleType type, int id, int upvotes, int downvotes, int totalvotes, double maxLossRt, double maxProfitRt, boolean isVote) {
+    public GetROfferResponseDisband(RuleType type, int id, OfferStatus status, int upvotes, int downvotes, int totalvotes, double maxLossRt, double maxProfitRt, boolean isVote) {
         this.type = type;
         this.id = id;
+        this.status = status;
         this.upvotes = upvotes;
         this.downvotes = downvotes;
         this.totalvotes = totalvotes;

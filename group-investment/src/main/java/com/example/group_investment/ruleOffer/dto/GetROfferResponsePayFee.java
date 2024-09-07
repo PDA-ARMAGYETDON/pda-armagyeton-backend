@@ -19,6 +19,7 @@ public class GetROfferResponsePayFee implements GetROfferResponseType {
     @Enumerated(EnumType.STRING)
     RuleType type;
     int id;
+    OfferStatus status;
     int upvotes;
     int downvotes;
     int totalvotes;
@@ -29,9 +30,10 @@ public class GetROfferResponsePayFee implements GetROfferResponseType {
 
     boolean isVote;
 
-    public GetROfferResponsePayFee(RuleType type, int id, int upvotes, int downvotes, int totalvotes, int depositAmt, RulePeriod period, LocalDate payDate, boolean isVote) {
+    public GetROfferResponsePayFee(RuleType type, int id, OfferStatus status, int upvotes, int downvotes, int totalvotes, int depositAmt, RulePeriod period, LocalDate payDate, boolean isVote) {
         this.type = type;
         this.id = id;
+        this.status = status;
         this.upvotes = upvotes;
         this.downvotes = downvotes;
         this.totalvotes = totalvotes;

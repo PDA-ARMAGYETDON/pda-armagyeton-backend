@@ -14,6 +14,7 @@ public class GetROfferResponseUrgentSale implements GetROfferResponseType {
     @Enumerated(EnumType.STRING)
     RuleType type;
     int id;
+    OfferStatus status;
     int upvotes;
     int downvotes;
     int totalvotes;
@@ -23,9 +24,10 @@ public class GetROfferResponseUrgentSale implements GetROfferResponseType {
 
     boolean isVote;
 
-    public GetROfferResponseUrgentSale(RuleType type, int id, int upvotes, int downvotes, int totalvotes, int tradeUpvotes, double prdyVrssRt, boolean isVote) {
+    public GetROfferResponseUrgentSale(RuleType type, int id, OfferStatus status, int upvotes, int downvotes, int totalvotes, int tradeUpvotes, double prdyVrssRt, boolean isVote) {
         this.type = type;
         this.id = id;
+        this.status = status;
         this.upvotes = upvotes;
         this.downvotes = downvotes;
         this.totalvotes = totalvotes;
