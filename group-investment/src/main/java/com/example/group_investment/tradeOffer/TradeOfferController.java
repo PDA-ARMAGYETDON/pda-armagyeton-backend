@@ -2,13 +2,12 @@ package com.example.group_investment.tradeOffer;
 
 import com.example.common.dto.ApiResponse;
 import com.example.group_investment.enums.TradeType;
-import com.example.group_investment.tradeOffer.dto.CreateTradeOfferRequest;
-import com.example.group_investment.tradeOffer.dto.GetAllTradeOffersResponse;
-import com.example.group_investment.tradeOffer.dto.VoteTradeOfferRequest;
-import com.example.group_investment.tradeOffer.dto.VoteTradeOfferResponse;
+import com.example.group_investment.tradeOffer.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -30,6 +29,13 @@ public class TradeOfferController {
     public ApiResponse<GetAllTradeOffersResponse> getAllTradeOffers(@RequestAttribute("teamId") int teamId,
                                                                     @RequestParam TradeType type, @RequestParam int page, @RequestParam int size) {
         return new ApiResponse(200, true, "매매제안을 조회했습니다.", tradeOfferService.getAllTradeOffers(teamId, type, page, size));
+    }
+
+    @Operation(summary = "투표 진행 중인 매매 제안 조회", description = "PROGRESS 상태인 매매 제안 리스트를 조회하는 api입니다.")
+    @GetMapping("/progress")
+    public ApiResponse<List<GetPendingTradeOfferResponse>> getPendingTradeOffers(@RequestAttribute("teamId") int teamId,
+                                                                                 @RequestParam int page, @RequestParam int size) {
+        return new ApiResponse(200, true, "투표 진행 중인 매매제안을 조회했습니다.", tradeOfferService.getProgressTradeOffers(teamId, page, size));
     }
 
     @Operation(summary = "매매 제안 투표", description = "매매 제안에 투표하는 api입니다.")
