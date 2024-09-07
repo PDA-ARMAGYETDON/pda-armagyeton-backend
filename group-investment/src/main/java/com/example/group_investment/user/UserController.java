@@ -23,21 +23,21 @@ public class UserController {
         return new ApiResponse<>(200, true, "사용자를 조회했습니다.", userService.get(userId, id));
     }
 
-    @Operation(summary = "회원가입")
+    @Operation(summary = "회원가입 (Authorization 필요 없음)")
     @PostMapping("/api/users/signup")
     public ApiResponse<String> signUp(@RequestBody @Valid SignUpRequest signUpRequest) {
         userService.signUp(signUpRequest);
         return new ApiResponse<>(201, true, "회원가입에 성공했습니다.", null);
     }
 
-    @Operation(summary = "아이디 중복 체크")
+    @Operation(summary = "아이디 중복 체크 (Authorization 필요 없음)")
     @PostMapping("/api/users/valid/id")
     public ApiResponse<Boolean> checkId(@RequestBody ValidIdRequest request) {
         userService.checkId(request.getLoginId());
         return new ApiResponse<>(200, true, "사용 가능한 ID 입니다.", null);
     }
 
-    @Operation(summary = "이메일 중복 체크")
+    @Operation(summary = "이메일 중복 체크 (Authorization 필요 없음)")
     @PostMapping("/api/users/valid/email")
     public ApiResponse<Boolean> checkEmail(@RequestBody ValidEmailRequest request) {
         userService.checkEmail(request.getEmail());
