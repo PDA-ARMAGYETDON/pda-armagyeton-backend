@@ -130,6 +130,10 @@ public class HoldingsService {
 
         Account account = teamAccount.getAccount();
 
+        if (account.getTotalEvluAmt() == 0) {
+            throw new AccountException(AccountErrorCode.NO_HOLDINGS);
+        }
+
         List<Holdings> holdings = holdingsRepository.findByAccount(account);
         return holdings.stream()
                 .map(holding -> GetHoldingsRatioResponse.builder()
