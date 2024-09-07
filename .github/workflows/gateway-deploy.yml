@@ -21,6 +21,7 @@ jobs:
           key: ${{ secrets.SSH_PEM_KEY }}
           port: 22
           script: |
+            cd /pda-armagyetdon-backend/
             git pull origin feat/134-server-cicd
             cd /pda-armagyetdon-backend/ag-gateway
             ./gradlew :ag-gateway:bootJar
