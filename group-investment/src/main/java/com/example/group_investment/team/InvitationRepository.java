@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface InvitationRepository extends JpaRepository<Invitation, Integer> {
     Optional<Invitation> findByInviteCode(String inviteCode);
 
-    Invitation findByTeam(Team team);
+    Optional<Invitation> findByTeam(Team team);
 }
