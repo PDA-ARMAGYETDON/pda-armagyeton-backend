@@ -9,13 +9,11 @@ import lombok.Getter;
 public class SelectRankingResponse {
     private Category category;
     private String name;
-    private int seedMoney;
     private double evluPflsRt;
 
-    public SelectRankingResponse(Category category, String name, int seedMoney, double evluPflsRt) {
+    public SelectRankingResponse(Category category, String name, double evluPflsRt) {
         this.category = category;
         this.name = name;
-        this.seedMoney = seedMoney;
         this.evluPflsRt = evluPflsRt;
     }
 }
