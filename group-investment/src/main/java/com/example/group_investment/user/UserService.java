@@ -1,6 +1,5 @@
 package com.example.group_investment.user;
 
-import com.example.group_investment.enums.TeamStatus;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.team.Team;
@@ -48,9 +47,7 @@ public class UserService {
     }
 
     public void signUp(SignUpRequest request) {
-        if (userRepository.existsByLoginId(request.getLoginId())) {
-            throw new UserException(UserErrorCode.USER_ALREADY_EXISTS);
-        }
+        checkId(request.getLoginId());
         checkEmail(request.getEmail());
 
         User createdUser = User.builder()
@@ -98,12 +95,14 @@ public class UserService {
 
     public void checkId(String loginId) {
         userRepository.findByLoginId(loginId).ifPresent(user -> {
-            throw new UserException(UserErrorCode.USER_ALREADY_EXISTS);
+            throw new UserException(UserErrorCode.LOGIN_ID_ALREADY_EXISTS);
         });
     }
 
     public void checkEmail(String email) {
-        userRepository.findByEmail(email).orElseThrow(() -> new UserException(UserErrorCode.EMAIL_ALREADY_EXISTS));
+        userRepository.findByEmail(email).ifPresent(user -> {
+            throw new UserException(UserErrorCode.EMAIL_ALREADY_EXISTS);
+        });
     }
 
     public boolean userWithEmailAlreadyExist(String email, int userId) {
