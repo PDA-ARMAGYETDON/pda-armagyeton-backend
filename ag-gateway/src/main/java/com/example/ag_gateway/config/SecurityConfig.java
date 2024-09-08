@@ -2,7 +2,6 @@ package com.example.ag_gateway.config;
 
 import com.example.ag_gateway.authorization.JwtFilter;
 import com.example.ag_gateway.authorization.JwtUtil;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -59,7 +57,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((requests) -> requests
-                                .anyRequest().permitAll())
+                        .anyRequest().permitAll())
                 .addFilterBefore(new JwtFilter(jwtUtil), BasicAuthenticationFilter.class)
         ;
 
@@ -69,5 +67,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 }

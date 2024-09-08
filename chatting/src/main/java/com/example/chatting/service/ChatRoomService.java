@@ -6,15 +6,20 @@ import com.example.chatting.dto.ChatMessageResponse;
 import com.example.chatting.exception.ChatErrorCode;
 import com.example.chatting.exception.ChatException;
 import com.example.chatting.repository.ChatRoomRepository;
+import com.example.common.dto.ApiResponse;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -25,11 +30,16 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class ChatRoomService {
+    @Value("${ag.url}")
+    private String AG_URL;
 
     private final ChatRoomRepository chatRoomRepository;
     private final SimpMessageSendingOperations messageTemplate;
     private final RedisTemplate<String, ChatMessage> redisTemplateForMessage;
 
+    private final ObjectMapper objectMapper;
+    private final RestTemplate restTemplate;
+    private final String teamServiceUrl = AG_URL+"/api/group/backend/chat-member";
     @Value("${redis.chatroom.prefix}")
     private String prefix;
 
@@ -77,5 +87,20 @@ public class ChatRoomService {
 
         messageTemplate.convertAndSend("/sub/chat/room/" + messageDto.getTeamId(), updatedMessageDto);
     }
+
+
+    public List<String> getTeamMemberNames(int teamId) {
+
+        System.out.println("되나?");
+        String url = teamServiceUrl + "?teamId=" + teamId;
+        ResponseEntity<ApiResponse> response = restTemplate.getForEntity(url, ApiResponse.class);
+
+
+        List<String> memberNames = objectMapper.convertValue(response.getBody().getData(), new TypeReference<List<String>>() {});
+
+        System.out.println(memberNames);
+        return memberNames;
+    }
+
 }
 

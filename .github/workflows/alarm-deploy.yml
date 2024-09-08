@@ -1,3 +1,4 @@
+
 name: CI/CD for Multi-Module Gradle Spring Boot Application on EC2
 
 on:
@@ -30,3 +31,4 @@ jobs:
             sudo systemctl start alarm
             sleep 10
             sudo systemctl status alarm
+

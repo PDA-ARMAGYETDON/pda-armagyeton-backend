@@ -28,7 +28,8 @@ public class JwtFilter extends OncePerRequestFilter {
     private final List<String> excludeUrls = Arrays.asList(
             "/api/users/signup", "/api/users/login", "/api/users/valid",
             "/swagger-ui", "/v3/api-docs",
-            "/api/backend"
+            "/api/group/backend",
+            "/api/users/valid", "/api/auth/health-check"
     );
 
     @Override

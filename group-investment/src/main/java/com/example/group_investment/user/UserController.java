@@ -1,6 +1,7 @@
 package com.example.group_investment.user;
 
 import com.example.common.dto.ApiResponse;
+import com.example.group_investment.auth.exception.AuthoException;
 import com.example.group_investment.user.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -44,6 +45,26 @@ public class UserController {
         return new ApiResponse<>(200, true, "사용 가능한 이메일 입니다.", null);
     }
 
+
+    @PutMapping("/api/users")
+    @Operation(summary = "사용자 정보 수정")
+    public ApiResponse<UpdateResponse> updateUser(@RequestAttribute("userId") int userId, @RequestBody UpdateRequest request) {
+        return new ApiResponse<>(200, true, "사용자 정보를 성공적으로 수정했습니다.", userService.updateUser(userId, request));
+    }
+
+    @Operation(summary = "로그아웃")
+    @GetMapping("/api/users/logout")
+    public ApiResponse<?> logout(@RequestAttribute("userId") int userId) {
+        return new ApiResponse<>(200, true, "로그아웃에 성공했습니다.", null);
+    }
+
+    @Operation(summary = "회원 탈퇴")
+    @DeleteMapping("/api/users")
+    public ApiResponse<?> deleteUser(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId) {
+        userService.deleteUser(userId, teamId);
+        return new ApiResponse<>(200, true, "사용자를 삭제했습니다.", null);
+    }
+
     @PostMapping("/api/users/fcm/issue")
     @Operation(summary = "FCM 토큰 발급", description = "유저 ID 와 FCM 토큰을 받아 alarm 모듈에 전송")
     public ApiResponse<?> saveFcmToken(@RequestBody FcmTokenRequestDto fcmTokenRequestDto) {
@@ -52,5 +73,6 @@ public class UserController {
         
         return new ApiResponse<>(200, true, "토큰을 등록하였습니다.", null);
     }
+
 
 }

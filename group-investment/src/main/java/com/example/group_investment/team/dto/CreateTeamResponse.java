@@ -8,5 +8,6 @@ import lombok.Getter;
 public class CreateTeamResponse {
     private String inviteCode;
     private String inviteUrl;
+    private String updatedToken;
 
 }

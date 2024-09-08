@@ -21,4 +21,9 @@ public class TeamAccount {
     @Column(name = "team_id")
     private int teamId;
 
+
+    public TeamAccount(Account account, int teamId) {
+        this.account = account;
+        this.teamId = teamId;
+    }
 }
