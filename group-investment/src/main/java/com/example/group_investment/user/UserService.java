@@ -144,7 +144,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         user.delete();
-
+        log.info("유저가 탈퇴 처리되었습니다.");
         /* 팀 처리
         *  1. 내가 가진 팀 조회
         *       팀이 없으면 종료
@@ -157,13 +157,16 @@ public class UserService {
         if (members.isEmpty()) {
             return;
         }
+        log.info("참여하고 있는 팀이 있습니다.");
 
         for (Member member : members) {
             Team currentTeam = member.getTeam();
-            if (currentTeam.isPending() && teamService.isTeamLeader(userId, teamId)) {
-                teamService.cancelTeam(teamId);
+            if (currentTeam.isPending() && teamService.isTeamLeader(member)) {
+                System.out.println("펜딩 팀의 팀장이니깐 팀 삭제하겠음");
+                teamService.cancelTeam(currentTeam);
             } else {
-                teamService.cancelMember(userId, teamId);
+                System.out.println("펜딩 팀이 아니거나, 팀장이 아님. 팀 탈퇴하겠음");
+                teamService.cancelMember(userId, currentTeam.getId());
             }
         }
     }

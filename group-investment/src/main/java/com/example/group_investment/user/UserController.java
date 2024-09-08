@@ -1,6 +1,7 @@
 package com.example.group_investment.user;
 
 import com.example.common.dto.ApiResponse;
+import com.example.group_investment.auth.exception.AuthoException;
 import com.example.group_investment.user.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -56,6 +57,7 @@ public class UserController {
         return new ApiResponse<>(200, true, "로그아웃에 성공했습니다.", null);
     }
 
+    @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/api/users")
     public ApiResponse<?> deleteUser(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId) {
         userService.deleteUser(userId, teamId);
@@ -70,7 +72,6 @@ public class UserController {
         
         return new ApiResponse<>(200, true, "토큰을 등록하였습니다.", null);
     }
-
 
 
 }

@@ -346,20 +346,17 @@ public class TeamService {
                 .collect(Collectors.toList());
     }
 
-    public boolean isTeamLeader(int userId, int teamId) {
-        Member member = memberRepository.findByUserIdAndTeamId(userId, teamId)
-                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-
+    public boolean isTeamLeader(Member member) {
         return member.getRole() == MemberRole.LEADER;
     }
 
-    public void cancelTeam(int teamId) {
+    public void cancelTeam(Team team) {
         // 팀 상태 CANCEL로 변경
-        Team team = teamRepository.findById(teamId).orElseThrow(()->new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         team.cancelTeam();
         teamRepository.save(team);
+
         // 멤버 모두 방출
-        List<Member> members = memberRepository.findByTeamId(teamId).orElseThrow(()->new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        List<Member> members = memberRepository.findByTeam(team).orElse(new ArrayList<>());
         for(Member member : members){
             member.cancelMember();
             memberRepository.save(member);
