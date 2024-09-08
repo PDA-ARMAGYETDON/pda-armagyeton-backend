@@ -37,7 +37,7 @@ public class ChatRoomService {
 
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
-    private final String teamServiceUrl = "http://localhost:8081/api/backend/chatt-member";
+    private final String teamServiceUrl = "http://localhost:8081/api/backend/chat-member";
     @Value("${redis.chatroom.prefix}")
     private String prefix;
 

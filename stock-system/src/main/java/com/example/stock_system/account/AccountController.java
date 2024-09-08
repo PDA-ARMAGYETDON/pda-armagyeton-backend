@@ -36,8 +36,8 @@ public class AccountController {
 
     @Operation(summary = "팀 계좌 생성",description = "비밀번호를 입력값으로 받아 팀 계좌를 생성해줍니다.")
     @PostMapping("/team")
-    public ApiResponse<AccountDto> createTeamAccount(@RequestBody CreateAccountRequest createAccountRequest){
-        Account savedAccount = accountService.createTeamAccount(createAccountRequest.getName(),createAccountRequest.getUserId());
+    public ApiResponse<AccountDto> createTeamAccount(@RequestBody CreateAccountRequest createAccountRequest,@RequestAttribute("teamId") int teamId){
+        Account savedAccount = accountService.createTeamAccount(createAccountRequest.getName(),createAccountRequest.getUserId(),teamId);
         accountService.createAccountPInfo(savedAccount,createAccountRequest);
         return new ApiResponse<>(201, true, "모임 계좌가 생성되었습니다.", null);
     }
@@ -64,7 +64,7 @@ public class AccountController {
         return accountService.getRealTimeSumByTeamId(teamId);
     }
 
-    @Operation(summary = "자동 이체 서비스",description = "test를 위해 호출식으로 작성, 추후에 배치로 처리")
+    @Operation(summary = "자동 전량 매도 서비스",description = "test를 위해 호출식으로 작성, 추후에 배치로 처리")
     @GetMapping("/all-stock-sell/{teamId}")
     public ApiResponse<Integer> allStockSell(@PathVariable int teamId) {
         int sellMoeny = accountService.allStockSell(teamId);

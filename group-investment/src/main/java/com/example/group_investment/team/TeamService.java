@@ -346,6 +346,25 @@ public class TeamService {
                 .collect(Collectors.toList());
     }
 
+
+    public FirstPayment createFirstPayment(int teamId) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+
+        List<Member> members = memberRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        List<Integer> userIds = members.stream()
+                .map(member -> member.getUser().getId())
+                .collect(Collectors.toList());
+
+        int paymentMoney = team.getBaseAmt();
+
+        return new FirstPayment(teamId, paymentMoney, userIds);
+    }
+
+
+
     public boolean isTeamLeader(Member member) {
         return member.getRole() == MemberRole.LEADER;
     }
