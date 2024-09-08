@@ -51,7 +51,11 @@ public class AccountService {
         TeamAccount teamAccount = new TeamAccount(savedAccount,teamId);
         teamAccountRepository.save(teamAccount);
 
-        processFirstPayment(teamId);
+        List<Integer> failPaymentUser = processFirstPayment(teamId);
+        if (!failPaymentUser.isEmpty()) {
+            PayFail payFail = new PayFail(teamId, failPaymentUser);
+            expelMember(Collections.singletonList(payFail));
+        }
 
         return savedAccount;
     }
@@ -252,8 +256,9 @@ public class AccountService {
     }
 
     @Transactional
-    public void processFirstPayment(int teamId) {
+    public List<Integer> processFirstPayment(int teamId) {
 
+        List<Integer> failedUserIds = new ArrayList<>();
 
         FirstPayment firstPayment = getFirstPaymentFromAPI(teamId);
 
@@ -277,9 +282,10 @@ public class AccountService {
                 teamAccountEntity.sellStock(paymentAmount);
                 accountRepository.save(teamAccountEntity);
             } else {
-                throw new AccountException(AccountErrorCode.NOT_ENOUGH_DEPOSIT);
+                failedUserIds.add(userId);
             }
         }
+        return failedUserIds;
     }
 
 }
