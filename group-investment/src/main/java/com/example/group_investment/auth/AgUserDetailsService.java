@@ -41,9 +41,6 @@ public class AgUserDetailsService implements UserDetailsService {
 
     public boolean isUserActive(String loginId) {
         User user = userRepository.findByLoginId(loginId).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
-        if (!user.isActive()) {
-            throw new UserException(UserErrorCode.USER_NOT_ACTIVE);
-        }
-        return true;
+        return user.isActive();
     }
 }

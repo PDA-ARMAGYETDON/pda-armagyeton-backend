@@ -6,7 +6,10 @@ import com.example.group_investment.auth.AgUserDetailsService;
 import com.example.group_investment.auth.exception.AuthoErrorCode;
 import com.example.group_investment.auth.exception.AuthoException;
 import com.example.group_investment.user.User;
+import com.example.group_investment.user.exception.UserErrorCode;
+import com.example.group_investment.user.exception.UserException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.security.auth.message.AuthException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -48,7 +51,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 Map<String, String> requestBody = new ObjectMapper().readValue(request.getInputStream(), Map.class);
                 username = requestBody.get("loginId");
                 password = requestBody.get("password");
-                userDetailsService.isUserActive(username);
+
+                if (!userDetailsService.isUserActive(username)) {
+                    response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+                    response.getWriter().write("탈퇴한 사용자입니다. Canceled User.");
+                    response.getWriter().flush();
+                    return null;
+                }
+
             } else {
                 // x-www-form-urlencoded 방식의 폼 데이터 처리
                 username = obtainUsername(request);
@@ -59,6 +69,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         }
 
         if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
+
             throw new AuthoException(AuthoErrorCode.LOGIN_FAILED);
         }
 
