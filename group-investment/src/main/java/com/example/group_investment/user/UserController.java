@@ -47,6 +47,7 @@ public class UserController {
 
 
     @PutMapping("/api/users")
+    @Operation(summary = "사용자 정보 수정")
     public ApiResponse<UpdateResponse> updateUser(@RequestAttribute("userId") int userId, @RequestBody UpdateRequest request) {
         return new ApiResponse<>(200, true, "사용자 정보를 성공적으로 수정했습니다.", userService.updateUser(userId, request));
     }
