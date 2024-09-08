@@ -4,9 +4,13 @@ import com.example.common.dto.ApiResponse;
 import com.example.stock_system.account.dto.*;
 import com.example.stock_system.account.exception.AccountErrorCode;
 import com.example.stock_system.account.exception.AccountException;
+import com.example.stock_system.enums.Category;
 import com.example.stock_system.holdings.Holdings;
 import com.example.stock_system.holdings.HoldingsRepository;
 import com.example.stock_system.holdings.dto.HoldingsDto;
+import com.example.stock_system.ranking.Ranking;
+import com.example.stock_system.ranking.RankingRepository;
+import com.example.stock_system.ranking.dto.RankingDto;
 import com.example.stock_system.realTimeStock.RealTimeStockService;
 import com.example.stock_system.stocks.StocksService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -34,6 +38,7 @@ public class AccountService {
     private final RealTimeStockService realTimeStockService;
     private final HoldingsRepository holdingsRepository;
     private final StocksService stocksService;
+    private final RankingRepository rankingRepository;
 
     public AccountDto getAccount(int id) {
         Account account = accountRepository.findById(id).orElseThrow(
@@ -226,4 +231,24 @@ public class AccountService {
     }
 
 
+    public void createRanking() {
+
+        List<Account> accounts = accountRepository.findByAccountNumberStartingWith("81902").orElseThrow(()->new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
+
+        List<RankingDto> rankingDtos = accounts.stream()
+                .map(account -> RankingDto.builder()
+                        .account(account)
+                        .teamId(teamAccountRepository.findByAccount(account)
+                                .orElseThrow(() -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND)).getTeamId())
+                        .seedMoney(0)
+                        .evluPflsRt(0)
+                        .build())
+                .collect(Collectors.toList());
+
+        List<Ranking> rankings = rankingDtos.stream()
+                .map(RankingDto::toEntity)
+                .collect(Collectors.toList());
+
+        rankingRepository.saveAll(rankings);
+    }
 }
