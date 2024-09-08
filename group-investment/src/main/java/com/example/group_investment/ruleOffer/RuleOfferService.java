@@ -55,7 +55,7 @@ public class RuleOfferService {
                 .type(type).build();
     }
 
-    public GetROfferResponse get(int jwtUserId, int jwtTeamId, int teamId) {
+    public GetROfferResponse get(int userId, int jwtTeamId, int teamId) {
         if (jwtTeamId != teamId) {
             throw new RuleException(RuleErrorCode.FORBIDDEN_ERROR);
         }
@@ -66,9 +66,12 @@ public class RuleOfferService {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
 
+        // 멤버 id 찾기
+        Member member = memberRepository.findByUserIdAndTeamId(userId, teamId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
         // 규칙 제안 조회
         // 규칙타입 Disband
-        List<GetROfferResponseDisband> offersDisband = getGetROfferResponseDisbands(rule);
+        List<GetROfferResponseDisband> offersDisband = getGetROfferResponseDisbands(rule, member);
 
         // 규칙타입 PayFee
         List<GetROfferResponsePayFee> offersPayFee = getGetROfferResponsePayFees(rule, member);

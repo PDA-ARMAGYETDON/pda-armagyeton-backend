@@ -153,8 +153,7 @@ public class UserService {
         *  3. 팀 pending 상태인데 팀장이 아니거나 || 팀장이든 아니든 팀이 ACTIVE 상태라면
         *       팀 탈퇴
         * */
-        List<Member> members = memberRepository.findAllByUserId(userId)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+        List<Member> members = memberRepository.findAllByUserId(userId).orElse(new ArrayList<>());
         if (members.isEmpty()) {
             return;
         }
