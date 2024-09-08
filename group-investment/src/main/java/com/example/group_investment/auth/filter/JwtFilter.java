@@ -29,7 +29,7 @@ public class JwtFilter extends OncePerRequestFilter {
             "/api/users/signup", "/api/users/login", "/api/users/valid",
             "/swagger-ui", "/v3/api-docs",
             "/api/group/backend",
-            "/api/users/valid"
+            "/api/users/valid", "/api/auth/health-check"
     );
 
     @Override

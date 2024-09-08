@@ -7,8 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -25,7 +23,7 @@ public class JwtFilter extends OncePerRequestFilter {
             "/swagger-ui", "/v3/api-docs",
             "/api/teams/autoPayment", "/api/teams/expelMember",
             "/api/group/backend", "/api/stock/backend",
-            "/api/users/valid"
+            "/api/users/valid", "/api/auth/health-check"
     );
 
     @Override
@@ -59,7 +57,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = authorization.substring(7);
 
         // 토큰 만료 검증 - 만료함
-        if(jwtUtil.isExpired(token)) {
+        if (jwtUtil.isExpired(token)) {
             log.info("토큰의 유효기간이 만료되었습니다.");
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
