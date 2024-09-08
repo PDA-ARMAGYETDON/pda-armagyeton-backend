@@ -16,17 +16,17 @@ jobs:
       - name: Git pull, build and deploy on EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.GROUP_INVESTMENT_EC2_HOST }}
+          host: ${{ secrets.ALARM_EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PEM_KEY }}
           port: 22
           script: |
             cd pda-armagyetdon-backend/
             git pull origin feat/134-server-cicd
-            cd group-investment  # 변경된 부분
-            sudo ./gradlew :group-investment:bootJar
-            sudo systemctl stop group-investment
+            cd alarm
+            sudo ./gradlew :alarm:bootJar
+            sudo systemctl stop alarm
             sleep 3
-            sudo systemctl start group-investment
+            sudo systemctl start alarm
             sleep 10
-            sudo systemctl status group-investment
+            sudo systemctl status alarm
