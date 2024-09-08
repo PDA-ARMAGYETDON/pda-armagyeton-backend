@@ -7,7 +7,8 @@ public enum JoinStatus {
 
     ACTIVE("참가 중"),
     DONE("완료"),
-    DROP("도중 탈퇴");
+    DROP("도중 탈퇴"),
+    CANCEL("팀 폭파");
 
     private final String message;
 

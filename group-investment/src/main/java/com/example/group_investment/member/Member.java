@@ -75,6 +75,11 @@ public class Member {
         this.dropedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
+    public void cancelMember(){
+        this.joinStatus = JoinStatus.CANCEL;
+        this.dropedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+    }
+
     public Member() {
 
     }
