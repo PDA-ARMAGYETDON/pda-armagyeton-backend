@@ -16,23 +16,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final JwtUtil jwtUtil;
 
-    @Value("${spring.ag.url}")
-    private String gatewayUrl;
-
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new AuthInterceptor(jwtUtil));
-    }
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry){
-        registry.addMapping("/**")
-                .allowedOriginPatterns(gatewayUrl)
-                .allowedHeaders("*")
-                .allowedMethods("*")
-                .allowCredentials(true)
-                .allowedHeaders("*")
-                .exposedHeaders("Authorization");
     }
 
     @Override

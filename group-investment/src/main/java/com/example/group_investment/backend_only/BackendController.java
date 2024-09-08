@@ -28,7 +28,7 @@ public class BackendController {
     @Operation(summary = "멤버 방출",description = "돈을 안낸 멤버를 방출한다.")
     @PostMapping("/expel-member")
     public ApiResponse expelMember(@RequestBody List<PayFail> payFails){
-        teamService.expelMember(payFails);
+        teamService.cancelMember(payFails);
         return new ApiResponse<>(200,true,"완료",null);
     }
 
@@ -47,7 +47,7 @@ public class BackendController {
     }
 
     @Operation(summary = "팀 id로 유저 이름 찾아오기",description = "채팅창에 띄울 용도")
-    @GetMapping("/chatt-member")
+    @GetMapping("/chat-member")
     public ApiResponse selectMemberNameByTeam(@RequestParam int teamId){
         return new ApiResponse<>(200, true, "유저 들의 이름 list",teamService.selectMemberNameByTeam(teamId));
     }
