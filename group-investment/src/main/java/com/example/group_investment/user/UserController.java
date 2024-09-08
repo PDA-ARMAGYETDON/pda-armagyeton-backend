@@ -50,6 +50,17 @@ public class UserController {
         return new ApiResponse<>(200, true, "사용자 정보를 성공적으로 수정했습니다.", userService.updateUser(userId, request));
     }
 
+    @Operation(summary = "로그아웃")
+    @GetMapping("/api/users/logout")
+    public ApiResponse<?> logout(@RequestAttribute("userId") int userId) {
+        return new ApiResponse<>(200, true, "로그아웃에 성공했습니다.", null);
+    }
+
+    @DeleteMapping("/api/users")
+    public ApiResponse<?> deleteUser(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId) {
+        userService.deleteUser(userId, teamId);
+        return new ApiResponse<>(200, true, "사용자를 삭제했습니다.", null);
+    }
 
     @PostMapping("/api/users/fcm/issue")
     @Operation(summary = "FCM 토큰 발급", description = "유저 ID 와 FCM 토큰을 받아 alarm 모듈에 전송")
@@ -59,7 +70,6 @@ public class UserController {
         
         return new ApiResponse<>(200, true, "토큰을 등록하였습니다.", null);
     }
-
 
 
 

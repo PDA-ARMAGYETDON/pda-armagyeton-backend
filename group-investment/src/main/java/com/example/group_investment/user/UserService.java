@@ -121,4 +121,37 @@ public class UserService {
                 .addressDetail(user.getAddressDetail())
                 .build();
     }
+
+    public void deleteUser(int userId, int teamId) {
+        /* 유저 처리
+        * 유저 상태 변경 "삭제" 처리
+        * 유저 상태 변경 "탈퇴"
+        * */
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+        user.delete();
+
+        /* 팀 처리
+        *  1. 내가 가진 팀 조회
+        *       팀이 없으면 종료
+        *  2. 팀이 pending 상태 && 그 팀의 팀장이라면
+        *       팀 삭제
+        *  3. 팀 pending 상태인데 팀장이 아니거나 || 팀장이든 아니든 팀이 ACTIVE 상태라면
+        *       팀 탈퇴
+        * */
+        List<Member> members = memberRepository.findAllByUserId(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+        if (members.isEmpty()) {
+            return;
+        }
+
+        for (Member member : members) {
+            Team currentTeam = member.getTeam();
+            if (currentTeam.isPending() && teamService.isTeamLeader(userId, teamId)) {
+                teamService.cancelTeam(teamId);
+            } else {
+                teamService.cancelMember(userId, teamId);
+            }
+        }
+    }
 }

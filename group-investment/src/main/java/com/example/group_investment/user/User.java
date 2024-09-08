@@ -1,5 +1,6 @@
 package com.example.group_investment.user;
 
+import com.example.group_investment.enums.UserStatus;
 import com.example.group_investment.member.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -31,7 +32,9 @@ public class User {
     private String address;
     private String addressDetail;
 
-//    private String role;
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    private UserStatus status = UserStatus.ACTIVE;
 
     @OneToMany(mappedBy = "user")
     private List<Member> members;
@@ -48,6 +51,10 @@ public class User {
         this.name = name;
         this.address = address;
         this.addressDetail = addressDetail;
+    }
+
+    public void delete() {
+        this.status = UserStatus.INACTIVE;
     }
 
 }

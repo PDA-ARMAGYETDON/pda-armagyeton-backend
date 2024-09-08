@@ -284,7 +284,7 @@ public class TeamService {
         return autoPayments;
     }
 
-    public void expelMember(List<PayFail> payFails) {
+    public void cancelMember(List<PayFail> payFails) {
 
         for (PayFail payFail : payFails) {
             int teamId = payFail.getTeamId();
@@ -299,6 +299,13 @@ public class TeamService {
         }
     }
 
+    public void cancelMember(int userId, int teamId) {
+        Member member = memberRepository.findByUserIdAndTeamId(userId, teamId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        member.cancelMember();
+        memberRepository.save(member);
+    }
+
     public List<Integer> selectMemberByTeam(int teamId) {
         List<Member> members = memberRepository.findByTeamId(teamId)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
@@ -308,6 +315,25 @@ public class TeamService {
                 .collect(Collectors.toList());
     }
 
+    public boolean isTeamLeader(int userId, int teamId) {
+        Member member = memberRepository.findByUserIdAndTeamId(userId, teamId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        return member.getRole() == MemberRole.LEADER;
+    }
+
+    public void cancelTeam(int teamId) {
+        // 팀 상태 CANCEL로 변경
+        Team team = teamRepository.findById(teamId).orElseThrow(()->new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        team.cancelTeam();
+        teamRepository.save(team);
+        // 멤버 모두 방출
+        List<Member> members = memberRepository.findByTeamId(teamId).orElseThrow(()->new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        for(Member member : members){
+            member.cancelMember();
+            memberRepository.save(member);
+        }
+    }
 }
 
 
