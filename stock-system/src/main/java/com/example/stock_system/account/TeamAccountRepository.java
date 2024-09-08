@@ -8,4 +8,7 @@ public interface TeamAccountRepository extends JpaRepository<TeamAccount, Intege
 
     Optional<TeamAccount> findByTeamId(int teamId);
 
+    Optional<TeamAccount> findByAccountId(int accountId);
+
+    Optional<TeamAccount> findByAccount(Account account);
 }

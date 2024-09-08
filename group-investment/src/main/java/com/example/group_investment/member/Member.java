@@ -6,7 +6,7 @@ import com.example.group_investment.ruleOffer.RuleOffer;
 import com.example.group_investment.ruleOfferVote.RuleOfferVote;
 import com.example.group_investment.team.Team;
 import com.example.group_investment.tradeOffer.TradeOffer;
-import com.example.group_investment.tradeOfferVote.TradeOfferVote;
+import com.example.group_investment.tradeOffer.TradeOfferVote;
 import com.example.group_investment.user.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -14,8 +14,12 @@ import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
+
+import static com.example.group_investment.enums.JoinStatus.DROP;
 
 @Entity
 @Getter
@@ -32,6 +36,7 @@ public class Member {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @Enumerated(EnumType.STRING)
     @JoinColumn(name = "join_status")
     private JoinStatus joinStatus;
 
@@ -41,7 +46,6 @@ public class Member {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
     private LocalDateTime dropedAt;
 
     @OneToMany(mappedBy = "member")
@@ -57,13 +61,23 @@ public class Member {
     private List<RuleOfferVote> ruleOfferVotes;
 
     @Builder
-    public Member(Team team, User user, MemberRole role, LocalDateTime createdAt, JoinStatus joinStatus, LocalDateTime dropedAt) {
+    public Member(Team team, User user, MemberRole role, LocalDateTime createdAt,JoinStatus joinStatus,LocalDateTime dropedAt) {
         this.team = team;
         this.user = user;
         this.role = role;
         this.createdAt = createdAt;
         this.joinStatus = joinStatus;
         this.dropedAt = dropedAt;
+    }
+
+    public void expelMember(){
+        this.joinStatus = JoinStatus.DROP;
+        this.dropedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+    }
+
+    public void cancelMember(){
+        this.joinStatus = JoinStatus.CANCEL;
+        this.dropedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
     public Member() {

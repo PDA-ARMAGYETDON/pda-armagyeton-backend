@@ -6,6 +6,7 @@ import com.example.group_investment.team.dto.CreateTeamResponse;
 
 import com.example.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class TeamController {
 
     // TeamResponseDto를 만들어서 response해주세요.
     // ApiResponse를 사용해서 response 형식을 통일해주세요.
-    @Operation(summary = "유저가 속한 팀들의 pk와 status를 조회하는 API")
+    @Operation(summary = "유저가 속한 팀들의 pk와 status, 이름, 카테고리를 조회하는 API(")
     @GetMapping("/users")
     public ApiResponse<List<TeamByUserResponse>> selectTeamByUser(@RequestAttribute("userId") int userId) {
         List<TeamByUserResponse> teamByUserResponse = teamService.selectTeamByUser(userId);
@@ -36,8 +37,10 @@ public class TeamController {
 
     @Operation(summary = "팀을 생성하는 API")
     @PostMapping("")
-    public ApiResponse<CreateTeamResponse> createTeam(@RequestAttribute("userId") int userId, @RequestBody CreateTeamRequest createTeamRequest) {
-        CreateTeamResponse createTeamResponse = teamService.createTeam(userId, createTeamRequest);
+    public ApiResponse<CreateTeamResponse> createTeam(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId,
+                                                      @RequestBody CreateTeamRequest createTeamRequest,
+                                                      HttpServletRequest request) {
+        CreateTeamResponse createTeamResponse = teamService.createTeam(userId, createTeamRequest, teamId, request.getHeader("Authorization").substring(7));
         return new ApiResponse<>(201, true, "팀을 생성했습니다.", createTeamResponse);
     }
 
@@ -50,17 +53,18 @@ public class TeamController {
     }
 
     @Operation(summary = "PENDING 상태 팀을 조회하는 API")
-    @GetMapping("/pending")
-    public ApiResponse<DetailPendingTeamResponse> selectDetails(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId) {
-        DetailPendingTeamResponse detailPendingTeamResponse = teamService.selectPendingDetails(userId, teamId);
+    @GetMapping("/{id}/pending")
+    public ApiResponse<DetailPendingTeamResponse> selectDetails(@RequestAttribute("userId") int userId, @PathVariable int id) {
+        DetailPendingTeamResponse detailPendingTeamResponse = teamService.selectPendingDetails(userId, id);
         return new ApiResponse<>(200, true, "초대를 받은 팀 정보를 조회했습니다.", detailPendingTeamResponse);
     }
 
     @Operation(summary = "팀을 참가하는 API")
     @GetMapping("/{id}/participate")
-    public ApiResponse participateTeam(@RequestAttribute("userId") int userId, @PathVariable int id) {
-        teamService.participateTeam(userId, id);
-        return new ApiResponse<>(201, true, "모임에 참가했습니다.", null);
+    public ApiResponse<ParticipateResponse> participateTeam(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId,
+                                                            @PathVariable int id, HttpServletRequest request) {
+        String jwtToken = request.getHeader("Authorization").substring(7);
+        return new ApiResponse<>(201, true, "모임에 참가했습니다.", teamService.participateTeam(userId, id, teamId, jwtToken));
     }
 
     @Operation(summary = "팀을 확정하는 API")
@@ -69,6 +73,7 @@ public class TeamController {
         teamService.confirmTeam(teamId);
         return new ApiResponse<>(200, true, "모임을 확정했습니다.", null);
     }
+
 
 }
 

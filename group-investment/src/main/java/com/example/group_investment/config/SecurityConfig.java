@@ -5,6 +5,7 @@ import com.example.group_investment.auth.AgUserDetailsService;
 import com.example.group_investment.auth.filter.JwtFilter;
 import com.example.group_investment.auth.filter.LoginFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +17,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -49,23 +55,12 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/api/users/login", "/api/users/signup",
-                                "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated());
+                        .anyRequest().permitAll());
 
         http
                 .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, userDetailsService), UsernamePasswordAuthenticationFilter.class)
-                .logout((logoutConfig)->
-                        logoutConfig
-                                .logoutUrl("/api/users/logout")
-
-                                .logoutSuccessUrl("/"))
         ;
-
-        http
-                .sessionManagement((session)->session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }

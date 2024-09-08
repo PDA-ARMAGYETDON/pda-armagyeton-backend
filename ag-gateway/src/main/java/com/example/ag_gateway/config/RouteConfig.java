@@ -48,21 +48,45 @@ public class RouteConfig {
     @Bean
     public RouterFunction<ServerResponse> groupRouterFunctionsMethod() {
         return route("group-investment")
-                .route(path("/api/users/**", "/api/groups/**", "/api/auth/**"), http(groupInvestmentUrl))
+                .route(path(
+                        "/api/users/**",
+                        "/api/groups/**",
+                        "/api/auth/**",
+                        "/api/teams/**",
+                        "/api/rules/**",
+                        "/api/trade-offer/**",
+                        "/api/group/backend/**",
+                        "/api/rule-offer/**"
+                ), http(groupInvestmentUrl))
                 .build();
     }
 
     @Bean
     public RouterFunction<ServerResponse> stockRouter(){
         return route("stock-system")
-                .route(path("/api/stocks/**"), http(stockUrl))
+                .route(path(
+                        "/api/accounts/**",
+                        "/api/ask-bid/**",
+                        "/api/holdings/**",
+                        "/api/realtime/**",
+                        "/api/stocks/**",
+                        "/api/trades/**",
+                        "/api/accounts/history/**",
+                        "/api/stock/backend/**",
+                        "/api/ranking/**"
+                        ), http(stockUrl))
                 .build();
     }
 
     @Bean
     public RouterFunction<ServerResponse> investRefRouter(){
         return route("invest-reference")
-                .route(path("/api/news/**", "/api/suggestion/**"), http(investRefUrl))
+                .route(path(
+                        "/api/news/**",
+                        "/api/markey-issue/**",
+                        "/api/rising-ranking/**",
+                        "/api/issue/**"
+                ), http(investRefUrl))
                 .build();
     }
 

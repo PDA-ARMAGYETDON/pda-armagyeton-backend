@@ -5,6 +5,7 @@ import com.example.stock_system.enums.TradeStatus;
 import com.example.stock_system.enums.TradeType;
 import com.example.stock_system.stocks.Stocks;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -37,4 +38,16 @@ public class Trade {
     @ManyToOne(targetEntity = Stocks.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "stock_code")
     private Stocks stockCode;
+
+    public Trade() {
+    }
+
+    @Builder
+    public Trade(Account account, TradeType type, int price, int quantity, Stocks stockCode) {
+        this.account = account;
+        this.type = type;
+        this.price = price;
+        this.quantity = quantity;
+        this.stockCode = stockCode;
+    }
 }

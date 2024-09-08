@@ -1,5 +1,6 @@
 package com.example.group_investment.user;
 
+import com.example.group_investment.enums.UserStatus;
 import com.example.group_investment.member.Member;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -29,13 +30,34 @@ public class User {
     private String name;
 
     private String address;
+    private String addressDetail;
 
-//    private String role;
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    private UserStatus status = UserStatus.ACTIVE;
 
     @OneToMany(mappedBy = "user")
-    private List<Member> members = new ArrayList<>();
+    private List<Member> members;
 
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private UserPInfo userPInfo;
 
+    public Boolean containTeam(){
+        return !members.isEmpty();
+    }
+
+    public void updateUserInfo(String email, String name, String address, String addressDetail) {
+        this.email = email;
+        this.name = name;
+        this.address = address;
+        this.addressDetail = addressDetail;
+    }
+
+    public void delete() {
+        this.status = UserStatus.INACTIVE;
+    }
+
+    public boolean isInActive() {
+        return this.status == UserStatus.INACTIVE;
+    }
 }

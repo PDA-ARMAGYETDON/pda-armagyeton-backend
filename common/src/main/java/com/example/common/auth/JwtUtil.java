@@ -31,7 +31,7 @@ public class JwtUtil {
                 .get("teamId", Integer.class);
     }
 
-    public boolean isTeamExist(String token){
+    public boolean getIsTeamExist(String token){
         return Jwts.parser().verifyWith(secretKey).build()
                 .parseSignedClaims(token).getPayload()
                 .get("isTeamExist", Boolean.class);

@@ -30,8 +30,10 @@ public class DetailPendingTeamResponse {
     private int isLeader;
     private int isParticipating;
 
+    private String invitedCode;
+
     @Builder
-    public DetailPendingTeamResponse(String name, int baseAmt, int headCount, Category category, LocalDateTime startAt, LocalDateTime endAt, double prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, RulePeriod period, LocalDate payDate, double maxLossRt, double maxProfitRt, int invitedMembers, int isLeader, int isParticipating) {
+    public DetailPendingTeamResponse(String name, int baseAmt, int headCount, Category category, LocalDateTime startAt, LocalDateTime endAt, double prdyVrssRt, int urgentTradeUpvotes, int tradeUpvotes, int depositAmt, RulePeriod period, LocalDate payDate, double maxLossRt, double maxProfitRt, int invitedMembers, int isLeader, int isParticipating, String invitedCode) {
         this.name = name;
         this.baseAmt = baseAmt;
         this.headCount = headCount;
@@ -49,6 +51,7 @@ public class DetailPendingTeamResponse {
         this.invitedMembers = invitedMembers;
         this.isLeader = isLeader;
         this.isParticipating = isParticipating;
+        this.invitedCode = invitedCode;
     }
 
     public DetailPendingTeamResponse() {

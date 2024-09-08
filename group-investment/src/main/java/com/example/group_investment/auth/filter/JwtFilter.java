@@ -25,8 +25,12 @@ import java.util.List;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final List<String> excludeUrls = Arrays.asList("/api/users/signup", "/api/users/login",
-            "/swagger-ui", "/v3/api-docs");
+    private final List<String> excludeUrls = Arrays.asList(
+            "/api/users/signup", "/api/users/login", "/api/users/valid",
+            "/swagger-ui", "/v3/api-docs",
+            "/api/group/backend",
+            "/api/users/valid", "/api/auth/health-check"
+    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -36,7 +40,7 @@ public class JwtFilter extends OncePerRequestFilter {
         log.info("Request URI 출력 : " + requestURI);
 
         // login/sign up/swagger에 대해서는 필터링을 수행하지 않음
-        if (excludeUrls.stream().anyMatch(requestURI::startsWith)){
+        if (excludeUrls.stream().anyMatch(requestURI::startsWith)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -54,7 +58,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = authorization.substring(7);
 
         // 토큰 만료 검증 - 만료함
-        if(jwtUtil.isExpired(token)) {
+        if (jwtUtil.isExpired(token)) {
             filterChain.doFilter(request, response);
             throw new AuthoException(AuthoErrorCode.EXPIRED_JWT_TOKEN);
         }

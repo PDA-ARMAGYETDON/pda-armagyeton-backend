@@ -5,13 +5,17 @@ import com.example.chatting.domain.ChatMessage;
 import com.example.chatting.domain.ChatRoom;
 import com.example.chatting.dto.ChatMessageResponse;
 import com.example.chatting.service.ChatRoomService;
+import com.example.common.dto.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
-
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chat")
@@ -19,29 +23,28 @@ public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
 
-    @PostMapping("/room")
-    public ResponseEntity<String> create(@RequestBody ChatRoom chatroom) {
-        try {
-            chatRoomService.createChatRoom(chatroom.getTeamId());
-            return ResponseEntity.status(HttpStatus.CREATED).body("채팅방 생성되었습니다.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating chat room");
-        }
+    @Operation(summary = "팀 채팅방을 생성하는 API")
+    @PostMapping("/rooms/{id}")
+    public ApiResponse create(@PathVariable("id") int teamId) {
+        chatRoomService.createChatRoom(teamId);
+        return new ApiResponse<>(201, true, "채팅방이 생성되었습니다.", null);
     }
 
-    @GetMapping("/room")
-    public ResponseEntity<List<ChatMessageResponse>> getMessages(@RequestParam("groupId") int groupId) {
-        try {
-            List<ChatMessage> messages = chatRoomService.selectChatMessageList(groupId);
+    @Operation(summary = "팀의 채팅내역 조회하는 API")
+    @GetMapping("/rooms/{id}")
+    public ApiResponse<List<ChatMessageResponse>> getMessages(@PathVariable("id") int teamId) {
 
-            List<ChatMessageResponse> messageDtos = messages.stream()
-                    .map(message -> new ChatMessageResponse(message.getUserId(), message.getMessage()))
-                    .toList();
-            return ResponseEntity.ok(messageDtos);
-        } catch (Exception e) {
+        List<ChatMessageResponse> messageDtos = chatRoomService.selectChatMessageList(teamId);
 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        return new ApiResponse<>(200, true,"팀의 채팅방 내역을 조회했습니다.", messageDtos);
+
+    }
+
+    @Operation(summary = "팀 멤버 이름 조회 API")
+    @GetMapping("/rooms/{id}/members")
+    public ApiResponse<List<String>> getTeamMemberNames(@PathVariable("id") int teamId) {
+        List<String> memberNames = chatRoomService.getTeamMemberNames(teamId);
+        return new ApiResponse<>(200, true, "팀 멤버 이름 리스트를 조회했습니다.", memberNames);
     }
 
 }

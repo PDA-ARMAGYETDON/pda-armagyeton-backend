@@ -7,8 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -20,15 +18,20 @@ import java.util.List;
 @WebFilter(urlPatterns = "/api/**")
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
-    private final List<String> excludeUrls = Arrays.asList("/api/users/signup", "/api/users/login",
-            "/swagger-ui", "/v3/api-docs");
+    private final List<String> excludeUrls = Arrays.asList(
+            "/api/users/signup", "/api/users/login",
+            "/swagger-ui", "/v3/api-docs",
+            "/api/teams/autoPayment", "/api/teams/expelMember",
+            "/api/group/backend", "/api/stock/backend",
+            "/api/users/valid", "/api/auth/health-check"
+    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         // 요청 URL을 가져와서 제외할 URL 목록과 비교
         String requestURI = request.getRequestURI();
-        log.info("[requestURI] {}", requestURI);
+        log.info("[GATEWAY]-jwtFilter : [requestURI] {}", requestURI);
 
         // login/sign up에 대해서는 필터링을 수행하지 않음
         if (excludeUrls.stream().anyMatch(requestURI::startsWith)) {
@@ -54,7 +57,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = authorization.substring(7);
 
         // 토큰 만료 검증 - 만료함
-        if(jwtUtil.isExpired(token)) {
+        if (jwtUtil.isExpired(token)) {
             log.info("토큰의 유효기간이 만료되었습니다.");
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -65,6 +68,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        log.info("토큰 검증이 완료되었습니다.");
         filterChain.doFilter(request, response);
     }
 }

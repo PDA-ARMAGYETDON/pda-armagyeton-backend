@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/rule-offer")
 public class RuleOfferController {
 
     private final RuleOfferService ruleOfferService;
@@ -19,23 +20,25 @@ public class RuleOfferController {
             summary = "규칙 제안",
             description = "Request Body는 Rule Type에 따라서 다른 값을 보냅니다. 모르겠으면 Schema 또는 노션 api 문서를 보세요. or 경서에게 문의"
     )
-    @PostMapping("/api/groups/{id}/rules")
-    public ApiResponse<CreateROfferResponse> create(@PathVariable int id, @RequestBody CreateROfferRequest request){
+    @PostMapping("")
+    public ApiResponse<CreateROfferResponse> create(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId,
+                                                     @RequestBody CreateROfferRequest request){
         return new ApiResponse<>(200,
                 true,
                 "Rule 제안 생성에 성공했습니다.",
-                ruleOfferService.create(id, request));
+                ruleOfferService.create(userId, teamId, teamId, request));
     }
 
     @Operation(
             summary = "규칙 제안들을 조회",
             description = "response는 규칙의 타입 별로 리스트를 뽑아 줍니다."
     )
-    @GetMapping("/api/groups/{id}/rules/offers")
-    public ApiResponse<GetROfferResponse> get(@PathVariable int id){
+    @GetMapping("")
+    public ApiResponse<GetROfferResponse> get(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId){
         return new ApiResponse(200,
                 true,
                 "Rule 제안 조회에 성공했습니다.",
-                ruleOfferService.get(id));
+                ruleOfferService.get(userId, teamId, teamId));
     }
+
 }
