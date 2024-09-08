@@ -18,7 +18,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     private final List<String> excludeUrls = Arrays.asList(
             "/api/users/signup", "/api/users/login",
             "/swagger-ui", "/v3/api-docs",
-            "/api/backend",
+            "/api/group/backend", "/api/stock/backend",
             "/api/teams/autoPayment", "/api/teams/expelMember",
             "/api/users/valid"
     );

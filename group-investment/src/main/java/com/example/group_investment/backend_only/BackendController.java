@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/backend")
+@RequestMapping("/api/group/backend")
 public class BackendController {
 
     private final TeamService teamService;

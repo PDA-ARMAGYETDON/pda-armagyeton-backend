@@ -12,6 +12,8 @@ import com.example.stock_system.stocks.StocksService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +26,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AccountService {
+
+    @Value("${ag.url}")
+    private String AG_URL;
 
     private final AccountRepository accountRepository;
     private final AccountPInfoRepository accountPInfoRepository;
@@ -79,7 +84,7 @@ public class AccountService {
 
     public List<AccountPayment> convertPaymentData() {
 
-        String url = "http://localhost:8081/api/backend/auto-payment";
+        String url = AG_URL+"/api/group/backend/auto-payment";
 
         HttpHeaders httpHeaders = new HttpHeaders();
 
@@ -135,7 +140,7 @@ public class AccountService {
     }
 
     public void expelMember(List<PayFail> payFails) {
-        String url = "http://localhost:8081/api/backend/expel-member";
+        String url = AG_URL+"/api/group/backend/expel-member";
 
 
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -203,7 +208,7 @@ public class AccountService {
             // holdingsRepository.delete(holding);
         }
 
-        String url = "http://localhost:8081/api/backend/member";
+        String url = AG_URL+"/api/group/backend/member";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
