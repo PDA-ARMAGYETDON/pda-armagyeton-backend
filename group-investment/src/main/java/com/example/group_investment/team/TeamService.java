@@ -317,6 +317,15 @@ public class TeamService {
                 .collect(Collectors.toList());
     }
 
+    public List<String> selectMemberNameByTeam(int teamId) {
+        List<Member> members = memberRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        return members.stream()
+                .map(member -> member.getUser().getName())
+                .collect(Collectors.toList());
+    }
+
 }
 
 
