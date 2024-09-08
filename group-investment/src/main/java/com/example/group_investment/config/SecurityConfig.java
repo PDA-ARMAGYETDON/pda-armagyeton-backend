@@ -5,6 +5,7 @@ import com.example.group_investment.auth.AgUserDetailsService;
 import com.example.group_investment.auth.filter.JwtFilter;
 import com.example.group_investment.auth.filter.LoginFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,27 +42,10 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedHeaders(Collections.singletonList("*"));
-        config.setAllowedMethods(Collections.singletonList("*"));
-        config.setAllowedOriginPatterns(Collections.singletonList("http://localhost:5173")); // ⭐️ 허용할 origin
-        config.setAllowCredentials(true);
-        config.setExposedHeaders(Collections.singletonList("Authorization"));
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
-
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable);
-
-        http
-                .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()));
 
         http
                 .formLogin(AbstractHttpConfigurer::disable);
@@ -69,26 +53,14 @@ public class SecurityConfig {
         http
                 .httpBasic(AbstractHttpConfigurer::disable);
 
-
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/api/users/login", "/api/users/signup",
-                                "/swagger-ui/**", "/v3/api-docs/**", "/api/backend/**").permitAll()
-                        .anyRequest().authenticated());
+                        .anyRequest().permitAll());
 
         http
                 .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, userDetailsService), UsernamePasswordAuthenticationFilter.class)
-                .logout((logoutConfig) ->
-                        logoutConfig
-                                .logoutUrl("/api/users/logout")
-
-                                .logoutSuccessUrl("/"))
         ;
-
-        http
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }

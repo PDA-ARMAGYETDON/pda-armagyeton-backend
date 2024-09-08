@@ -32,4 +32,22 @@ public class BackendController {
         return new ApiResponse<>(200, true, "전일 대비 등락율을 조회했습니다.", stocksService.getCurrentData(code).getChangeRate());
     }
 
+    @Operation(summary = "(백엔드 전용)계좌 보유 종목 수 조회", description = "보유 종목 수를 조회하는 API")
+    @GetMapping(value = "/holdings/count")
+    public ApiResponse<Integer> getNumOfHoldings(@RequestParam int teamId, @RequestParam String code) {
+        return new ApiResponse<>(200, true, "보유 종목 수를 조회했습니다.", holdingsService.getNumOfHoldings(teamId, code));
+    }
+
+
+    @Operation(summary = "(백엔드 전용)주문 개수 조회", description = "pending 상태의 주문 개수를 조회하는 API")
+    @GetMapping("/trades/count")
+    public ApiResponse<Integer> getNumOfTrades(@RequestParam int teamId, @RequestParam String code) {
+        return new ApiResponse<>(200, true, "주문 개수를 조회했습니다.", tradeService.getNumOfSellingTrades(teamId, code));
+    }
+
+    @Operation(summary = "(백엔드 전용)거래 가능한 예수금 조회", description = "예수금에서 매수 주문 금액을 제외한 여분의 예수금을 조회하는 API")
+    @GetMapping("/accounts/asset")
+    public ApiResponse<Integer> getAvailableAsset(@RequestParam int teamId) {
+        return new ApiResponse<>(200, true, "거래 가능한 예수금을 조회했습니다.", holdingsService.getAvailableAsset(teamId));
+    }
 }

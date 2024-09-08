@@ -9,7 +9,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${RDS_URL}
+    url: ${RDS_URL}?serverTimezone=Asia/Seoul
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
 
@@ -20,7 +20,6 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: false
-
 
   rabbitmq:
     host: ${MQ_HOST}
@@ -33,9 +32,6 @@ spring:
       name: stock_to_alarm
     mainToStock:
       name: offer_to_trade
-
-  jwt:
-    secret: ${JWT_SECRET}
 
 server:
   port: 8082

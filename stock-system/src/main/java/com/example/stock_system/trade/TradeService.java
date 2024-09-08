@@ -20,23 +20,30 @@ import com.example.stock_system.stocks.StocksRepository;
 import com.example.stock_system.stocks.exception.StocksErrorCode;
 import com.example.stock_system.stocks.exception.StocksException;
 import com.example.stock_system.trade.dto.CreateTradeRequest;
+import com.example.stock_system.trade.dto.GetTradeResponse;
 import com.example.stock_system.trade.dto.TradeDto;
 import com.example.stock_system.trade.exception.TradeException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TradeService {
     private final AccountRepository accountRepository;
     private final StocksRepository stocksRepository;
@@ -118,7 +125,7 @@ public class TradeService {
                     existingHolding.addData(trade.getQuantity(), requiredAmount);
                     holdingsRepository.save(existingHolding);
                 } else {
-                    Holdings newHolding = new Holdings(account, findStock, trade.getQuantity(), requiredAmount);
+                    Holdings newHolding = new Holdings(account, findStock, findStock.getName(), trade.getQuantity(), requiredAmount);
                     holdingsRepository.save(newHolding);
                 }
                 account.buyStock(requiredAmount);
@@ -181,4 +188,41 @@ public class TradeService {
 
     }
 
+    public Integer getNumOfSellingTrades(int teamId, String code) {
+        TeamAccount teamAccount = teamAccountRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
+
+        Account account = teamAccount.getAccount();
+        Stocks stocks = stocksRepository.findByCode(code)
+                .orElseThrow(() -> new StocksException(StocksErrorCode.STOCKS_NOT_FOUND));
+
+        List<Trade> trades = tradeRepository.findAllByAccountAndStockCodeAndTypeAndStatus(account, stocks, TradeType.SELL, TradeStatus.PENDING)
+                .orElseGet(Collections::emptyList);
+
+        int tradeQuantity = 0;
+        for (Trade trade : trades) {
+            tradeQuantity += trade.getQuantity();
+        }
+
+        return tradeQuantity;
+    }
+
+    public List<GetTradeResponse> getTrades(int teamId, int page, int size) {
+        TeamAccount teamAccount = teamAccountRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
+        Account account = teamAccount.getAccount();
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Trade> trades = tradeRepository.findAllByAccountAndStatus(account, TradeStatus.COMPLETED, pageable);
+
+        return trades.stream()
+                .map(trade -> GetTradeResponse.builder()
+                        .stockName(trade.getStockCode().getName())
+                        .type(trade.getType())
+                        .price(trade.getPrice())
+                        .quantity(trade.getQuantity())
+                        .tradeDate(trade.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                        .build())
+                .toList();
+    }
 }

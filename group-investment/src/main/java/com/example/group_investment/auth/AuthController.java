@@ -2,27 +2,34 @@ package com.example.group_investment.auth;
 
 import com.example.common.auth.JwtUtil;
 import com.example.common.dto.ApiResponse;
+import com.example.group_investment.auth.exception.AuthoException;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 public class AuthController {
 
-    private final JwtUtil jwtUtil;
     private final AuthService authService;
 
-    @Operation(summary = "팀 변경 시 => JWT 토큰 갱신")
+    @Operation(summary = "팀 변경 시 => JWT 토큰 갱신 -> 성공 시 Header Authorization 확인해주세요")
     @PutMapping("/api/auth/{team}")
     public ResponseEntity<?> updateToken(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId,
-                                         @RequestHeader("Authorization") String auth, @PathVariable int team){
+                                         @PathVariable int team, HttpServletRequest request) {
 
-        String newJwtToken = authService.updateToken(auth.substring(7), team);
+        log.info("토큰 갱신 요청이 들어왔습니다."+userId+"가 "+teamId+"팀에서 "+team+"팀으로 이동");
+
+        String jwtToken = request.getHeader("Authorization").substring(7);
+
+        String newJwtToken = authService.updateToken(userId, teamId, team, jwtToken);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + newJwtToken);
@@ -32,5 +39,4 @@ public class AuthController {
                 headers,
                 HttpStatus.OK);
     }
-
 }

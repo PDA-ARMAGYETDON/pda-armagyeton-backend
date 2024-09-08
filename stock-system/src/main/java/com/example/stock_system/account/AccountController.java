@@ -1,21 +1,22 @@
 package com.example.stock_system.account;
 
-import com.example.stock_system.account.dto.AccountDto;
+import com.example.stock_system.account.dto.*;
 import com.example.common.dto.ApiResponse;
-import com.example.stock_system.account.dto.AccountPayment;
-import com.example.stock_system.account.dto.CreateAccountRequest;
-import com.example.stock_system.account.dto.PayFail;
+import com.example.stock_system.holdings.HoldingsService;
+import com.example.stock_system.holdings.dto.HoldingsDto;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
-
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/accounts")
 public class AccountController {
     private final AccountService accountService;
+    private final HoldingsService holdingsService;
 
 
     @Operation(summary = "계좌 조회",description = "Account의 Id를 통해 계좌를 조회합니다.")
@@ -50,5 +51,26 @@ public class AccountController {
         accountService.expelMember(payFails);
 
     }
+
+    @Operation(summary = "실시간 계좌 보유 종목들의 각 data 조회",description = "실시간 데이터를 불러오는 API")
+    @GetMapping(value = "/realtime/{teamId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<HoldingsDto> getRealTimeHoldingsByTeamId(@PathVariable int teamId) {
+        return holdingsService.getRealTimeHoldingsByTeamId(teamId);
+    }
+
+    @Operation(summary = "실시간 계좌 보유 종목 합 data 조회", description = "실시간 데이터를 불러오는 API")
+    @GetMapping(value = "/realtime-sum/{teamId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<GetTeamAccountResponse> streamRealTimeSumByTeamId(@PathVariable int teamId) {
+        return accountService.getRealTimeSumByTeamId(teamId);
+    }
+
+    @Operation(summary = "자동 이체 서비스",description = "test를 위해 호출식으로 작성, 추후에 배치로 처리")
+    @GetMapping("/all-stock-sell/{teamId}")
+    public ApiResponse<Integer> allStockSell(@PathVariable int teamId) {
+        int sellMoeny = accountService.allStockSell(teamId);
+        return new ApiResponse<>(200,true,"해당 계좌의 주식이 전량 매도 되었습니다.",sellMoeny);
+    }
+
+
 
 }

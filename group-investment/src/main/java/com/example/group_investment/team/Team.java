@@ -77,4 +77,12 @@ public class Team {
                 .build();
 
     }
+
+    public void cancelTeam() {
+        this.status = TeamStatus.CANCEL;
+    }
+
+    public boolean isPending() {
+        return this.status == TeamStatus.PENDING;
+    }
 }

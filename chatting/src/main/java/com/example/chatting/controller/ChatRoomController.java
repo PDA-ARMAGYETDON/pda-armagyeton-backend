@@ -40,4 +40,11 @@ public class ChatRoomController {
 
     }
 
+    @Operation(summary = "팀 멤버 이름 조회 API")
+    @GetMapping("/rooms/{id}/members")
+    public ApiResponse<List<String>> getTeamMemberNames(@PathVariable("id") int teamId) {
+        List<String> memberNames = chatRoomService.getTeamMemberNames(teamId);
+        return new ApiResponse<>(200, true, "팀 멤버 이름 리스트를 조회했습니다.", memberNames);
+    }
+
 }

@@ -20,15 +20,20 @@ import java.util.List;
 @WebFilter(urlPatterns = "/api/**")
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
-    private final List<String> excludeUrls = Arrays.asList("/api/users/signup", "/api/users/login",
-            "/swagger-ui", "/v3/api-docs", "/api/teams/autoPayment", "/api/teams/expelMember");
+    private final List<String> excludeUrls = Arrays.asList(
+            "/api/users/signup", "/api/users/login",
+            "/swagger-ui", "/v3/api-docs",
+            "/api/teams/autoPayment", "/api/teams/expelMember",
+            "/api/backend",
+            "/api/teams/valid"
+    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         // 요청 URL을 가져와서 제외할 URL 목록과 비교
         String requestURI = request.getRequestURI();
-        log.info("[requestURI] {}", requestURI);
+        log.info("[GATEWAY]-jwtFilter : [requestURI] {}", requestURI);
 
         // login/sign up에 대해서는 필터링을 수행하지 않음
         if (excludeUrls.stream().anyMatch(requestURI::startsWith)) {
@@ -65,6 +70,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        log.info("토큰 검증이 완료되었습니다.");
         filterChain.doFilter(request, response);
     }
 }

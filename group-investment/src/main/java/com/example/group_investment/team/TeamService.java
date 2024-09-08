@@ -1,5 +1,6 @@
 package com.example.group_investment.team;
 
+import com.example.group_investment.auth.AuthService;
 import com.example.group_investment.enums.JoinStatus;
 import com.example.group_investment.enums.MemberRole;
 import com.example.group_investment.enums.RulePeriod;
@@ -22,6 +23,7 @@ import com.example.group_investment.user.UserRepository;
 import com.example.group_investment.user.exception.UserErrorCode;
 import com.example.group_investment.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.mapping.Join;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +32,7 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,10 +51,12 @@ public class TeamService {
     private final InvitationRepository invitationRepository;
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
+    private final AuthService authService;
 
 
     @Transactional
-    public CreateTeamResponse createTeam(int userId, CreateTeamRequest createTeamRequest) {
+    public CreateTeamResponse createTeam(int userId, CreateTeamRequest createTeamRequest,
+                                         int teamId, String jwtToken) {
         // 팀을 만든 user
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         //1. 팀
@@ -64,6 +68,7 @@ public class TeamService {
                 .category(createTeamRequest.getCategory())
                 .startAt(createTeamRequest.getStartAt())
                 .endAt(createTeamRequest.getEndAt())
+                .status(TeamStatus.PENDING)
                 .build();
         try {
             savedTeam = teamRepository.save(teamDto.toEntity());
@@ -92,6 +97,7 @@ public class TeamService {
                 .team(savedTeam)
                 .user(user)
                 .role(MemberRole.LEADER)
+                .joinstatus(JoinStatus.ACTIVE)
                 .build();
         try {
             memberRepository.save(memberDto.toEntity());
@@ -118,7 +124,11 @@ public class TeamService {
         } catch (Exception e) {
             throw new TeamException(TeamErrorCode.INVITATION_SAVE_FAILED);
         }
-        return new CreateTeamResponse(inviteCode, inviteUrl);
+
+        //6 토큰 업데이트
+        String updatedJwtToken = authService.updateToken(userId, teamId, savedTeam.getId(), jwtToken);
+
+        return new CreateTeamResponse(inviteCode, inviteUrl, updatedJwtToken);
     }
 
     public InsertCodeTeamResponse insertCode(String inviteCode) {
@@ -156,8 +166,11 @@ public class TeamService {
             }
         }
         //2-5. 인원수 조회
-        // FIXME : 멤버
         int invitedMembers = memberRepository.countByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        //2-6. 팀의 초대 코드 조회
+        Invitation invitation = invitationRepository.findByTeam(team).orElseThrow(() -> new TeamException(TeamErrorCode.INVITATION_NOT_FOUND));
+        String invitedCode = invitation.getInviteCode();
 
         return DetailPendingTeamResponse.builder()
                 .name(teamDto.getName())
@@ -177,22 +190,30 @@ public class TeamService {
                 .invitedMembers(invitedMembers)
                 .isLeader(isLeader)
                 .isParticipating(isParticipating)
+                .invitedCode(invitedCode)
                 .build();
     }
 
-    public void participateTeam(int userId, int teamId) {
+    public ParticipateResponse participateTeam(int userId, int teamId, int jwtTeamId, String jwtToken) {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         MemberDto memberDto = MemberDto.builder()
                 .team(team)
                 .user(user)
                 .role(MemberRole.MEMBER)
+                .joinstatus(JoinStatus.ACTIVE)
                 .build();
         try {
             memberRepository.save(memberDto.toEntity());
         } catch (Exception e) {
             throw new MemberException(MemberErrorCode.MEMBER_SAVE_FAILED);
         }
+
+        // 토큰 발급
+        String updatedJwtToken = authService.updateToken(userId, jwtTeamId, teamId, jwtToken);
+        return ParticipateResponse.builder()
+                .updatedToken(updatedJwtToken)
+                .build();
     }
 
     public void confirmTeam(int teamId) {
@@ -229,7 +250,8 @@ public class TeamService {
         List<Member> members = memberRepository.findByUser(user).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
         List<TeamByUserResponse> teamByUserResponses = new ArrayList<>();
         for (Member member : members) {
-            teamByUserResponses.add(new TeamByUserResponse(member.getTeam().getId(), member.getTeam().getStatus()));
+            if (member.getJoinStatus() == JoinStatus.ACTIVE)
+                teamByUserResponses.add(new TeamByUserResponse(member.getTeam().getId(), member.getTeam().getStatus(), member.getTeam().getName(),member.getTeam().getCategory()));
         }
         return teamByUserResponses;
     }
@@ -284,7 +306,7 @@ public class TeamService {
         return autoPayments;
     }
 
-    public void expelMember(List<PayFail> payFails) {
+    public void cancelMember(List<PayFail> payFails) {
 
         for (PayFail payFail : payFails) {
             int teamId = payFail.getTeamId();
@@ -299,6 +321,47 @@ public class TeamService {
         }
     }
 
+    public void cancelMember(int userId, int teamId) {
+        Member member = memberRepository.findByUserIdAndTeamId(userId, teamId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        member.cancelMember();
+        memberRepository.save(member);
+    }
+
+    public List<Integer> selectMemberByTeam(int teamId) {
+        List<Member> members = memberRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        return members.stream()
+                .map(member -> member.getUser().getId())
+                .collect(Collectors.toList());
+    }
+
+    public List<String> selectMemberNameByTeam(int teamId) {
+        List<Member> members = memberRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        return members.stream()
+                .map(member -> member.getUser().getName())
+                .collect(Collectors.toList());
+    }
+
+    public boolean isTeamLeader(Member member) {
+        return member.getRole() == MemberRole.LEADER;
+    }
+
+    public void cancelTeam(Team team) {
+        // 팀 상태 CANCEL로 변경
+        team.cancelTeam();
+        teamRepository.save(team);
+
+        // 멤버 모두 방출
+        List<Member> members = memberRepository.findByTeam(team).orElse(new ArrayList<>());
+        for(Member member : members){
+            member.cancelMember();
+            memberRepository.save(member);
+        }
+    }
 }
 
 

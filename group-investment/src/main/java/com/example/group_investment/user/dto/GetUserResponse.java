@@ -13,4 +13,6 @@ public class GetUserResponse {
     private String name;
 
     private String address;
+
+    private String addressDetail;
 }
