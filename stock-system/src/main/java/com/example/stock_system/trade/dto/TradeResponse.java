@@ -4,16 +4,18 @@ import com.example.stock_system.enums.TradeType;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
-public class GetTradeResponse {
+public class TradeResponse {
     private String stockName;
     private TradeType type;
     private int price;
     private int quantity;
-    private String tradeDate;
+    private LocalDateTime tradeDate;
 
     @Builder
-    public GetTradeResponse(String stockName, TradeType type, int price, int quantity, String tradeDate) {
+    public TradeResponse(String stockName, TradeType type, int price, int quantity, LocalDateTime tradeDate) {
         this.stockName = stockName;
         this.type = type;
         this.price = price;

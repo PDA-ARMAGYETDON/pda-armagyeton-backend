@@ -20,8 +20,9 @@ import com.example.stock_system.stocks.StocksRepository;
 import com.example.stock_system.stocks.exception.StocksErrorCode;
 import com.example.stock_system.stocks.exception.StocksException;
 import com.example.stock_system.trade.dto.CreateTradeRequest;
-import com.example.stock_system.trade.dto.GetTradeResponse;
+import com.example.stock_system.trade.dto.GetAllTradesResponse;
 import com.example.stock_system.trade.dto.TradeDto;
+import com.example.stock_system.trade.dto.TradeResponse;
 import com.example.stock_system.trade.exception.TradeException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +38,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
@@ -210,22 +210,4 @@ public class TradeService {
         return tradeQuantity;
     }
 
-    public List<GetTradeResponse> getTrades(int teamId, int page, int size) {
-        TeamAccount teamAccount = teamAccountRepository.findByTeamId(teamId)
-                .orElseThrow(() -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
-        Account account = teamAccount.getAccount();
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Trade> trades = tradeRepository.findAllByAccountAndStatus(account, TradeStatus.COMPLETED, pageable);
-
-        return trades.stream()
-                .map(trade -> GetTradeResponse.builder()
-                        .stockName(trade.getStockCode().getName())
-                        .type(trade.getType())
-                        .price(trade.getPrice())
-                        .quantity(trade.getQuantity())
-                        .tradeDate(trade.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                        .build())
-                .toList();
-    }
 }
