@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -41,18 +42,25 @@ public class AccountService {
         return accountDtoConverter.fromEntity(account);
     }
 
-    public Account createTeamAccount(String name, int userId) {
+    public Account createTeamAccount(String name, int userId,int teamId) {
 
         String accountNumber = "81902" + generateRandomNumber();
         Account account = new Account(name, userId, accountNumber);
+        Account savedAccount = accountRepository.save(account);
 
-        return accountRepository.save(account);
+        TeamAccount teamAccount = new TeamAccount(savedAccount,teamId);
+        teamAccountRepository.save(teamAccount);
+
+        processFirstPayment(teamId);
+
+        return savedAccount;
     }
 
     public Account createPersonalAccount(String name, int userId) {
 
         String accountNumber = "81901" + generateRandomNumber();
         Account account = new Account(name, userId, accountNumber);
+        account.sellStock(25000000);
 
         return accountRepository.save(account);
     }
@@ -221,9 +229,57 @@ public class AccountService {
     }
 
 
+
     public void stopRealTimeStream(int teamId) {
         realTimeStockService.stopStreamingByTeamId(teamId);
     }
 
+    public FirstPayment getFirstPaymentFromAPI(int teamId) {
+        String url = "http://localhost:8081/api/backend/first-payment?teamId=" + teamId;
+
+        ResponseEntity<ApiResponse> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                ApiResponse.class
+        );
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        FirstPayment firstPayment = objectMapper.convertValue(response.getBody().getData(), FirstPayment.class);
+
+        return firstPayment;
+    }
+
+    @Transactional
+    public void processFirstPayment(int teamId) {
+
+
+        FirstPayment firstPayment = getFirstPaymentFromAPI(teamId);
+
+
+        TeamAccount teamAccount = teamAccountRepository.findByTeamId(firstPayment.getTeamId())
+                .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
+
+        Account teamAccountEntity = teamAccount.getAccount();
+
+        int paymentAmount = firstPayment.getPaymentMoney();
+
+        List<Integer> userIds = firstPayment.getUsers();
+
+        for (Integer userId : userIds) {
+            Account personalAccount = getPersonalAccount(userId);
+
+            if (personalAccount.getDeposit() >= paymentAmount) {
+                personalAccount.buyStock(paymentAmount);
+                accountRepository.save(personalAccount);
+
+                teamAccountEntity.sellStock(paymentAmount);
+                accountRepository.save(teamAccountEntity);
+            } else {
+                throw new AccountException(AccountErrorCode.NOT_ENOUGH_DEPOSIT);
+            }
+        }
+    }
 
 }
