@@ -25,7 +25,7 @@ jobs:
             git pull origin feat/134-server-cicd
             cd alarm
             sudo chmod +x ./gradlew 
-            ./gradlew :alarm:bootJar
+            ./gradlew :alarm:bootJar --no-daemon
             sudo systemctl stop alarm
             sleep 3
             sudo systemctl start alarm

@@ -25,7 +25,7 @@ jobs:
             git pull origin feat/134-server-cicd
             cd invest-references
             sudo chmod +x ./gradlew 
-            ./gradlew :invest-references:bootJar
+            ./gradlew :invest-references:bootJar --no-daemon
             sudo systemctl stop invest-references
             sleep 3
             sudo systemctl start invest-references

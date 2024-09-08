@@ -25,7 +25,7 @@ jobs:
             git pull origin feat/134-server-cicd
             cd chatting
             sudo chmod +x ./gradlew 
-            ./gradlew :chatting:bootJar
+            ./gradlew :chatting:bootJar --no-daemon
             sudo systemctl stop chatting
             sleep 3
             sudo systemctl start chatting

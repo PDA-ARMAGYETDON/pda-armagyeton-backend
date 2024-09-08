@@ -25,7 +25,7 @@ jobs:
             git pull origin feat/134-server-cicd
             cd stock-system
             sudo chmod +x ./gradlew 
-            ./gradlew :stock-system:bootJar
+            ./gradlew :stock-system:bootJar --no-daemon
             sudo systemctl stop stock-system
             sleep 3
             sudo systemctl start stock-system

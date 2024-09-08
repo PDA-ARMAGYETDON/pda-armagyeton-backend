@@ -25,7 +25,7 @@ jobs:
             git pull origin feat/134-server-cicd
             cd group-investment
             sudo chmod +x ./gradlew 
-            ./gradlew :group-investment:bootJar
+            ./gradlew :group-investment:bootJar --no-daemon
             sudo systemctl stop group-investment
             sleep 3
             sudo systemctl start group-investment
