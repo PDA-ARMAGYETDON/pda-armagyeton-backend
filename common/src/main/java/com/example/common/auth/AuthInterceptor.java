@@ -20,7 +20,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             "/swagger-ui", "/v3/api-docs",
             "/api/group/backend", "/api/stock/backend",
             "/api/teams/autoPayment", "/api/teams/expelMember",
-            "/api/users/valid"
+            "/api/users/valid", "/api/auth/health-check"
     );
 
     @Override
