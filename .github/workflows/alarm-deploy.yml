@@ -3,8 +3,7 @@ name: CI/CD for Multi-Module Gradle Spring Boot Application on EC2
 on:
   push:
     branches:
-      - feat/134-server-cicd  # 테스트브랜치, 추후 main 브랜치로 변경
-
+      - main
 jobs:
   deploy:
     runs-on: ubuntu-latest
