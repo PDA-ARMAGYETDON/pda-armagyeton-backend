@@ -33,46 +33,44 @@ public class RuleOfferService {
     private final MemberRepository memberRepository;
     private final RuleOfferVoteRepository ruleOfferVoteRepository;
 
-    public CreateROfferResponse create(int teamId, CreateROfferRequest request) {
+    public CreateROfferResponse create(int jwtUserId, int jwtTeamId, int teamId, CreateROfferRequest request) {
+        if (jwtTeamId != teamId) {
+            throw new RuleException(RuleErrorCode.FORBIDDEN_ERROR);
+        }
         // 규칙 제안 생성하기
         // 규칙 제안을 각 타입별로 type에 따라 Join된 테이블에 저장
-
-        // 규칙 타입
         RuleType type = request.getType();
 
-        // Team 찾기
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         // Team에 속한 멤버 수
         int totalMember = team.getSizeOfMembers();
 
-        // 규칙
         Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
-        // 멤버 찾기
-        Member member = memberRepository.findById(1).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND)); //memberId); // FIXME : memberId 유저 정보로 변경
+        Member member = memberRepository.findByUserIdAndTeamId(jwtUserId, teamId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-        // request를 entity로 변환
         RuleOffer ruleOffer = request.toEntity(rule, member, totalMember);
-
-        // entity를 저장
         ruleOfferRepository.save(ruleOffer);
 
         return CreateROfferResponse.builder()
                 .type(type).build();
     }
 
-    public GetROfferResponse get(int teamId, int userId) {
+    public GetROfferResponse get(int userId, int jwtTeamId, int teamId) {
+        if (jwtTeamId != teamId) {
+            throw new RuleException(RuleErrorCode.FORBIDDEN_ERROR);
+        }
+
         // 규칙 제안 조회하기
         // 규칙 제안을 각 타입별로 type에 따라 Join된 테이블에서 조회
 
-        // Team 찾기
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         Rule rule = ruleRepository.findByTeam(team).orElseThrow(() -> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
 
         // 멤버 id 찾기
-        Member member = memberRepository.findByUserIdAndTeamId(userId,teamId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findByUserIdAndTeamId(userId, teamId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-        // repository에서 규칙 제안 조회
-        // 규칙타입 Disband GetROfferResponseType
+        // 규칙 제안 조회
+        // 규칙타입 Disband
         List<GetROfferResponseDisband> offersDisband = getGetROfferResponseDisbands(rule, member);
 
         // 규칙타입 PayFee

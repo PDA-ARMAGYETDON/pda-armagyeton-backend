@@ -32,9 +32,6 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final AgUserDetailsService userDetailsService;
 
-    @Value("spring.ag.url")
-    private String gatewayUrl;
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
@@ -45,27 +42,10 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedHeaders(Collections.singletonList("*"));
-        config.setAllowedMethods(Collections.singletonList("*"));
-        config.setAllowedOriginPatterns(Collections.singletonList(gatewayUrl)); // ⭐️ gateway 허용
-        config.setAllowCredentials(true);
-        config.setExposedHeaders(Collections.singletonList("Authorization"));
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
-
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable);
-
-        http
-                .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()));
 
         http
                 .formLogin(AbstractHttpConfigurer::disable);
@@ -75,26 +55,12 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(
-                                "/api/users/login", "/api/users/signup",
-                                "/swagger-ui/**", "/v3/api-docs/**",
-                                "/api/backend/**",
-                                "/api/users/valid/**"
-                        ).permitAll()
-                        .anyRequest().authenticated());
+                        .anyRequest().permitAll());
 
         http
                 .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, userDetailsService), UsernamePasswordAuthenticationFilter.class)
-                .logout((logoutConfig) ->
-                        logoutConfig
-                                .logoutUrl("/api/users/logout")
-                                .logoutSuccessUrl("/"))
         ;
-
-        http
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
