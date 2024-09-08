@@ -227,7 +227,7 @@ public class AccountService {
             }
         }
 
-        return sumPrice;  // 총 판매 금액 반환
+        return teamId;  //종료 팀 반환
     }
 
 

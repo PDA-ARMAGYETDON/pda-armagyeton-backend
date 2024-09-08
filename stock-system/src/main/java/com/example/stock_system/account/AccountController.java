@@ -67,8 +67,8 @@ public class AccountController {
     @Operation(summary = "자동 전량 매도 서비스",description = "test를 위해 호출식으로 작성, 추후에 배치로 처리")
     @GetMapping("/all-stock-sell/{teamId}")
     public ApiResponse<Integer> allStockSell(@PathVariable int teamId) {
-        int sellMoeny = accountService.allStockSell(teamId);
-        return new ApiResponse<>(200,true,"해당 계좌의 주식이 전량 매도 되었습니다.",sellMoeny);
+        int finishedTeam = accountService.allStockSell(teamId);
+        return new ApiResponse<>(200,true,"해당 계좌의 주식이 전량 매도 되었습니다.",finishedTeam);
     }
 
 
