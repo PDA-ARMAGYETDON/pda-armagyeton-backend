@@ -30,6 +30,8 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class ChatRoomService {
+    @Value("${ag.url}")
+    private String AG_URL;
 
     private final ChatRoomRepository chatRoomRepository;
     private final SimpMessageSendingOperations messageTemplate;
@@ -37,7 +39,7 @@ public class ChatRoomService {
 
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
-    private final String teamServiceUrl = "http://localhost:8081/api/backend/chat-member";
+    private final String teamServiceUrl = AG_URL+"/api/group/backend/chat-member";
     @Value("${redis.chatroom.prefix}")
     private String prefix;
 

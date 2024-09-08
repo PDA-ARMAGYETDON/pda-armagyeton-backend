@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/backend")
+@RequestMapping("/api/stock/backend")
 public class BackendController {
     private final HoldingsService holdingsService;
     private final StocksService stocksService;
