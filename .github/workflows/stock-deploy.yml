@@ -1,0 +1,33 @@
+name: CI/CD for Multi-Module Gradle Spring Boot Application on EC2
+
+on:
+  push:
+    branches:
+      - feat/134-server-cicd  # 테스트브랜치, 추후 main 브랜치로 변경
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Git pull, build and deploy on EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.STOCK_SYSTEM_EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_PEM_KEY }}
+          port: 22
+          script: |
+            cd pda-armagyetdon-backend/
+            git pull origin feat/134-server-cicd
+            cd stock-system
+            sudo chmod +x ./gradlew 
+            ./gradlew :stock-system:bootJar
+            sudo systemctl stop stock-system
+            sleep 3
+            sudo systemctl start stock-system
+            sleep 10
+            sudo systemctl status stock-system
