@@ -39,10 +39,8 @@ public class RuleOfferVoteService {
     private final TeamRepository teamRepository;
 
     @Transactional
-    public void create(int ruleOfferId, CreateRuleOfferVoteRequest createRuleOfferVoteRequest) {
+    public void create(int ruleOfferId, int teamId, int userId, CreateRuleOfferVoteRequest createRuleOfferVoteRequest) {
 
-        int teamId = 1;
-        int userId = 1;
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         //1. 멤버를 조회하고
         Member member = memberRepository.findByUserIdAndTeamId(userId,teamId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
@@ -72,6 +70,10 @@ public class RuleOfferVoteService {
         int updatedTotalVotes = ruleOffer.getTotalvotes() + 1;
         OfferStatus status = ruleOffer.getStatus();
 
+        //하나라도 반대를 받으면 rejected 로
+        if (updatedDownvotes == 1)
+            status = OfferStatus.REJECTED;
+
         if (updatedTotalVotes == team.getHeadCount()) {
             if (updatedTotalVotes == updatedUpvotes)
                 status = OfferStatus.APPROVED;
@@ -79,7 +81,7 @@ public class RuleOfferVoteService {
                 status = OfferStatus.REJECTED;
         }
         // 규칙 제안 update 하는데 rule 이 필요하니까 여기서 조회
-        Rule rule = ruleRepository.findById(teamId).orElseThrow(()-> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
+        Rule rule = ruleRepository.findByTeam(team).orElseThrow(()-> new RuleException(RuleErrorCode.RULE_NOT_FOUND));
         // update 된 규칙 제안
         RuleOffer updatedRuleOffer = ruleOffer.toBuilder()
 

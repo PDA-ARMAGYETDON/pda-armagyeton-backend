@@ -70,7 +70,8 @@ public class AccountService {
 
 
     public List<AccountPayment> convertPaymentData() {
-        String url = "http://localhost:8081/api/teams/autoPayment";
+
+        String url = "http://localhost:8081/api/backend/auto-payment";
 
         HttpHeaders httpHeaders = new HttpHeaders();
 
@@ -78,8 +79,6 @@ public class AccountService {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
         ResponseEntity<ApiResponser> response = restTemplate.exchange(url, HttpMethod.POST, entity, ApiResponser.class);
-
-        System.out.println(response.getBody());
 
         ApiResponser responseWrapper = response.getBody();
 
@@ -128,7 +127,8 @@ public class AccountService {
     }
 
     public void expelMember(List<PayFail> payFails) {
-        String url = "http://localhost:8081/api/teams/expelMember";
+        String url = "http://localhost:8081/api/backend/expel-member";
+
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -195,7 +195,7 @@ public class AccountService {
             // holdingsRepository.delete(holding);
         }
 
-        String url = "http://localhost:8081/api/teams/member";
+        String url = "http://localhost:8081/api/backend/member";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 

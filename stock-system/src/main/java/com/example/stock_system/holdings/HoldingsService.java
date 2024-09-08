@@ -1,19 +1,18 @@
 package com.example.stock_system.holdings;
 
 import com.example.stock_system.account.Account;
-import com.example.stock_system.account.AccountRepository;
 import com.example.stock_system.account.TeamAccount;
 import com.example.stock_system.account.TeamAccountRepository;
 import com.example.stock_system.account.exception.AccountErrorCode;
 import com.example.stock_system.account.exception.AccountException;
 import com.example.stock_system.enums.TradeStatus;
 import com.example.stock_system.enums.TradeType;
+import com.example.stock_system.holdings.dto.GetHoldingsRatioResponse;
 import com.example.stock_system.holdings.dto.HoldingsDto;
 import com.example.stock_system.holdings.dto.SaveClosingPrice;
-
-import com.example.stock_system.realTimeStock.RealTimeStockService;
 import com.example.stock_system.holdings.exception.HoldingsErrorCode;
 import com.example.stock_system.holdings.exception.HoldingsException;
+import com.example.stock_system.realTimeStock.RealTimeStockService;
 import com.example.stock_system.stocks.Stocks;
 import com.example.stock_system.stocks.StocksRepository;
 import com.example.stock_system.stocks.StocksService;
@@ -38,7 +37,6 @@ public class HoldingsService {
     private final TeamAccountRepository teamAccountRepository;
     private final StocksService stocksService;
     private final RealTimeStockService realTimeStockService;
-    private final TeamAccountRepository teamAccountRepository;
     private final StocksRepository stocksRepository;
     private final TradeRepository tradeRepository;
 
@@ -52,7 +50,6 @@ public class HoldingsService {
         return holdings.stream()
                 .map(HoldingsDto::new)
                 .collect(Collectors.toList());
-
     }
 
     public Flux<HoldingsDto> getRealTimeHoldingsByTeamId(int teamId) {
@@ -125,5 +122,24 @@ public class HoldingsService {
         int pendingBuyAmount = trades.stream().mapToInt(trade -> trade.getPrice() * trade.getQuantity()).sum();
 
         return account.getDeposit() - pendingBuyAmount;
+    }
+
+    public List<GetHoldingsRatioResponse> getHoldingsRatio(int teamId) {
+        TeamAccount teamAccount = teamAccountRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
+
+        Account account = teamAccount.getAccount();
+
+        if (account.getTotalEvluAmt() == 0) {
+            throw new AccountException(AccountErrorCode.NO_HOLDINGS);
+        }
+
+        List<Holdings> holdings = holdingsRepository.findByAccount(account);
+        return holdings.stream()
+                .map(holding -> GetHoldingsRatioResponse.builder()
+                        .stockName(holding.getStockCode().getName())
+                        .ratio(Math.round((holding.getEvluAmt() / (double) account.getTotalEvluAmt()) * 100) / 100.0)
+                        .build())
+                .collect(Collectors.toList());
     }
 }

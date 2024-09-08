@@ -21,7 +21,7 @@ public class TeamController {
 
     // TeamResponseDto를 만들어서 response해주세요.
     // ApiResponse를 사용해서 response 형식을 통일해주세요.
-    @Operation(summary = "유저가 속한 팀들의 pk와 status를 조회하는 API")
+    @Operation(summary = "유저가 속한 팀들의 pk와 status, 이름, 카테고리를 조회하는 API(")
     @GetMapping("/users")
     public ApiResponse<List<TeamByUserResponse>> selectTeamByUser(@RequestAttribute("userId") int userId) {
         List<TeamByUserResponse> teamByUserResponse = teamService.selectTeamByUser(userId);
@@ -53,9 +53,9 @@ public class TeamController {
     }
 
     @Operation(summary = "PENDING 상태 팀을 조회하는 API")
-    @GetMapping("/pending")
-    public ApiResponse<DetailPendingTeamResponse> selectDetails(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId) {
-        DetailPendingTeamResponse detailPendingTeamResponse = teamService.selectPendingDetails(userId, teamId);
+    @GetMapping("/{id}/pending")
+    public ApiResponse<DetailPendingTeamResponse> selectDetails(@RequestAttribute("userId") int userId, @PathVariable int id) {
+        DetailPendingTeamResponse detailPendingTeamResponse = teamService.selectPendingDetails(userId, id);
         return new ApiResponse<>(200, true, "초대를 받은 팀 정보를 조회했습니다.", detailPendingTeamResponse);
     }
 

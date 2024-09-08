@@ -23,6 +23,7 @@ import com.example.group_investment.user.UserRepository;
 import com.example.group_investment.user.exception.UserErrorCode;
 import com.example.group_investment.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.mapping.Join;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +68,7 @@ public class TeamService {
                 .category(createTeamRequest.getCategory())
                 .startAt(createTeamRequest.getStartAt())
                 .endAt(createTeamRequest.getEndAt())
+                .status(TeamStatus.PENDING)
                 .build();
         try {
             savedTeam = teamRepository.save(teamDto.toEntity());
@@ -95,6 +97,7 @@ public class TeamService {
                 .team(savedTeam)
                 .user(user)
                 .role(MemberRole.LEADER)
+                .joinstatus(JoinStatus.ACTIVE)
                 .build();
         try {
             memberRepository.save(memberDto.toEntity());
@@ -163,8 +166,11 @@ public class TeamService {
             }
         }
         //2-5. 인원수 조회
-        // FIXME : 멤버
         int invitedMembers = memberRepository.countByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        //2-6. 팀의 초대 코드 조회
+        Invitation invitation = invitationRepository.findByTeam(team).orElseThrow(() -> new TeamException(TeamErrorCode.INVITATION_NOT_FOUND));
+        String invitedCode = invitation.getInviteCode();
 
         return DetailPendingTeamResponse.builder()
                 .name(teamDto.getName())
@@ -184,6 +190,7 @@ public class TeamService {
                 .invitedMembers(invitedMembers)
                 .isLeader(isLeader)
                 .isParticipating(isParticipating)
+                .invitedCode(invitedCode)
                 .build();
     }
 
@@ -194,6 +201,7 @@ public class TeamService {
                 .team(team)
                 .user(user)
                 .role(MemberRole.MEMBER)
+                .joinstatus(JoinStatus.ACTIVE)
                 .build();
         try {
             memberRepository.save(memberDto.toEntity());
@@ -242,7 +250,8 @@ public class TeamService {
         List<Member> members = memberRepository.findByUser(user).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
         List<TeamByUserResponse> teamByUserResponses = new ArrayList<>();
         for (Member member : members) {
-            teamByUserResponses.add(new TeamByUserResponse(member.getTeam().getId(), member.getTeam().getStatus()));
+            if (member.getJoinStatus() == JoinStatus.ACTIVE)
+                teamByUserResponses.add(new TeamByUserResponse(member.getTeam().getId(), member.getTeam().getStatus(), member.getTeam().getName(),member.getTeam().getCategory()));
         }
         return teamByUserResponses;
     }
@@ -325,6 +334,15 @@ public class TeamService {
 
         return members.stream()
                 .map(member -> member.getUser().getId())
+                .collect(Collectors.toList());
+    }
+
+    public List<String> selectMemberNameByTeam(int teamId) {
+        List<Member> members = memberRepository.findByTeamId(teamId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        return members.stream()
+                .map(member -> member.getUser().getName())
                 .collect(Collectors.toList());
     }
 

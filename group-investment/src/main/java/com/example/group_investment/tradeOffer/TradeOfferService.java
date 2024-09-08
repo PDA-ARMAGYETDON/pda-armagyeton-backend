@@ -94,7 +94,7 @@ public class TradeOfferService {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "offerAt"));
 
-        Page<TradeOffer> tradeOffers = tradeOfferRepository.findAllByTeamIdAndTradeType(team.getId(), type, pageable);
+        Page<TradeOffer> tradeOffers = tradeOfferRepository.findAllByTeamAndTradeType(team, type, pageable);
 
         for (TradeOffer tradeOffer : tradeOffers) {
             if (tradeOffer.getOfferStatus() == OfferStatus.PROGRESS && tradeOffer.isUrgent() && tradeOffer.getOfferAt().isBefore(LocalDateTime.now().plusMinutes(30))) {
@@ -190,5 +190,28 @@ public class TradeOfferService {
                 .upvotes(tradeOffer.getUpvotes())
                 .downvotes(tradeOffer.getDownvotes())
                 .build();
+    }
+
+    public List<GetPendingTradeOfferResponse> getProgressTradeOffers(int teamId, int page, int size) {
+        Team team = teamRepository.findById(teamId).orElseThrow(
+                () -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        System.out.println("team: " + team.getName());
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "offerAt"));
+
+        Page<TradeOffer> tradeOffers = tradeOfferRepository.findAllByTeamAndOfferStatus(team, OfferStatus.PROGRESS, pageable);
+
+        System.out.println("tradeOffers: " + tradeOffers.getSize());
+
+        return tradeOffers.stream()
+                .map(tradeOffer -> GetPendingTradeOfferResponse.builder()
+                        .stockName(tradeOfferCommunicator.getStockNameFromStockSystem(tradeOffer.getStockCode()).getName())
+                        .quantity(tradeOffer.getQuantity())
+                        .offerMemberName(tradeOffer.getMember().getUser().getName())
+                        .Upvotes(tradeOffer.getUpvotes())
+                        .Downvotes(tradeOffer.getDownvotes())
+                        .isUrgent(tradeOffer.isUrgent())
+                        .build())
+                .toList();
     }
 }

@@ -39,4 +39,5 @@ public class RuleOfferController {
                 "Rule 제안 조회에 성공했습니다.",
                 ruleOfferService.get(userId, teamId, id));
     }
+
 }
