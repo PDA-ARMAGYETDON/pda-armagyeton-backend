@@ -33,7 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // 요청 URL을 가져와서 제외할 URL 목록과 비교
         String requestURI = request.getRequestURI();
-        log.info("[requestURI] {}", requestURI);
+        log.info("[GATEWAY]-jwtFilter : [requestURI] {}", requestURI);
 
         // login/sign up에 대해서는 필터링을 수행하지 않음
         if (excludeUrls.stream().anyMatch(requestURI::startsWith)) {
@@ -70,6 +70,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        log.info("토큰 검증이 완료되었습니다.");
         filterChain.doFilter(request, response);
     }
 }
