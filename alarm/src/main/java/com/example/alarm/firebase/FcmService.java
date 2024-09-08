@@ -1,8 +1,10 @@
 package com.example.alarm.firebase;
 
 
+import com.example.alarm.firebase.dto.ChatAlarmDto;
 import com.example.alarm.firebase.dto.FcmTokenResponseDto;
 import com.example.alarm.firebase.dto.StockAlarmDto;
+import com.example.alarm.firebase.dto.VoteToAlarmDto;
 import com.example.alarm.firebase.exception.AlarmException;
 import com.example.common.exception.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -68,6 +70,83 @@ public class FcmService {
                     .build();
 
             FirebaseMessaging.getInstance().sendAsync(fcmMessage);
+        } catch (JsonProcessingException e) {
+            throw new AlarmException(ErrorCode.JSON_PARSE_ERROR);
+        }
+    }
+
+    @RabbitListener(queues = "${spring.rabbitmq.chatQueue.name}")
+    private void chatAlarmToTopic(String message) {
+
+        try {
+
+            ChatAlarmDto alarmDto = new ObjectMapper().readValue(message, ChatAlarmDto.class);
+
+            String topic = String.valueOf(alarmDto.getTeamId());
+            String title = alarmDto.getName();
+            String body = alarmDto.getMessage();
+
+            Message fcmMessage = Message.builder()
+                    .setTopic(topic)
+                    .setNotification(Notification.builder().setTitle(title).setBody(body).build())
+                    .build();
+
+            FirebaseMessaging.getInstance().sendAsync(fcmMessage);
+
+            log.info("[FCM] : {}번 방 채팅 알림 전송 완료", topic);
+
+        } catch (JsonProcessingException e) {
+            throw new AlarmException(ErrorCode.JSON_PARSE_ERROR);
+        }
+    }
+
+
+    @RabbitListener(queues = "${spring.rabbitmq.vote-alarm-queue.name}")
+    private void voteStockAlarmToTopic(String message) {
+
+        try {
+
+            VoteToAlarmDto data = new ObjectMapper().readValue(message, VoteToAlarmDto.class);
+
+            String topic = String.valueOf(data.getTeamId());
+            String title = "주식 매매 제안 알림";
+            String body = data.getTeamName() + " 모임에서 새로운 주식 매매 제안이 올라왔습니다.";
+
+            Message fcmMessage = Message.builder()
+                    .setTopic(topic)
+                    .setNotification(Notification.builder().setTitle(title).setBody(body).build())
+                    .build();
+
+            FirebaseMessaging.getInstance().sendAsync(fcmMessage);
+
+            log.info("[FCM] : {}번 방 매매제안 알림 전송 완료", topic);
+
+        } catch (JsonProcessingException e) {
+            throw new AlarmException(ErrorCode.JSON_PARSE_ERROR);
+        }
+    }
+
+
+    @RabbitListener(queues = "${spring.rabbitmq.rule-alarm-queue.name}")
+    private void voteRuleAlarmToTopic(String message) {
+
+        try {
+
+            VoteToAlarmDto data = new ObjectMapper().readValue(message, VoteToAlarmDto.class);
+
+            String topic = String.valueOf(data.getTeamId());
+            String title = "규칙 매매 제안 알림";
+            String body = data.getTeamName() + " 모임에서 새로운 규칙 제안이 올라왔습니다.";
+
+            Message fcmMessage = Message.builder()
+                    .setTopic(topic)
+                    .setNotification(Notification.builder().setTitle(title).setBody(body).build())
+                    .build();
+
+            FirebaseMessaging.getInstance().sendAsync(fcmMessage);
+
+            log.info("[FCM] : {}번 방 규칙제안 알림 전송 완료", topic);
+
         } catch (JsonProcessingException e) {
             throw new AlarmException(ErrorCode.JSON_PARSE_ERROR);
         }
