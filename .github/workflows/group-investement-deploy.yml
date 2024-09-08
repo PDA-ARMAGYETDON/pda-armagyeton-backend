@@ -1,4 +1,3 @@
-
 name: CI/CD for Multi-Module Gradle Spring Boot Application on EC2
 
 on:
@@ -17,18 +16,18 @@ jobs:
       - name: Git pull, build and deploy on EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
-          host: ${{ secrets.CHAT_EC2_HOST }}
+          host: ${{ secrets.GROUP_INVESTMENT_EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_PEM_KEY }}
           port: 22
           script: |
             cd pda-armagyetdon-backend/
             git pull origin feat/134-server-cicd
-            cd chatting
+            cd group-investment
             sudo chmod +x ./gradlew 
-            ./gradlew :chatting:bootJar --no-daemon
-            sudo systemctl stop chatting
+            ./gradlew :group-investment:bootJar --no-daemon
+            sudo systemctl stop group-investment
             sleep 3
-            sudo systemctl start chatting
+            sudo systemctl start group-investment
             sleep 10
-            sudo systemctl status chatting
+            sudo systemctl status group-investment
