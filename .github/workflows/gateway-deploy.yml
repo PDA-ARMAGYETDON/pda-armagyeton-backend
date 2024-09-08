@@ -25,10 +25,8 @@ jobs:
             git pull origin feat/134-server-cicd
             cd ag-gateway
             ./gradlew :ag-gateway:bootJar
-            
             sudo systemctl stop ag-gateway
-            
+            sleep 3
             sudo systemctl start ag-gateway
-            
             sleep 10
             sudo systemctl status ag-gateway
