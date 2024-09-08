@@ -2,7 +2,6 @@ package com.example.group_investment.auth;
 
 import com.example.group_investment.user.User;
 import com.example.group_investment.user.UserRepository;
-import com.example.group_investment.user.UserService;
 import com.example.group_investment.user.exception.UserErrorCode;
 import com.example.group_investment.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +38,8 @@ public class AgUserDetailsService implements UserDetailsService {
         return user.getMembers().get(0).getTeam().getId();
     }
 
-    public boolean isUserActive(String loginId) {
+    public boolean isUserCanceled(String loginId) {
         User user = userRepository.findByLoginId(loginId).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
-        return user.isActive();
+        return user.isInActive();
     }
 }
