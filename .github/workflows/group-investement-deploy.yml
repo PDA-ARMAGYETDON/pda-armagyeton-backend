@@ -23,8 +23,9 @@ jobs:
           script: |
             cd pda-armagyetdon-backend/
             git pull origin feat/134-server-cicd
-            cd group-investment  # 변경된 부분
-            sudo ./gradlew :group-investment:bootJar
+            cd group-investment
+            sudo chmod +x ./gradlew 
+            ./gradlew :group-investment:bootJar
             sudo systemctl stop group-investment
             sleep 3
             sudo systemctl start group-investment

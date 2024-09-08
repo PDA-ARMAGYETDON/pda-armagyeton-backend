@@ -24,7 +24,8 @@ jobs:
             cd pda-armagyetdon-backend/
             git pull origin feat/134-server-cicd
             cd alarm
-            sudo ./gradlew :alarm:bootJar
+            sudo chmod +x ./gradlew 
+            ./gradlew :alarm:bootJar
             sudo systemctl stop alarm
             sleep 3
             sudo systemctl start alarm

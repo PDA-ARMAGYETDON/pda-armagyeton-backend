@@ -24,6 +24,7 @@ jobs:
             cd pda-armagyetdon-backend/
             git pull origin feat/134-server-cicd
             cd ag-gateway
+            sudo chmod +x ./gradlew 
             ./gradlew :ag-gateway:bootJar
             sudo systemctl stop ag-gateway
             sleep 3
