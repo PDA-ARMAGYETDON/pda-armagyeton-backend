@@ -1,8 +1,11 @@
 package com.example.group_investment.user;
 
-import com.example.common.exception.ErrorCode;
-import com.example.common.exception.GlobalException;
+import com.example.group_investment.enums.TeamStatus;
+import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
+import com.example.group_investment.team.Team;
+import com.example.group_investment.team.TeamRepository;
+import com.example.group_investment.team.TeamService;
 import com.example.group_investment.user.dto.*;
 import com.example.group_investment.user.exception.UserErrorCode;
 import com.example.group_investment.user.exception.UserException;
@@ -15,6 +18,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -22,8 +26,10 @@ import java.util.ArrayList;
 public class UserService {
     private final UserRepository userRepository;
     private final UserPInfoService userPInfoService;
+    private final TeamService teamService;
     private final MemberRepository memberRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final TeamRepository teamRepository;
 
     public GetUserResponse get(int jwtUserId, int id) {
         if (jwtUserId != id) {
@@ -45,9 +51,7 @@ public class UserService {
         if (userRepository.existsByLoginId(request.getLoginId())) {
             throw new UserException(UserErrorCode.USER_ALREADY_EXISTS);
         }
-        if (checkEmail(request.getEmail()) != null){
-            throw new UserException(UserErrorCode.EMAIL_ALREADY_EXISTS);
-        }
+        checkEmail(request.getEmail());
 
         User createdUser = User.builder()
                 .loginId(request.getLoginId())
@@ -98,12 +102,22 @@ public class UserService {
         });
     }
 
-    public User checkEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UserException(UserErrorCode.USER_ALREADY_EXISTS));
+    public void checkEmail(String email) {
+        userRepository.findByEmail(email).orElseThrow(() -> new UserException(UserErrorCode.EMAIL_ALREADY_EXISTS));
+    }
+
+    public boolean userWithEmailAlreadyExist(String email, int userId) {
+        // 이메일로 유저 아이디 찾기
+        // 없으면 false
+        // 있으면 userId와 같은지 확인해서 같으면 false, 다르면 true
+        return userRepository.findByEmail(email)
+                .map(user -> user.getId() != userId)
+                .orElse(false);
     }
 
     public UpdateResponse updateUser(int userId, UpdateRequest request) {
-        if (checkEmail(request.getEmail()).getId() != userId) {
+        // 이메일 중복 체크해서 다른 유저가 사용하고 있는 이메일이면 에러
+        if (userWithEmailAlreadyExist(request.getEmail(), userId)) {
             throw new UserException(UserErrorCode.EMAIL_ALREADY_EXISTS);
         }
 

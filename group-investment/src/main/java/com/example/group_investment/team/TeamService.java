@@ -1,5 +1,6 @@
 package com.example.group_investment.team;
 
+import com.example.group_investment.auth.AuthService;
 import com.example.group_investment.enums.JoinStatus;
 import com.example.group_investment.enums.MemberRole;
 import com.example.group_investment.enums.RulePeriod;
@@ -49,10 +50,12 @@ public class TeamService {
     private final InvitationRepository invitationRepository;
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
+    private final AuthService authService;
 
 
     @Transactional
-    public CreateTeamResponse createTeam(int userId, CreateTeamRequest createTeamRequest) {
+    public CreateTeamResponse createTeam(int userId, CreateTeamRequest createTeamRequest,
+                                         int teamId, String jwtToken) {
         // 팀을 만든 user
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         //1. 팀
@@ -118,7 +121,11 @@ public class TeamService {
         } catch (Exception e) {
             throw new TeamException(TeamErrorCode.INVITATION_SAVE_FAILED);
         }
-        return new CreateTeamResponse(inviteCode, inviteUrl);
+
+        //6 토큰 업데이트
+        String updatedJwtToken = authService.updateToken(userId, teamId, savedTeam.getId(), jwtToken);
+
+        return new CreateTeamResponse(inviteCode, inviteUrl, updatedJwtToken);
     }
 
     public InsertCodeTeamResponse insertCode(String inviteCode) {
@@ -180,7 +187,7 @@ public class TeamService {
                 .build();
     }
 
-    public void participateTeam(int userId, int teamId) {
+    public ParticipateResponse participateTeam(int userId, int teamId, int jwtTeamId, String jwtToken) {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         MemberDto memberDto = MemberDto.builder()
@@ -193,6 +200,12 @@ public class TeamService {
         } catch (Exception e) {
             throw new MemberException(MemberErrorCode.MEMBER_SAVE_FAILED);
         }
+
+        // 토큰 발급
+        String updatedJwtToken = authService.updateToken(userId, jwtTeamId, teamId, jwtToken);
+        return ParticipateResponse.builder()
+                .updatedToken(updatedJwtToken)
+                .build();
     }
 
     public void confirmTeam(int teamId) {

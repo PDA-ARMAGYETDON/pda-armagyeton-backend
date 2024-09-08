@@ -6,6 +6,7 @@ import com.example.group_investment.team.dto.CreateTeamResponse;
 
 import com.example.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,8 +37,10 @@ public class TeamController {
 
     @Operation(summary = "팀을 생성하는 API")
     @PostMapping("")
-    public ApiResponse<CreateTeamResponse> createTeam(@RequestAttribute("userId") int userId, @RequestBody CreateTeamRequest createTeamRequest) {
-        CreateTeamResponse createTeamResponse = teamService.createTeam(userId, createTeamRequest);
+    public ApiResponse<CreateTeamResponse> createTeam(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId,
+                                                      @RequestBody CreateTeamRequest createTeamRequest,
+                                                      HttpServletRequest request) {
+        CreateTeamResponse createTeamResponse = teamService.createTeam(userId, createTeamRequest, teamId, request.getHeader("Authorization").substring(7));
         return new ApiResponse<>(201, true, "팀을 생성했습니다.", createTeamResponse);
     }
 
@@ -58,9 +61,10 @@ public class TeamController {
 
     @Operation(summary = "팀을 참가하는 API")
     @GetMapping("/{id}/participate")
-    public ApiResponse participateTeam(@RequestAttribute("userId") int userId, @PathVariable int id) {
-        teamService.participateTeam(userId, id);
-        return new ApiResponse<>(201, true, "모임에 참가했습니다.", null);
+    public ApiResponse<ParticipateResponse> participateTeam(@RequestAttribute("userId") int userId, @RequestAttribute("teamId") int teamId,
+                                                            @PathVariable int id, HttpServletRequest request) {
+        String jwtToken = request.getHeader("Authorization").substring(7);
+        return new ApiResponse<>(201, true, "모임에 참가했습니다.", teamService.participateTeam(userId, id, teamId, jwtToken));
     }
 
     @Operation(summary = "팀을 확정하는 API")
