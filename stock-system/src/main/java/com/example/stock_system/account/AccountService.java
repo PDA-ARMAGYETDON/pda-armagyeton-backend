@@ -70,6 +70,7 @@ public class AccountService {
 
 
     public List<AccountPayment> convertPaymentData() {
+
         String url = "http://localhost:8081/api/backend/auto-payment";
 
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -127,6 +128,7 @@ public class AccountService {
 
     public void expelMember(List<PayFail> payFails) {
         String url = "http://localhost:8081/api/backend/expel-member";
+
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);

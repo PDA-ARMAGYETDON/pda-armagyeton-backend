@@ -6,7 +6,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${ALARM_URL}
+    url: ${ALARM_URL}?serverTimezone=Asia/Seoul
     username: ${ALARM_USERNAME}
     password: ${ALARM_PASSWORD}
 
@@ -17,9 +17,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-
-  jwt:
-    secret: ${JWT_SECRET}
 
   ag:
     url: ${AG_URL}
