@@ -2,6 +2,7 @@ package com.example.group_investment.auth;
 
 import com.example.common.auth.JwtUtil;
 import com.example.common.dto.ApiResponse;
+import com.example.group_investment.auth.exception.AuthoException;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -38,5 +39,4 @@ public class AuthController {
                 headers,
                 HttpStatus.OK);
     }
-
 }

@@ -5,6 +5,7 @@ import com.example.group_investment.auth.AgUserDetails;
 import com.example.group_investment.auth.AgUserDetailsService;
 import com.example.group_investment.auth.exception.AuthoErrorCode;
 import com.example.group_investment.auth.exception.AuthoException;
+import com.example.group_investment.user.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,13 +41,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String password;
 
         try {
-            log.info("[LoginFilter의 attemptAuthentication] "+ request.getContentType());
+            log.info("[LoginFilter에서 로그인 시도] "+ request.getContentType());
             if (request.getContentType().startsWith("application/json")) {
                 // JSON 데이터 파싱
                 System.out.println("application/json");
                 Map<String, String> requestBody = new ObjectMapper().readValue(request.getInputStream(), Map.class);
                 username = requestBody.get("loginId");
                 password = requestBody.get("password");
+                userDetailsService.isUserActive(username);
             } else {
                 // x-www-form-urlencoded 방식의 폼 데이터 처리
                 username = obtainUsername(request);

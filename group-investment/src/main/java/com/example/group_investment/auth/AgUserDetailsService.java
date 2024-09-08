@@ -38,4 +38,12 @@ public class AgUserDetailsService implements UserDetailsService {
         User user = userRepository.findById(id).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
         return user.getMembers().get(0).getTeam().getId();
     }
+
+    public boolean isUserActive(String loginId) {
+        User user = userRepository.findByLoginId(loginId).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
+        if (!user.isActive()) {
+            throw new UserException(UserErrorCode.USER_NOT_ACTIVE);
+        }
+        return true;
+    }
 }
