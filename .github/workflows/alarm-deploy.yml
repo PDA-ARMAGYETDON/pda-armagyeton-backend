@@ -1,5 +1,4 @@
-
-name: CI/CD for Multi-Module Gradle Spring Boot Application on EC2
+name: CI/CD for Alarm Gradle Spring Boot Application on EC2
 
 on:
   push:
@@ -22,7 +21,7 @@ jobs:
           port: 22
           script: |
             cd pda-armagyetdon-backend/
-            git pull origin feat/134-server-cicd
+            git pull origin main
             cd alarm
             sudo chmod +x ./gradlew 
             ./gradlew :alarm:bootJar --no-daemon

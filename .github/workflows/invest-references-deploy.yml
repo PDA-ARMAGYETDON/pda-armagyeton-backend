@@ -22,8 +22,8 @@ jobs:
           port: 22
           script: |
             cd pda-armagyetdon-backend/
-            git pull origin feat/134-server-cicd
             cd invest-references
+            git pull origin main
             sudo chmod +x ./gradlew 
             ./gradlew :invest-references:bootJar --no-daemon
             sudo systemctl stop invest-references

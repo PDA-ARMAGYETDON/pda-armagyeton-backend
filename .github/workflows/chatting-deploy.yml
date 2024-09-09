@@ -1,5 +1,4 @@
-
-name: CI/CD for Multi-Module Gradle Spring Boot Application on EC2
+name: CI/CD for Chatting Gradle Spring Boot Application on EC2
 
 on:
   push:
@@ -23,7 +22,7 @@ jobs:
           port: 22
           script: |
             cd pda-armagyetdon-backend/
-            git pull origin feat/134-server-cicd
+            git pull origin main
             cd chatting
             sudo chmod +x ./gradlew 
             ./gradlew :chatting:bootJar --no-daemon

@@ -1,4 +1,4 @@
-name: CI/CD for Multi-Module Gradle Spring Boot Application on EC2
+name: CI/CD for Main-Module Spring Boot Application on EC2
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
           port: 22
           script: |
             cd pda-armagyetdon-backend/
-            git pull origin feat/134-server-cicd
+            git pull origin main
             cd group-investment
             sudo chmod +x ./gradlew 
             ./gradlew :group-investment:bootJar --no-daemon
