@@ -19,9 +19,9 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "사용자 정보 조회. jwt 토큰의 userId와 pathVariable의 User id가 일치해야 합니다.")
-    @GetMapping("/api/users/{id}")
-    public ApiResponse<GetUserResponse> getUser(@RequestAttribute("userId") int userId, @PathVariable int id) {
-        return new ApiResponse<>(200, true, "사용자를 조회했습니다.", userService.get(userId, id));
+    @GetMapping("/api/users")
+    public ApiResponse<GetUserResponse> getUser(@RequestAttribute("userId") int userId) {
+        return new ApiResponse<>(200, true, "사용자를 조회했습니다.", userService.get(userId));
     }
 
     @Operation(summary = "회원가입 (Authorization 필요 없음)")
