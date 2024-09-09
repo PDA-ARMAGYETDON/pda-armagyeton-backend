@@ -68,4 +68,10 @@ public class BackendController {
 
     }
 
+    @Operation(summary = "유저 id로 이름 찾아오기", description = "채팅 보낼때 이름")
+    @GetMapping("/chat-name")
+    public ApiResponse selectUserName(@RequestParam int userId) {
+        return new ApiResponse<>(200, true, "유저의 이름", teamService.selectUserName(userId));
+    }
+
 }

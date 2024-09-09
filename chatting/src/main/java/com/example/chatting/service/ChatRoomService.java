@@ -101,5 +101,15 @@ public class ChatRoomService {
         return memberNames;
     }
 
+    public String getUserName(int userId) {
+
+        String url = AG_URL + "/api/group/backend/chat-name?userId=" + userId;
+
+        ResponseEntity<ApiResponse> response = restTemplate.getForEntity(url, ApiResponse.class);
+
+        String name = objectMapper.convertValue(response.getBody().getData(), new TypeReference<String>() {});
+
+        return name;
+    }
 }
 
