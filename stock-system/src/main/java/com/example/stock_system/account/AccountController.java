@@ -21,12 +21,6 @@ public class AccountController {
     private final HoldingsService holdingsService;
     private final RankingService rankingService;
 
-    @Operation(summary = "계좌 조회",description = "Account의 Id를 통해 계좌를 조회합니다.")
-    @GetMapping("/{id}")
-    public ApiResponse<AccountDto> getAccount(@PathVariable("id") int id) {
-        AccountDto accountDto = accountService.getAccount(id);
-        return new ApiResponse<>(200, true, "계좌를 조회했습니다.", accountDto);
-    }
 
     @Operation(summary = "개인 계좌 생성",description = "비밀번호를 입력값으로 받아 개인 계좌를 생성해줍니다.")
     @PostMapping("/personal")
@@ -61,7 +55,7 @@ public class AccountController {
     }
 
     @Operation(summary = "실시간 계좌 보유 종목 합 data 조회", description = "실시간 데이터를 불러오는 API")
-    @GetMapping(value = "/realtime-sum/{teamId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/sum-realtime/{teamId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<GetTeamAccountResponse> streamRealTimeSumByTeamId(@PathVariable int teamId) {
         return accountService.getRealTimeSumByTeamId(teamId);
     }
