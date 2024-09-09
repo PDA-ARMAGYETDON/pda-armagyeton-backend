@@ -73,11 +73,11 @@ public class AccountController {
         return new ApiResponse<>(200,true,"해당 계좌의 주식이 전량 매도 되었습니다.",finishedTeam);
     }
     
-    @Operation(summary = "랭킹 생성", description = "test 위해 작성, 추후 배치 처리")
-    @GetMapping("/create/ranking")
-    public ApiResponse createRanking() {
-        accountService.createRanking();
-        return new ApiResponse<>(201, true, "랭킹 생성합니다.", null);
+    @Operation(summary = "랭킹 업데이트", description = "test 위해 작성, 추후 배치 처리")
+    @GetMapping("/update/ranking")
+    public ApiResponse updateRanking() {
+        accountService.updateRanking();
+        return new ApiResponse<>(201, true, "랭킹 업데이트합니다.", null);
     }
 
     @Operation(summary = "장 종료후 수익률체크",description = "최대 수익률 넘거나, 최소 수익률보다 낮으면 전량매도, 추후 배치로 바꿔야됨 test위해 컨트롤러로 처리")

@@ -10,6 +10,8 @@ import com.example.stock_system.holdings.dto.HoldingsDto;
 import com.example.stock_system.ranking.Ranking;
 import com.example.stock_system.ranking.RankingRepository;
 import com.example.stock_system.ranking.dto.RankingDto;
+import com.example.stock_system.ranking.exception.RankingErrorCode;
+import com.example.stock_system.ranking.exception.RankingException;
 import com.example.stock_system.realTimeStock.RealTimeStockService;
 import com.example.stock_system.stocks.StocksService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -296,11 +298,9 @@ public class AccountService {
         }
         return failedUserIds;
     }
-
-
+  
     @Transactional
     public void checkDisband() throws JsonProcessingException {
-
         String url = "http://localhost:8081/api/backend/rule-check";
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
 
@@ -327,25 +327,18 @@ public class AccountService {
             }
         }
     }
-}
-    public void createRanking() {
 
+    public void updateRanking() {
         List<Account> accounts = accountRepository.findByAccountNumberStartingWith("81902").orElseThrow(()->new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
 
-        List<RankingDto> rankingDtos = accounts.stream()
-                .map(account -> RankingDto.builder()
-                        .account(account)
-                        .teamId(teamAccountRepository.findByAccount(account)
-                                .orElseThrow(() -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND)).getTeamId())
-                        .seedMoney(0)
-                        .evluPflsRt(0)
+        List<Ranking> rankings = rankingRepository.findByAccountIn(accounts).orElseThrow(() -> new RankingException(RankingErrorCode.RANKING_NOT_FOUNT));
+        List<Ranking> updatedRankings = rankings.stream()
+                .map(ranking -> ranking.toBuilder()
+                        .seedMoney(ranking.getAccount().getDeposit()+ranking.getAccount().getTotalPchsAmt())
+                        .evluPflsRt(ranking.getAccount().getTotalEvluPflsRt())
                         .build())
                 .collect(Collectors.toList());
 
-        List<Ranking> rankings = rankingDtos.stream()
-                .map(RankingDto::toEntity)
-                .collect(Collectors.toList());
-
-        rankingRepository.saveAll(rankings);
+        rankingRepository.saveAll(updatedRankings);
     }
 }
