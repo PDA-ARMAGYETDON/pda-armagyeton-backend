@@ -16,6 +16,7 @@ import com.example.group_investment.team.Team;
 import com.example.group_investment.team.TeamRepository;
 import com.example.group_investment.team.exception.TeamErrorCode;
 import com.example.group_investment.team.exception.TeamException;
+import com.example.group_investment.user.User;
 import lombok.AllArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -111,6 +112,7 @@ public class RuleOfferService {
                         .totalvotes(offerDisband.getTotalvotes())
                         .maxLossRt(offerDisband.getMaxLossRt())
                         .maxProfitRt(offerDisband.getMaxProfitRt())
+                        .name(member.getUser().getName())
                         .build()
                 )
                 .collect(Collectors.toList());
@@ -132,6 +134,7 @@ public class RuleOfferService {
                         .depositAmt(offerPayFee.getDepositAmt())
                         .period(offerPayFee.getPeriod())
                         .payDate(offerPayFee.getPayDate())
+                        .name(member.getUser().getName())
                         .build()
                 )
                 .collect(Collectors.toList());
@@ -152,6 +155,7 @@ public class RuleOfferService {
                         .downvotes(offerUpvoteNumber.getDownvotes())
                         .totalvotes(offerUpvoteNumber.getTotalvotes())
                         .tradeUpvotes(offerUpvoteNumber.getTradeUpvotes())
+                        .name(member.getUser().getName())
                         .build()
                 )
                 .collect(Collectors.toList());
@@ -173,6 +177,7 @@ public class RuleOfferService {
                         .totalvotes(offerUrgentSale.getTotalvotes())
                         .tradeUpvotes(offerUrgentSale.getTradeUpvotes())
                         .prdyVrssRt(offerUrgentSale.getPrdyVrssRt())
+                        .name(member.getUser().getName())
                         .build()
                 )
                 .collect(Collectors.toList());

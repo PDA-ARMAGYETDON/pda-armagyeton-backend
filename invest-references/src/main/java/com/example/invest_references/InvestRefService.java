@@ -241,6 +241,19 @@ public class InvestRefService {
             throw new InvestRefException(InvestRefErrorCode.FAILED_TO_GET_EARNING);
         }
     }
+
+    public GetIssueResponse getIssue() throws JsonProcessingException {
+
+        List<ShinhanData> rising = getRisingRanking();
+        List<ShinhanData> volume = getVolumeRanking();
+        List<ShinhanData> earning = getEarningRanking();
+
+        return GetIssueResponse.builder()
+                .risingRanking(rising)
+                .hotVolume(volume)
+                .hotEarning(earning)
+                .build();
+    }
 }
 
 

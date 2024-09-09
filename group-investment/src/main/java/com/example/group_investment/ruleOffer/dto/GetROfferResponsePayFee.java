@@ -29,8 +29,9 @@ public class GetROfferResponsePayFee implements GetROfferResponseType {
     LocalDate payDate;
 
     boolean isVote;
+    String name;
 
-    public GetROfferResponsePayFee(RuleType type, int id, OfferStatus status, int upvotes, int downvotes, int totalvotes, int depositAmt, RulePeriod period, LocalDate payDate, boolean isVote) {
+    public GetROfferResponsePayFee(RuleType type, int id, OfferStatus status, int upvotes, int downvotes, int totalvotes, int depositAmt, RulePeriod period, LocalDate payDate, boolean isVote, String name) {
         this.type = type;
         this.id = id;
         this.status = status;
@@ -41,6 +42,7 @@ public class GetROfferResponsePayFee implements GetROfferResponseType {
         this.period = period;
         this.payDate = payDate;
         this.isVote = isVote;
+        this.name = name;
     }
 
 }
