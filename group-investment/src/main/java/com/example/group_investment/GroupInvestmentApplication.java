@@ -8,8 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = {"com.example.common", "com.example.group_investment"})
 public class GroupInvestmentApplication {
 
-
-	public static void main(String[] args) {
-		SpringApplication.run(GroupInvestmentApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(GroupInvestmentApplication.class, args);
+    }
 }

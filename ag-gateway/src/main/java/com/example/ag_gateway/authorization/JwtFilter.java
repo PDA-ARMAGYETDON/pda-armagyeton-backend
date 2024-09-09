@@ -23,7 +23,8 @@ public class JwtFilter extends OncePerRequestFilter {
             "/swagger-ui", "/v3/api-docs",
             "/api/teams/autoPayment", "/api/teams/expelMember",
             "/api/group/backend", "/api/stock/backend",
-            "/api/users/valid", "/api/auth/health-check"
+            "/api/users/valid",
+            "/api/auth/health-check", "/api/stocks/health-check", "/api/chat/health-check"
     );
 
     @Override

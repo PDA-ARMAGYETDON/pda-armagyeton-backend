@@ -4,7 +4,6 @@ import com.example.common.dto.ApiResponse;
 import com.example.stock_system.account.dto.*;
 import com.example.stock_system.account.exception.AccountErrorCode;
 import com.example.stock_system.account.exception.AccountException;
-import com.example.stock_system.enums.Category;
 import com.example.stock_system.holdings.Holdings;
 import com.example.stock_system.holdings.HoldingsRepository;
 import com.example.stock_system.holdings.dto.HoldingsDto;
@@ -15,9 +14,9 @@ import com.example.stock_system.ranking.exception.RankingErrorCode;
 import com.example.stock_system.ranking.exception.RankingException;
 import com.example.stock_system.realTimeStock.RealTimeStockService;
 import com.example.stock_system.stocks.StocksService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -63,7 +62,11 @@ public class AccountService {
         TeamAccount teamAccount = new TeamAccount(savedAccount,teamId);
         teamAccountRepository.save(teamAccount);
 
-        processFirstPayment(teamId);
+        List<Integer> failPaymentUser = processFirstPayment(teamId);
+        if (!failPaymentUser.isEmpty()) {
+            PayFail payFail = new PayFail(teamId, failPaymentUser);
+            expelMember(Collections.singletonList(payFail));
+        }
 
         return savedAccount;
     }
@@ -223,7 +226,8 @@ public class AccountService {
         ResponseEntity<ApiResponse> response = restTemplate.postForEntity(url, entity, ApiResponse.class);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        List<Integer> memberUserIds = objectMapper.convertValue(response.getBody().getData(), new TypeReference<List<Integer>>() {});
+        List<Integer> memberUserIds = objectMapper.convertValue(response.getBody().getData(), new TypeReference<List<Integer>>() {
+        });
 
         int memberCount = memberUserIds.size();
 
@@ -237,9 +241,8 @@ public class AccountService {
             }
         }
 
-        return sumPrice;  // 총 판매 금액 반환
+        return teamId;  //종료 팀 반환
     }
-
 
 
     public void stopRealTimeStream(int teamId) {
@@ -247,7 +250,7 @@ public class AccountService {
     }
 
     public FirstPayment getFirstPaymentFromAPI(int teamId) {
-        String url = "http://localhost:8081/api/backend/first-payment?teamId=" + teamId;
+        String url = "http://localhost:8081/api/group/backend/first-payment?teamId=" + teamId;
 
         ResponseEntity<ApiResponse> response = restTemplate.exchange(
                 url,
@@ -264,8 +267,9 @@ public class AccountService {
     }
 
     @Transactional
-    public void processFirstPayment(int teamId) {
+    public List<Integer> processFirstPayment(int teamId) {
 
+        List<Integer> failedUserIds = new ArrayList<>();
 
         FirstPayment firstPayment = getFirstPaymentFromAPI(teamId);
 
@@ -289,13 +293,42 @@ public class AccountService {
                 teamAccountEntity.sellStock(paymentAmount);
                 accountRepository.save(teamAccountEntity);
             } else {
-                throw new AccountException(AccountErrorCode.NOT_ENOUGH_DEPOSIT);
+                failedUserIds.add(userId);
+            }
+        }
+        return failedUserIds;
+    }
+  
+    @Transactional
+    public void checkDisband() throws JsonProcessingException {
+        String url = "http://localhost:8081/api/backend/rule-check";
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Map<String, Object> responseBody = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {});
+        List<CheckDisband> checkDisbands = objectMapper.convertValue(responseBody.get("data"), new TypeReference<List<CheckDisband>>() {});
+
+        for (CheckDisband checkDisband : checkDisbands) {
+            TeamAccount teamAccount;
+            try {
+                teamAccount = teamAccountRepository.findByTeamId(checkDisband.getTeamId())
+                        .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
+            } catch (AccountException e) {
+                continue;
+            }
+            Account account = teamAccount.getAccount();
+            double totalEvluPflsRt = account.getTotalEvluPflsRt();
+
+            if (totalEvluPflsRt > checkDisband.getMaxProfitRt() || totalEvluPflsRt < checkDisband.getMaxLossRt()) {
+                System.out.println(teamAccount.getTeamId());
+                //추후 실제 매도를 위해서 주석 풀어야함
+                //allStockSell(teamAccount.getTeamId());
             }
         }
     }
 
     public void updateRanking() {
-
         List<Account> accounts = accountRepository.findByAccountNumberStartingWith("81902").orElseThrow(()->new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
 
         List<Ranking> rankings = rankingRepository.findByAccountIn(accounts).orElseThrow(() -> new RankingException(RankingErrorCode.RANKING_NOT_FOUNT));

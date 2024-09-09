@@ -1,13 +1,10 @@
 package com.example.stock_system.ranking;
 
 import com.example.common.dto.ApiResponse;
-import com.example.stock_system.ranking.dto.SelectRankingResponse;
 import com.example.stock_system.ranking.dto.SelectRankingWithTeamResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @AllArgsConstructor

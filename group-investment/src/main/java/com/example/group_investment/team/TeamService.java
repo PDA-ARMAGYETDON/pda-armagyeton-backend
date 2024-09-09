@@ -1,10 +1,7 @@
 package com.example.group_investment.team;
 
 import com.example.group_investment.auth.AuthService;
-import com.example.group_investment.enums.JoinStatus;
-import com.example.group_investment.enums.MemberRole;
-import com.example.group_investment.enums.RulePeriod;
-import com.example.group_investment.enums.TeamStatus;
+import com.example.group_investment.enums.*;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.dto.MemberDto;
@@ -23,7 +20,6 @@ import com.example.group_investment.user.UserRepository;
 import com.example.group_investment.user.exception.UserErrorCode;
 import com.example.group_investment.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.mapping.Join;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -151,10 +147,16 @@ public class TeamService {
         RuleDto ruleDto = rule.fromEntity(rule);
         //2-3. is 모임장
         int isLeader = 0;
-        if (memberRepository.findByUserIdAndTeamId(userId, teamId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
-                .getRole() == MemberRole.LEADER)
-            isLeader = 1;
+        
+        List<Member> joinedMembers = memberRepository.findByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        for (Member member : joinedMembers) {
+            if (member.getUser().getId() == userId) {
+                if (member.getRole()==MemberRole.LEADER)
+                    isLeader = 1;
+            }
+        }
         //2-4. is 참여
+
         int isParticipating = 0;
         if (isLeader == 0) {
             List<Member> members = memberRepository.findByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
@@ -381,6 +383,13 @@ public class TeamService {
             memberRepository.save(member);
         }
     }
+
+
+    public Category getTeamCategory(int teamId){
+        Team findteam = teamRepository.findById(teamId).orElseThrow(()->new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        return findteam.getCategory();
+    }
+
 }
 
 

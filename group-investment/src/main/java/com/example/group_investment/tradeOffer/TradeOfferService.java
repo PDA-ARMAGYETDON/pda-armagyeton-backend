@@ -8,6 +8,7 @@ import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.exception.MemberErrorCode;
 import com.example.group_investment.member.exception.MemberException;
+import com.example.group_investment.rabbitMq.MqSender;
 import com.example.group_investment.rule.Rule;
 import com.example.group_investment.rule.RuleRepository;
 import com.example.group_investment.rule.exception.RuleErrorCode;
@@ -79,6 +80,12 @@ public class TradeOfferService {
         } else {
             tradeOfferDto = tradeOfferConverter.createTradeOfferRequestToTradeOfferDto(createTradeOfferRequest, member, team);
         }
+
+        VoteStockToAlarmDto message = new VoteStockToAlarmDto(team.getId(), team.getName());
+
+        MqSender<VoteStockToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
+
+        mqSender.send(message);
 
         try {
             tradeOfferRepository.save(tradeOfferDto.toEntity());
