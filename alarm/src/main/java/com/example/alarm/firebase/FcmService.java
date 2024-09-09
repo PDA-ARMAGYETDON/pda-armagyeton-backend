@@ -1,10 +1,8 @@
 package com.example.alarm.firebase;
 
 
-import com.example.alarm.firebase.dto.ChatAlarmDto;
-import com.example.alarm.firebase.dto.FcmTokenResponseDto;
-import com.example.alarm.firebase.dto.StockAlarmDto;
-import com.example.alarm.firebase.dto.VoteToAlarmDto;
+import com.example.alarm.firebase.dto.*;
+import com.example.alarm.firebase.exception.AlarmErrorCode;
 import com.example.alarm.firebase.exception.AlarmException;
 import com.example.common.exception.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,13 +31,32 @@ public class FcmService {
         try {
 
             FcmTokenResponseDto fcmTokenResponseDto = new ObjectMapper().readValue(message, FcmTokenResponseDto.class);
-            log.info(" [Alarm] 받은 정보: '{}'", fcmTokenResponseDto.toString());
 
             if (!fcmTokenRepository.findByUserId(fcmTokenResponseDto.getUserId()).isPresent()) {
                 fcmTokenRepository.save(new FcmToken(fcmTokenResponseDto.getUserId(), fcmTokenResponseDto.getFcmToken()));
             }
 
             subscribeToTopics(fcmTokenResponseDto.getFcmToken(), fcmTokenResponseDto.getTeamIds());
+
+        } catch (JsonProcessingException e) {
+            throw new AlarmException(ErrorCode.JSON_PARSE_ERROR);
+        }
+
+    }
+
+    @RabbitListener(queues = "${spring.rabbitmq.delete-fcm-queue.name}")
+    public void deleteTokenMessage(String message) {
+        try {
+
+            FcmTokenDeleteDto fcmTokenDeleteDto = new ObjectMapper().readValue(message, FcmTokenDeleteDto.class);
+
+            String foundedToken = fcmTokenRepository.findByUserId(fcmTokenDeleteDto.getUserId())
+                    .orElseThrow(() -> new AlarmException(AlarmErrorCode.FCM_TOKEN_NOT_FOUND)).getFcmToken();
+
+            unSubscribeToTopics(foundedToken, fcmTokenDeleteDto.getTeamList());
+
+            fcmTokenRepository.deleteByUserId(fcmTokenDeleteDto.getUserId());
+
 
         } catch (JsonProcessingException e) {
             throw new AlarmException(ErrorCode.JSON_PARSE_ERROR);
@@ -152,12 +169,26 @@ public class FcmService {
         }
     }
 
+
     //토픽 구독
     public void subscribeToTopics(String fcmToken, ArrayList<Integer> groupIds) {
         for (Integer groupId : groupIds) {
             String topic = String.valueOf(groupId);
             try {
                 FirebaseMessaging.getInstance().subscribeToTopic(Arrays.asList(fcmToken), topic);
+                log.info("[FCM] : 그룹 {} 구독 성공 ", topic);
+            } catch (FirebaseMessagingException e) {
+                log.info("[FCM] : 그룹 {} 구독 실패 ", topic);
+                throw new AlarmException(ErrorCode.JSON_PARSE_ERROR);
+            }
+        }
+    }
+
+    public void unSubscribeToTopics(String fcmToken, ArrayList<Integer> groupIds) {
+        for (Integer groupId : groupIds) {
+            String topic = String.valueOf(groupId);
+            try {
+                FirebaseMessaging.getInstance().unsubscribeFromTopic(Arrays.asList(fcmToken), topic);
                 log.info("[FCM] : 그룹 {} 구독 성공 ", topic);
             } catch (FirebaseMessagingException e) {
                 log.info("[FCM] : 그룹 {} 구독 실패 ", topic);
