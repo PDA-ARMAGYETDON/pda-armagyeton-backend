@@ -52,4 +52,10 @@ public class BackendController {
         return new ApiResponse<>(200, true, "유저 들의 이름 list",teamService.selectMemberNameByTeam(teamId));
     }
 
+
+    @GetMapping("/team-category")
+    public ApiResponse getTeamCategory(@RequestParam int teamId){
+        return new ApiResponse<>(200,true,"팀 id에 해당하는 카테고리",teamService.getTeamCategory(teamId));
+    }
+
 }
