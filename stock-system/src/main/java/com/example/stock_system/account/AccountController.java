@@ -4,6 +4,7 @@ import com.example.stock_system.account.dto.*;
 import com.example.common.dto.ApiResponse;
 import com.example.stock_system.holdings.HoldingsService;
 import com.example.stock_system.holdings.dto.HoldingsDto;
+import com.example.stock_system.ranking.RankingService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,7 @@ import java.util.List;
 public class AccountController {
     private final AccountService accountService;
     private final HoldingsService holdingsService;
-
+    private final RankingService rankingService;
 
     @Operation(summary = "계좌 조회",description = "Account의 Id를 통해 계좌를 조회합니다.")
     @GetMapping("/{id}")
@@ -40,6 +41,7 @@ public class AccountController {
     public ApiResponse<AccountDto> createTeamAccount(@RequestBody CreateAccountRequest createAccountRequest,@RequestAttribute("teamId") int teamId){
         Account savedAccount = accountService.createTeamAccount(createAccountRequest.getName(),createAccountRequest.getUserId(),teamId);
         accountService.createAccountPInfo(savedAccount,createAccountRequest);
+        rankingService.registRanking(savedAccount);
         return new ApiResponse<>(201, true, "모임 계좌가 생성되었습니다.", null);
     }
 

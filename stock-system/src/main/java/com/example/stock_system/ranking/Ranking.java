@@ -28,6 +28,13 @@ public class Ranking {
     private int seedMoney;
     private double evluPflsRt;
 
+    public Ranking(Category category, Account account, int teamId, int seedMoney, double evluPflsRt) {
+        this.category = category;
+        this.account = account;
+        this.teamId = teamId;
+        this.seedMoney = seedMoney;
+        this.evluPflsRt = evluPflsRt;
+    }
     public Ranking() {
 
     }

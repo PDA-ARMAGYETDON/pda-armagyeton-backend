@@ -1,10 +1,7 @@
 package com.example.group_investment.team;
 
 import com.example.group_investment.auth.AuthService;
-import com.example.group_investment.enums.JoinStatus;
-import com.example.group_investment.enums.MemberRole;
-import com.example.group_investment.enums.RulePeriod;
-import com.example.group_investment.enums.TeamStatus;
+import com.example.group_investment.enums.*;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.dto.MemberDto;
@@ -381,6 +378,13 @@ public class TeamService {
             memberRepository.save(member);
         }
     }
+
+
+    public Category getTeamCategory(int teamId){
+        Team findteam = teamRepository.findById(teamId).orElseThrow(()->new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        return findteam.getCategory();
+    }
+
 }
 
 

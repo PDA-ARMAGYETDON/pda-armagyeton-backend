@@ -4,7 +4,6 @@ import com.example.common.dto.ApiResponse;
 import com.example.stock_system.account.dto.*;
 import com.example.stock_system.account.exception.AccountErrorCode;
 import com.example.stock_system.account.exception.AccountException;
-import com.example.stock_system.enums.Category;
 import com.example.stock_system.holdings.Holdings;
 import com.example.stock_system.holdings.HoldingsRepository;
 import com.example.stock_system.holdings.dto.HoldingsDto;
@@ -16,7 +15,6 @@ import com.example.stock_system.stocks.StocksService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -250,7 +248,7 @@ public class AccountService {
     }
 
     public FirstPayment getFirstPaymentFromAPI(int teamId) {
-        String url = "http://localhost:8081/api/backend/first-payment?teamId=" + teamId;
+        String url = "http://localhost:8081/api/group/backend/first-payment?teamId=" + teamId;
 
         ResponseEntity<ApiResponse> response = restTemplate.exchange(
                 url,
