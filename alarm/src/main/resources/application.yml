@@ -38,7 +38,8 @@ spring:
       name: vote_to_alarm
     rule-alarm-queue:
       name: rule_to_alarm
-
+    delete-fcm-queue:
+      name: deleteFcm_to_alarm
 fcm:
   service:
     key: ${FCM_SERVICE_KEY_URL}
