@@ -9,7 +9,6 @@ import com.example.stock_system.holdings.HoldingsRepository;
 import com.example.stock_system.holdings.dto.HoldingsDto;
 import com.example.stock_system.ranking.Ranking;
 import com.example.stock_system.ranking.RankingRepository;
-import com.example.stock_system.ranking.dto.RankingDto;
 import com.example.stock_system.ranking.exception.RankingErrorCode;
 import com.example.stock_system.ranking.exception.RankingException;
 import com.example.stock_system.realTimeStock.RealTimeStockService;
@@ -253,7 +252,7 @@ public class AccountService {
     }
 
     public FirstPayment getFirstPaymentFromAPI(int teamId) {
-        String url = "http://localhost:8081/api/group/backend/first-payment?teamId=" + teamId;
+        String url = AG_URL+"/api/group/backend/first-payment?teamId=" + teamId;
 
         ResponseEntity<ApiResponse> response = restTemplate.exchange(
                 url,
@@ -304,7 +303,7 @@ public class AccountService {
   
     @Transactional
     public void checkDisband() throws JsonProcessingException {
-        String url = "http://localhost:8081/api/backend/rule-check";
+        String url = AG_URL+"/api/group/backend/rule-check";
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
 
         ObjectMapper objectMapper = new ObjectMapper();
