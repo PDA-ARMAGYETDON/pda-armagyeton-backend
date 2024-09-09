@@ -5,22 +5,22 @@ import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.exception.MemberErrorCode;
 import com.example.group_investment.member.exception.MemberException;
+import com.example.group_investment.rabbitMq.MqSender;
 import com.example.group_investment.rule.Rule;
 import com.example.group_investment.rule.RuleRepository;
 import com.example.group_investment.rule.exception.RuleErrorCode;
 import com.example.group_investment.rule.exception.RuleException;
 import com.example.group_investment.ruleOffer.dto.*;
-import com.example.group_investment.ruleOfferVote.RuleOfferVote;
 import com.example.group_investment.ruleOfferVote.RuleOfferVoteRepository;
 import com.example.group_investment.team.Team;
 import com.example.group_investment.team.TeamRepository;
 import com.example.group_investment.team.exception.TeamErrorCode;
 import com.example.group_investment.team.exception.TeamException;
 import lombok.AllArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +32,7 @@ public class RuleOfferService {
     private final TeamRepository teamRepository;
     private final MemberRepository memberRepository;
     private final RuleOfferVoteRepository ruleOfferVoteRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     public CreateROfferResponse create(int jwtUserId, int jwtTeamId, int teamId, CreateROfferRequest request) {
         if (jwtTeamId != teamId) {
@@ -50,6 +51,10 @@ public class RuleOfferService {
 
         RuleOffer ruleOffer = request.toEntity(rule, member, totalMember);
         ruleOfferRepository.save(ruleOffer);
+
+        //Mq 전송
+        MqSender<VoteRuleToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
+        mqSender.send(new VoteRuleToAlarmDto(teamId, team.getName()));
 
         return CreateROfferResponse.builder()
                 .type(type).build();
@@ -176,6 +181,6 @@ public class RuleOfferService {
 
     public boolean checkIfVoteExists(Member member, RuleOffer ruleOffer) {
         return ruleOfferVoteRepository.existsByMemberAndRuleOffer(member, ruleOffer);
-         // 존재하면 true, 존재하지 않으면 false
+        // 존재하면 true, 존재하지 않으면 false
     }
 }
