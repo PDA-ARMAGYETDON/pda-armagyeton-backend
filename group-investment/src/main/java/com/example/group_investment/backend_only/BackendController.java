@@ -74,4 +74,10 @@ public class BackendController {
         return new ApiResponse<>(200, true, "유저의 이름", teamService.selectUserName(userId));
     }
 
+    @GetMapping("/finish-team")
+    public ApiResponse getFinishTeam(){
+        List<Integer> finishTeamId = teamService.getFinishTeam();
+        return new ApiResponse<>(200,true,"끝난 팀의 리스트",finishTeamId);
+    }
+
 }

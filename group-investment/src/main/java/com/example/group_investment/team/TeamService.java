@@ -394,8 +394,7 @@ public class TeamService {
         return findteam.getCategory();
     }
 
-    @Scheduled(cron = "0 05 00 * * MON-FRI", zone = "Asia/Seoul")
-    public void getFinishTeam(){
+    public List<Integer> getFinishTeam(){
         LocalDate today = LocalDate.now();
 
         List<Team> teamsToFinish = teamRepository.findAll().stream()
@@ -406,12 +405,18 @@ public class TeamService {
             team.finishTeam();
             teamRepository.save(team);
         });
+
+        return teamsToFinish.stream()
+                .map(Team::getId) // 팀의 ID 추출
+                .collect(Collectors.toList());
     }
     public String selectUserName(int userId) {
         User user = userRepository.findById(userId).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
         String name = user.getName();
         return name;
     }
+
+
 }
 
 
