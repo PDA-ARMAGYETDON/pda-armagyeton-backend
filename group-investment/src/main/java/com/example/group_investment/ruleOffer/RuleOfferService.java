@@ -16,7 +16,6 @@ import com.example.group_investment.team.Team;
 import com.example.group_investment.team.TeamRepository;
 import com.example.group_investment.team.exception.TeamErrorCode;
 import com.example.group_investment.team.exception.TeamException;
-import com.example.group_investment.user.User;
 import lombok.AllArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -54,8 +53,8 @@ public class RuleOfferService {
         ruleOfferRepository.save(ruleOffer);
 
         //Mq 전송
-        MqSender<VoteRuleToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
-        mqSender.send(new VoteRuleToAlarmDto(teamId, team.getName()));
+        MqSender<VoteRuleToAlarmDTO> mqSender = new MqSender<>(rabbitTemplate);
+        mqSender.send(new VoteRuleToAlarmDTO(teamId, team.getName()));
 
         return CreateROfferResponse.builder()
                 .type(type).build();
