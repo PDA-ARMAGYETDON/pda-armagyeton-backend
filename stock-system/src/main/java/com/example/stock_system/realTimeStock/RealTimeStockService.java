@@ -321,7 +321,7 @@ public class RealTimeStockService {
         }
 
         Flux<GetTeamAccountResponse> responseFlux = allStockDataSink.asFlux()
-                .filter(stockData -> stockCodes.contains(stockData[1].toString()))  // 주식 코드를 필터링
+                .filter(stockData -> stockCodes.contains(stockData[1].toString()))
                 .map(stockData -> {
                     String stockCode = stockData[1].toString();
                     int currentPrice = Integer.parseInt(stockData[2].toString());
@@ -356,15 +356,34 @@ public class RealTimeStockService {
                             .totalAsset(totalAsset)
                             .build();
                 })
-                .doOnSubscribe(subscription -> {
-                    activeStreams.put(teamId, (Disposable) subscription);
-                })
-                .doFinally(signalType -> {
-                    activeStreams.remove(teamId);
-                });
+                .switchIfEmpty(Flux.interval(Duration.ofSeconds(1))
+                        .map(tick -> {
+                            int totalPchsAmt = 0;
+                            int totalEvluAmt = 0;
+                            int totalEvluPfls = 0;
+                            double totalEvluPflsRt = 0.0;
+                            int deposit = account.getDeposit();
+                            int totalAsset = deposit;
+
+                            return GetTeamAccountResponse.builder()
+                                    .accountNumber(account.getAccountNumber())
+                                    .totalPchsAmt(totalPchsAmt)
+                                    .totalEvluAmt(totalEvluAmt)
+                                    .totalEvluPfls(totalEvluPfls)
+                                    .totalEvluPflsRt(totalEvluPflsRt)
+                                    .deposit(deposit)
+                                    .totalAsset(totalAsset)
+                                    .build();
+                        }))
+                .doFinally(signalType -> activeStreams.remove(teamId));
+
+        Disposable disposable = responseFlux.subscribe();
+        activeStreams.put(teamId, disposable);
 
         return responseFlux;
     }
+
+
 
 
 

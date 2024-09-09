@@ -91,7 +91,6 @@ public class ChatRoomService {
 
     public List<String> getTeamMemberNames(int teamId) {
 
-        System.out.println("되나?");
         String url = teamServiceUrl + "?teamId=" + teamId;
         ResponseEntity<ApiResponse> response = restTemplate.getForEntity(url, ApiResponse.class);
 
