@@ -1,6 +1,8 @@
 package com.example.group_investment.backend_only;
 
 import com.example.common.dto.ApiResponse;
+import com.example.group_investment.rule.RuleService;
+import com.example.group_investment.rule.dto.CheckDisband;
 import com.example.group_investment.team.TeamService;
 import com.example.group_investment.team.dto.AutoPayment;
 import com.example.group_investment.team.dto.FirstPayment;
@@ -17,6 +19,8 @@ import java.util.List;
 public class BackendController {
 
     private final TeamService teamService;
+
+    private final RuleService ruleService;
 
     @Operation(summary = "자동 이체 데이터 증권시스템으로 전달",description = "자동이체를 처리해야 하는 팀ID,금액,모임을 사용중인 멤버를 반환")
     @PostMapping("/auto-payment")
@@ -50,6 +54,12 @@ public class BackendController {
     @GetMapping("/chat-member")
     public ApiResponse selectMemberNameByTeam(@RequestParam int teamId){
         return new ApiResponse<>(200, true, "유저 들의 이름 list",teamService.selectMemberNameByTeam(teamId));
+    }
+
+    @GetMapping("/rule-check")
+    public ApiResponse getRuleRate(){
+        List<CheckDisband> checkDisbands = ruleService.getCheckDisband();
+        return new ApiResponse<>(200, true,"완료",checkDisbands);
     }
 
 }

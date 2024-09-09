@@ -13,6 +13,7 @@ import com.example.stock_system.ranking.RankingRepository;
 import com.example.stock_system.ranking.dto.RankingDto;
 import com.example.stock_system.realTimeStock.RealTimeStockService;
 import com.example.stock_system.stocks.StocksService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -221,7 +222,8 @@ public class AccountService {
         ResponseEntity<ApiResponse> response = restTemplate.postForEntity(url, entity, ApiResponse.class);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        List<Integer> memberUserIds = objectMapper.convertValue(response.getBody().getData(), new TypeReference<List<Integer>>() {});
+        List<Integer> memberUserIds = objectMapper.convertValue(response.getBody().getData(), new TypeReference<List<Integer>>() {
+        });
 
         int memberCount = memberUserIds.size();
 
@@ -235,9 +237,8 @@ public class AccountService {
             }
         }
 
-        return sumPrice;  // 총 판매 금액 반환
+        return teamId;  //종료 팀 반환
     }
-
 
 
     public void stopRealTimeStream(int teamId) {
@@ -292,6 +293,37 @@ public class AccountService {
         }
     }
 
+
+    @Transactional
+    public void checkDisband() throws JsonProcessingException {
+
+        String url = "http://localhost:8081/api/backend/rule-check";
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Map<String, Object> responseBody = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {});
+        List<CheckDisband> checkDisbands = objectMapper.convertValue(responseBody.get("data"), new TypeReference<List<CheckDisband>>() {});
+
+        for (CheckDisband checkDisband : checkDisbands) {
+            TeamAccount teamAccount;
+            try {
+                teamAccount = teamAccountRepository.findByTeamId(checkDisband.getTeamId())
+                        .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
+            } catch (AccountException e) {
+                continue;
+            }
+            Account account = teamAccount.getAccount();
+            double totalEvluPflsRt = account.getTotalEvluPflsRt();
+
+            if (totalEvluPflsRt > checkDisband.getMaxProfitRt() || totalEvluPflsRt < checkDisband.getMaxLossRt()) {
+                System.out.println(teamAccount.getTeamId());
+                //추후 실제 매도를 위해서 주석 풀어야함
+                //allStockSell(teamAccount.getTeamId());
+            }
+        }
+    }
+}
     public void createRanking() {
 
         List<Account> accounts = accountRepository.findByAccountNumberStartingWith("81902").orElseThrow(()->new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
