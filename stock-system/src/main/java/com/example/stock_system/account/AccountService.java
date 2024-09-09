@@ -330,7 +330,6 @@ public class AccountService {
             }
         }
     }
-}
     public void createRanking() {
 
         List<Account> accounts = accountRepository.findByAccountNumberStartingWith("81902").orElseThrow(()->new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
@@ -351,4 +350,6 @@ public class AccountService {
 
         rankingRepository.saveAll(rankings);
     }
+
 }
+
