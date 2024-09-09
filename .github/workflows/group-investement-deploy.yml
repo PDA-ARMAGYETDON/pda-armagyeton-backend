@@ -1,4 +1,4 @@
-name: CI/CD for Main-Module Spring Boot Application on EC2
+name: CI/CD for group-investment Spring Boot Application on EC2
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: CI/CD for Multi-Module Gradle Spring Boot Application on EC2
+name: CI/CD for invest-references Gradle Spring Boot Application on EC2
 
 on:
   push:
