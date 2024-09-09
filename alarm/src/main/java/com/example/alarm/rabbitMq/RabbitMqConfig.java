@@ -29,7 +29,7 @@ public class RabbitMqConfig {
     @Value("${spring.rabbitmq.stockTradeQueue.name}")
     private String recvStockQueueName;
 
-    @Value("${spring.rabbitmq.recvChatQueue.name}")
+    @Value("${spring.rabbitmq.chatToAlarmQueue.name}")
     private String recvChatQueueName;
 
     @Bean
