@@ -30,6 +30,11 @@ public class RankingService {
 
         List<Ranking> rankings = rankingRepository.findBySeedMoneyAndOrderByEvluPflsRt(minSeedMoney, maxSeedMoney).orElseThrow(()->new RankingException(RankingErrorCode.RANKING_NOT_FOUNT));
 
+        // 필터할 경우 
+//        List<Ranking> filteredRankings = rankings.stream()
+//                .filter(ranking -> !(ranking.getEvluPflsRt() == 0 && ranking.getSeedMoney() == 0))  // 조건을 만족하는 항목 제외
+//                .collect(Collectors.toList());
+
         for (int i = 0; i < rankings.size(); i++) {
             if (rankings.get(i).getTeamId() == teamId) {
                 teamRanking = i;
