@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/accounts/history")  // 클래스 레벨에 베이스 URL을 설정
+@RequestMapping("/api/transfer/history")  // 클래스 레벨에 베이스 URL을 설정
 @RequiredArgsConstructor
 public class TransferHistoryController {
     private final TransferHistoryService transferHistoryService;
