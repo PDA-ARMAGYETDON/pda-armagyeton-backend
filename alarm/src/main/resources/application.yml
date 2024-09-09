@@ -41,7 +41,7 @@ spring:
 
 fcm:
   service:
-    key: ./serviceAccountKey.json
+    key: ${FCM_SERVICE_KEY_URL}
 
 server:
   port: 8085
