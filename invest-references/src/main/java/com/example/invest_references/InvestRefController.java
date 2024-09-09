@@ -1,6 +1,7 @@
 package com.example.invest_references;
 
 import com.example.common.dto.ApiResponse;
+import com.example.invest_references.dto.GetIssueResponse;
 import com.example.invest_references.dto.MarketIndexResponse;
 import com.example.invest_references.dto.News;
 import com.example.invest_references.dto.ShinhanData;
@@ -31,22 +32,10 @@ public class InvestRefController {
         return new ApiResponse<>(200, true, "코스피/코스닥 지수를 가져왔습니다.", investRefService.getMarketIndex());
     }
 
-    @Operation(summary = "증권_공개형API_인기주식_지금뜨는테마보기",description = "신투 기준 인기 주식 가져옴")
-    @GetMapping("/rising-ranking")
-    public ApiResponse<List<ShinhanData>> getRisingRanking() throws JsonProcessingException{
-        return new ApiResponse<>(200, true, "실시간 현재가 조회수가 높은 종목 출력",investRefService.getRisingRanking());
+    @Operation(summary = "대시보드에 필요한 API", description = "증권_공개형API_인기주식_지금뜨는테마보기 / 증권_공개형API_핫이슈종목_시장상위종목-거래량 기준 / 증권_공개형API_핫이슈종목_시장상위종목-수익률 기준")
+    @GetMapping("/issue")
+    public ApiResponse<GetIssueResponse> getIssue() throws JsonProcessingException {
+        return new ApiResponse<>(200, true, "성공적으로 전달하였습니다.", investRefService.getIssue());
     }
 
-    @Operation(summary = "증권_공개형API_핫이슈종목_시장상위종목-거래량 기준",description = "신투 기준 거래량 상위 주식 가져옴")
-    @GetMapping("/issue/volume")
-    public ApiResponse<List<ShinhanData>> getVolumeRanking() throws JsonProcessingException{
-        return new ApiResponse<>(200,true,"거래량 기준 높은 종목 출력",investRefService.getVolumeRanking());
-    }
-
-
-    @Operation(summary = "증권_공개형API_핫이슈종목_시장상위종목-수익률 기준",description = "신투 기준 수익률 상위 주식 가져옴")
-    @GetMapping("/issue/earning")
-    public ApiResponse<List<ShinhanData>> getEarningRanking() throws JsonProcessingException{
-        return new ApiResponse<>(200,true,"수익률 기준 높은 종목 출력",investRefService.getEarningRanking());
-    }
 }
