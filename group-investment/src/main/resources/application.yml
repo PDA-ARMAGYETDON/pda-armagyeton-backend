@@ -38,6 +38,10 @@ spring:
       name: main_to_alarm
     main-stock-queue:
       name: offer_to_trade
+    vote-alarm-queue:
+      name: vote_to_alarm
+    rule-alarm-queue:
+      name: rule_to_alarm
 
 server:
   port: 8081
