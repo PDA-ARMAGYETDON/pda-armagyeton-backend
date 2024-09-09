@@ -20,7 +20,6 @@ import com.example.group_investment.user.UserRepository;
 import com.example.group_investment.user.exception.UserErrorCode;
 import com.example.group_investment.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.mapping.Join;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -148,10 +147,16 @@ public class TeamService {
         RuleDto ruleDto = rule.fromEntity(rule);
         //2-3. is 모임장
         int isLeader = 0;
-        if (memberRepository.findByUserIdAndTeamId(userId, teamId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
-                .getRole() == MemberRole.LEADER)
-            isLeader = 1;
+        
+        List<Member> joinedMembers = memberRepository.findByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        for (Member member : joinedMembers) {
+            if (member.getUser().getId() == userId) {
+                if (member.getRole()==MemberRole.LEADER)
+                    isLeader = 1;
+            }
+        }
         //2-4. is 참여
+
         int isParticipating = 0;
         if (isLeader == 0) {
             List<Member> members = memberRepository.findByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
