@@ -78,6 +78,6 @@ public class RankingService {
         ResponseEntity<ApiResponse> response = restTemplate.getForEntity(url, ApiResponse.class);
         Category teamCategory = objectMapper.convertValue(response.getBody().getData(), new TypeReference<Category>() {});
 
-        rankingRepository.save(new Ranking(teamCategory,savedAccount,teamId,savedAccount.getDeposit(),savedAccount.getTotalEvluPflsRt()));
+        rankingRepository.save(new Ranking(teamCategory,savedAccount,teamId,savedAccount.getDeposit()+savedAccount.getTotalEvluAmt(),savedAccount.getTotalEvluPflsRt()));
     }
 }
