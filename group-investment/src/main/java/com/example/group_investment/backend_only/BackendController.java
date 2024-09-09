@@ -57,8 +57,9 @@ public class BackendController {
     }
 
     @GetMapping("/team-category")
-    public ApiResponse getTeamCategory(@RequestParam int teamId){
-        return new ApiResponse<>(200,true,"팀 id에 해당하는 카테고리",teamService.getTeamCategory(teamId));
+    public ApiResponse getTeamCategory(@RequestParam int teamId) {
+        return new ApiResponse<>(200, true, "팀 id에 해당하는 카테고리", teamService.getTeamCategory(teamId));
+    }
 
     @GetMapping("/rule-check")
     public ApiResponse getRuleRate(){

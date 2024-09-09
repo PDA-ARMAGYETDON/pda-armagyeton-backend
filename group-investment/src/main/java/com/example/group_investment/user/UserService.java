@@ -30,12 +30,8 @@ public class UserService {
     private final RabbitTemplate rabbitTemplate;
     private final TeamRepository teamRepository;
 
-    public GetUserResponse get(int jwtUserId, int id) {
-        if (jwtUserId != id) {
-            throw new UserException(UserErrorCode.FORBIDDEN_ERROR);
-        }
-
-        return userRepository.findById(id)
+    public GetUserResponse get(int jwtUserId) {
+        return userRepository.findById(jwtUserId)
                 .map(user -> GetUserResponse.builder()
                         .loginId(user.getLoginId())
                         .name(user.getName())
