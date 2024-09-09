@@ -24,6 +24,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -170,15 +171,17 @@ public class AccountService {
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .flatMapMany(holdingsList -> {
                                     if (holdingsList.isEmpty()) {
-                                        return Flux.just(GetTeamAccountResponse.builder()
-                                                .accountNumber(account.getAccountNumber())
-                                                .totalPchsAmt(0)
-                                                .totalEvluAmt(0)
-                                                .totalEvluPfls(0)
-                                                .totalEvluPflsRt(0.0)
-                                                .deposit(account.getDeposit())
-                                                .totalAsset(account.getDeposit())
-                                                .build());
+                                        // holdings가 없을 때 빈 데이터를 지속적으로 전송하여 연결이 끊기지 않도록 함
+                                        return Flux.interval(Duration.ofSeconds(1))
+                                                .map(tick -> GetTeamAccountResponse.builder()
+                                                        .accountNumber(account.getAccountNumber())
+                                                        .totalPchsAmt(0)
+                                                        .totalEvluAmt(0)
+                                                        .totalEvluPfls(0)
+                                                        .totalEvluPflsRt(0.0)
+                                                        .deposit(account.getDeposit())
+                                                        .totalAsset(account.getDeposit())
+                                                        .build());
                                     }
 
                                     List<String> stockCodes = holdingsList.stream()
