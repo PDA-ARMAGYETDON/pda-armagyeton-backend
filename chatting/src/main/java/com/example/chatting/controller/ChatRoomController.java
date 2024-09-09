@@ -49,4 +49,13 @@ public class ChatRoomController {
         return new ApiResponse<>(200, true, "팀 멤버 이름 리스트를 조회했습니다.", memberNames);
     }
 
+    @Operation(summary="유저id에 따른 이름 조회 API")
+    @GetMapping("/rooms/{id}/name")
+    public ApiResponse<String> getUserName(@PathVariable("id") int userId) {
+        System.out.println("a");
+        String name = chatRoomService.getUserName(userId);
+        System.out.println("B");
+        return new ApiResponse<>(200, true, "멤버 이름을 조회했습니다.", name);
+    }
+
 }

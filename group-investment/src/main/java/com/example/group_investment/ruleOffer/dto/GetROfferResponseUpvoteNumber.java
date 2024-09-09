@@ -21,8 +21,9 @@ public class GetROfferResponseUpvoteNumber implements GetROfferResponseType{
 
     int tradeUpvotes;
     boolean isVote;
+    String name;
 
-    public GetROfferResponseUpvoteNumber(RuleType type, int id, OfferStatus status, int upvotes, int downvotes, int totalVotes, int tradeUpvotes, boolean isVote) {
+    public GetROfferResponseUpvoteNumber(RuleType type, int id, OfferStatus status, int upvotes, int downvotes, int totalVotes, int tradeUpvotes, boolean isVote, String name) {
         this.type = type;
         this.id = id;
         this.status = status;
@@ -31,6 +32,7 @@ public class GetROfferResponseUpvoteNumber implements GetROfferResponseType{
         this.totalvotes = totalVotes;
         this.tradeUpvotes = tradeUpvotes;
         this.isVote = isVote;
+        this.name = name;
     }
 
 }

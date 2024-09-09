@@ -390,6 +390,11 @@ public class TeamService {
         return findteam.getCategory();
     }
 
+    public String selectUserName(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
+        String name = user.getName();
+        return name;
+    }
 }
 
 
