@@ -147,6 +147,12 @@ public class AccountService {
                 .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
     }
 
+    public Account getTeamAccount(int id) {
+        TeamAccount teamAccount = teamAccountRepository.findByTeamId(id)
+                .orElseThrow(() -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
+        return teamAccount.getAccount();
+    }
+
     public void expelMember(List<PayFail> payFails) {
         String url = AG_URL + "/api/group/backend/expel-member";
 

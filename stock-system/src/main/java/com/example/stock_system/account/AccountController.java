@@ -46,7 +46,6 @@ public class AccountController {
         List<AccountPayment> accountPayments = accountService.convertPaymentData();
         List<PayFail> payFails = accountService.autoPaymentService(accountPayments);
         accountService.expelMember(payFails);
-
     }
 
     @Operation(summary = "실시간 계좌 보유 종목들의 각 data 조회", description = "실시간 데이터를 불러오는 API")
@@ -86,6 +85,12 @@ public class AccountController {
     @GetMapping("/personal")
     public ApiResponse<GetPersonalAccountResponse> getPersonalAccount(@RequestAttribute("userId") int userId) {
         return new ApiResponse<>(200, true, "개인 계좌 조회 성공", new GetPersonalAccountResponse().fromEntity(accountService.getPersonalAccount(userId)));
+    }
+
+    @Operation(summary = "모임계좌 조회", description = "모임 계좌 조회")
+    @GetMapping("/team")
+    public ApiResponse<GetTeamAccountResponse> getTeamAccount(@RequestAttribute("teamId") int teamId) {
+        return new ApiResponse<>(200, true, "모임 계좌 조회 성공", new GetTeamAccountResponse().fromEntity(accountService.getTeamAccount(teamId)));
     }
 
 }
