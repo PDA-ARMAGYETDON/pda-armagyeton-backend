@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -40,7 +41,6 @@ public class TransferHistoryService {
         Page<TransferDetailDto> pageResult = getTransferDetails(page, size, foundedPrivateAccountId);
 
         return pageResult;
-
     }
 
 
@@ -59,7 +59,6 @@ public class TransferHistoryService {
 
 
     private Page<TransferDetailDto> getTransferDetails(int page, int size, int Id) {
-
         List<TransferHistory> foundedTransferToOtherEntity = transferHistoryRepository
                 .findAllByAccountId(Id);
 
@@ -74,13 +73,13 @@ public class TransferHistoryService {
                 .map(transferHistory -> new TransferDetailDto().fromToMeEntity(transferHistory))
                 .toList();
 
-
         PageRequest pageRequest = PageRequest.of(page, size);
 
         List<TransferDetailDto> mergedList = new ArrayList<>();
         mergedList.addAll(foundedTransferToOtherList);
         mergedList.addAll(foundedTransferToMeList);
 
+        mergedList.sort(Comparator.comparing(TransferDetailDto::getTransferDate).reversed());
 
         int start = (int) pageRequest.getOffset();
         int end = Math.min((start + pageRequest.getPageSize()), mergedList.size());
