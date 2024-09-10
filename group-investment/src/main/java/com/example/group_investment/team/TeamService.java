@@ -277,7 +277,7 @@ public class TeamService {
             boolean isPayDate = false;
 
 
-            if (!payDate.isAfter(today)&&team.getEndAt().isAfter(LocalDateTime.now())&&findTeam.getStatus()== TeamStatus.FINISHED) {
+            if (!payDate.isAfter(today)&&team.getEndAt().isAfter(LocalDateTime.now())&&findTeam.getStatus()!= TeamStatus.FINISHED) {
                 if (period == RulePeriod.WEEK) {
                     if (payDate.getDayOfWeek() == today.getDayOfWeek()) {
                         isPayDate = true;
