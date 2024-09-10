@@ -23,6 +23,7 @@ jobs:
             cd pda-armagyetdon-backend/
             git pull origin main
             cd alarm
+            cp ~/serviceAccountKey.json ~/pda-armagyetdon-backend/alarm/src/main/resources
             sudo chmod +x ./gradlew 
             ./gradlew :alarm:bootJar --no-daemon
             sudo systemctl stop alarm
