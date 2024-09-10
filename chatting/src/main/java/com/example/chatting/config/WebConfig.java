@@ -13,7 +13,7 @@ import org.springframework.web.servlet.resource.VersionResourceResolver;
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${spring.ag.url}")
+    @Value("${spring.client.url}")
     private String clientUrl;
 
     private final JwtUtil jwtUtil;

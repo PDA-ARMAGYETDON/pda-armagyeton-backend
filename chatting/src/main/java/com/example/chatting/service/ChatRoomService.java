@@ -52,25 +52,27 @@ public class ChatRoomService {
         log.info("채팅방이 성공적으로 생성됨 - 팀 ID: {}", teamId);
     }
 
-    @Cacheable(value = "chatMessages", key = "#teamId")
+    //@Cacheable(value = "chatMessages", key = "#teamId")
     public List<ChatMessageResponse> selectChatMessageList(int teamId) {
-
-        chatRoomRepository.findById(teamId).orElseThrow(
-                () -> new ChatException(ChatErrorCode.ROOM_NOT_FOUND));
-
+        System.out.println("30");
+//        chatRoomRepository.findById(teamId).orElseThrow(
+//                () -> new ChatException(ChatErrorCode.ROOM_NOT_FOUND));
+        System.out.println("40");
         String key = prefix + "room:" + teamId;
-
-        Set<ChatMessage> messageSet = redisTemplateForMessage.opsForZSet().reverseRange(key, 0, 99);
+        System.out.println("50");
+        Set<ChatMessage> messageSet = redisTemplateForMessage.opsForZSet().range(key, 0, 99);
+        System.out.println("60");
         List<ChatMessage> messages = List.copyOf(messageSet);
-
+        System.out.println("70");
         List<ChatMessageResponse> messageDtos = messages.stream()
                 .map(message -> new ChatMessageResponse(message.getUserId(), message.getName(), message.getMessage(), message.getCreatedAt()))
                 .toList();
+        System.out.println("80");
         return messageDtos;
 
     }
 
-    @CacheEvict(value = "chatMessages", key = "#messageDto.teamId")
+    //@CacheEvict(value = "chatMessages", key = "#messageDto.teamId")
     public void sendMessage(ChatMessage messageDto) {
 
         String key = prefix + "room:" + messageDto.getTeamId();
@@ -102,12 +104,13 @@ public class ChatRoomService {
     }
 
     public String getUserName(int userId) {
-
+        System.out.println("1");
         String url = AG_URL + "/api/group/backend/chat-name?userId=" + userId;
-
+        System.out.println("2");
         ResponseEntity<ApiResponse> response = restTemplate.getForEntity(url, ApiResponse.class);
-
+        System.out.println("3");
         String name = objectMapper.convertValue(response.getBody().getData(), new TypeReference<String>() {});
+        System.out.println("4");
 
         return name;
     }
