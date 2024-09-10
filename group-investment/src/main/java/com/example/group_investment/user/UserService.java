@@ -1,5 +1,6 @@
 package com.example.group_investment.user;
 
+import com.example.common.exception.ErrorCode;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.team.Team;
@@ -30,12 +31,8 @@ public class UserService {
     private final RabbitTemplate rabbitTemplate;
     private final TeamRepository teamRepository;
 
-    public GetUserResponse get(int jwtUserId, int id) {
-        if (jwtUserId != id) {
-            throw new UserException(UserErrorCode.FORBIDDEN_ERROR);
-        }
-
-        return userRepository.findById(id)
+    public GetUserResponse get(int jwtUserId) {
+        return userRepository.findById(jwtUserId)
                 .map(user -> GetUserResponse.builder()
                         .loginId(user.getLoginId())
                         .name(user.getName())
@@ -84,13 +81,29 @@ public class UserService {
 
 
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            log.error("Object -> Json convert Error");
+            log.error("FCM토큰 생성 전송 실패");
+            throw new UserException(ErrorCode.JSON_PARSE_ERROR);
         } catch (AmqpException e) {
-            e.printStackTrace();
-            log.error("RabbitMQ Error");
+            throw new UserException(ErrorCode.MQ_CONNECTION_FAILED);
         }
 
+    }
+
+    public void deleteFcmToken(int userId) {
+        try {
+            ArrayList<Integer> teamList = new ArrayList<>();
+            memberRepository.findAllByUserId(userId).orElseThrow(
+                    () -> new UserException(UserErrorCode.USER_NOT_FOUND)
+            ).forEach(member -> teamList.add(member.getTeam().getId()));
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String objToJson = objectMapper.writeValueAsString(new FcmTokenDeleteDto(userId, teamList));
+            rabbitTemplate.convertAndSend("deleteFcm_to_alarm", objToJson);
+
+        } catch (JsonProcessingException e) {
+            log.error("FCM토큰 삭제 전송 실패");
+            throw new UserException(ErrorCode.JSON_PARSE_ERROR);
+        }
     }
 
     public void checkId(String loginId) {
@@ -137,21 +150,21 @@ public class UserService {
 
     public void deleteUser(int userId, int teamId) {
         /* 유저 처리
-        * 유저 상태 변경 "삭제" 처리
-        * 유저 상태 변경 "탈퇴"
-        * */
+         * 유저 상태 변경 "삭제" 처리
+         * 유저 상태 변경 "탈퇴"
+         * */
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         user.delete();
         log.info("유저가 탈퇴 처리되었습니다.");
         /* 팀 처리
-        *  1. 내가 가진 팀 조회
-        *       팀이 없으면 종료
-        *  2. 팀이 pending 상태 && 그 팀의 팀장이라면
-        *       팀 삭제
-        *  3. 팀 pending 상태인데 팀장이 아니거나 || 팀장이든 아니든 팀이 ACTIVE 상태라면
-        *       팀 탈퇴
-        * */
+         *  1. 내가 가진 팀 조회
+         *       팀이 없으면 종료
+         *  2. 팀이 pending 상태 && 그 팀의 팀장이라면
+         *       팀 삭제
+         *  3. 팀 pending 상태인데 팀장이 아니거나 || 팀장이든 아니든 팀이 ACTIVE 상태라면
+         *       팀 탈퇴
+         * */
         List<Member> members = memberRepository.findAllByUserId(userId).orElse(new ArrayList<>());
         if (members.isEmpty()) {
             return;
@@ -169,4 +182,5 @@ public class UserService {
             }
         }
     }
+
 }

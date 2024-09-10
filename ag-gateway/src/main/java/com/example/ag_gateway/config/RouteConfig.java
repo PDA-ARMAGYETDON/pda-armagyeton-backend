@@ -77,7 +77,7 @@ public class RouteConfig {
                         "/api/realtime/**",
                         "/api/stocks/**",
                         "/api/trades/**",
-                        "/api/accounts/history/**",
+                        "/api/transfer/history/**",
                         "/api/stock/backend/**",
                         "/api/ranking/**"
                         ), http(stockUrl))
@@ -87,12 +87,7 @@ public class RouteConfig {
     @Bean
     public RouterFunction<ServerResponse> investRefRouter(){
         return route("invest-reference")
-                .route(path(
-                        "/api/news/**",
-                        "/api/markey-issue/**",
-                        "/api/rising-ranking/**",
-                        "/api/issue/**"
-                ), http(investRefUrl))
+                .route(path("/api/ref/**"), http(investRefUrl))
                 .build();
     }
 

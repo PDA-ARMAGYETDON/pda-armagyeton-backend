@@ -24,7 +24,9 @@ public class GetROfferResponseUrgentSale implements GetROfferResponseType {
 
     boolean isVote;
 
-    public GetROfferResponseUrgentSale(RuleType type, int id, OfferStatus status, int upvotes, int downvotes, int totalvotes, int tradeUpvotes, double prdyVrssRt, boolean isVote) {
+    String name;
+
+    public GetROfferResponseUrgentSale(RuleType type, int id, OfferStatus status, int upvotes, int downvotes, int totalvotes, int tradeUpvotes, double prdyVrssRt, boolean isVote, String name) {
         this.type = type;
         this.id = id;
         this.status = status;
@@ -34,6 +36,7 @@ public class GetROfferResponseUrgentSale implements GetROfferResponseType {
         this.tradeUpvotes = tradeUpvotes;
         this.prdyVrssRt = prdyVrssRt;
         this.isVote = isVote;
+        this.name = name;
     }
 
 }

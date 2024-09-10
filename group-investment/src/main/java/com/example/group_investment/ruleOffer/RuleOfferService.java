@@ -111,6 +111,7 @@ public class RuleOfferService {
                         .totalvotes(offerDisband.getTotalvotes())
                         .maxLossRt(offerDisband.getMaxLossRt())
                         .maxProfitRt(offerDisband.getMaxProfitRt())
+                        .name(member.getUser().getName())
                         .build()
                 )
                 .collect(Collectors.toList());
@@ -132,6 +133,7 @@ public class RuleOfferService {
                         .depositAmt(offerPayFee.getDepositAmt())
                         .period(offerPayFee.getPeriod())
                         .payDate(offerPayFee.getPayDate())
+                        .name(member.getUser().getName())
                         .build()
                 )
                 .collect(Collectors.toList());
@@ -152,6 +154,7 @@ public class RuleOfferService {
                         .downvotes(offerUpvoteNumber.getDownvotes())
                         .totalvotes(offerUpvoteNumber.getTotalvotes())
                         .tradeUpvotes(offerUpvoteNumber.getTradeUpvotes())
+                        .name(member.getUser().getName())
                         .build()
                 )
                 .collect(Collectors.toList());
@@ -173,6 +176,7 @@ public class RuleOfferService {
                         .totalvotes(offerUrgentSale.getTotalvotes())
                         .tradeUpvotes(offerUrgentSale.getTradeUpvotes())
                         .prdyVrssRt(offerUrgentSale.getPrdyVrssRt())
+                        .name(member.getUser().getName())
                         .build()
                 )
                 .collect(Collectors.toList());

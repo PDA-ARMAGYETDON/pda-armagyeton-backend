@@ -1,15 +1,11 @@
 package com.example.group_investment.user;
 
 import com.example.common.dto.ApiResponse;
-import com.example.group_investment.auth.exception.AuthoException;
 import com.example.group_investment.user.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Null;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -17,11 +13,12 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserPInfoService userPInfoService;
 
     @Operation(summary = "사용자 정보 조회. jwt 토큰의 userId와 pathVariable의 User id가 일치해야 합니다.")
-    @GetMapping("/api/users/{id}")
-    public ApiResponse<GetUserResponse> getUser(@RequestAttribute("userId") int userId, @PathVariable int id) {
-        return new ApiResponse<>(200, true, "사용자를 조회했습니다.", userService.get(userId, id));
+    @GetMapping("/api/users")
+    public ApiResponse<GetUserResponse> getUser(@RequestAttribute("userId") int userId) {
+        return new ApiResponse<>(200, true, "사용자를 조회했습니다.", userService.get(userId));
     }
 
     @Operation(summary = "회원가입 (Authorization 필요 없음)")
@@ -52,9 +49,17 @@ public class UserController {
         return new ApiResponse<>(200, true, "사용자 정보를 성공적으로 수정했습니다.", userService.updateUser(userId, request));
     }
 
+    @Operation(summary = "사용자 비밀번호 변경", description = "새로운 비밀번호를 받아서 변경합니다.")
+    @PutMapping("/api/users/p-info")
+    public ApiResponse<?> updatePassword(@RequestAttribute("userId") int userId, @RequestBody UpdatePasswordRequest request) {
+        userPInfoService.updatePInfo(userId, request);
+        return new ApiResponse<>(200, true, "비밀번호를 변경했습니다.", null);
+    }
+
     @Operation(summary = "로그아웃")
     @GetMapping("/api/users/logout")
     public ApiResponse<?> logout(@RequestAttribute("userId") int userId) {
+        userService.deleteFcmToken(userId);
         return new ApiResponse<>(200, true, "로그아웃에 성공했습니다.", null);
     }
 
@@ -70,9 +75,7 @@ public class UserController {
     public ApiResponse<?> saveFcmToken(@RequestBody FcmTokenRequestDto fcmTokenRequestDto) {
 
         userService.saveFcmToken(fcmTokenRequestDto);
-        
+
         return new ApiResponse<>(200, true, "토큰을 등록하였습니다.", null);
     }
-
-
 }

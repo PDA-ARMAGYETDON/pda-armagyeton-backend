@@ -1,10 +1,7 @@
 package com.example.group_investment.team;
 
 import com.example.group_investment.auth.AuthService;
-import com.example.group_investment.enums.JoinStatus;
-import com.example.group_investment.enums.MemberRole;
-import com.example.group_investment.enums.RulePeriod;
-import com.example.group_investment.enums.TeamStatus;
+import com.example.group_investment.enums.*;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.dto.MemberDto;
@@ -23,13 +20,14 @@ import com.example.group_investment.user.UserRepository;
 import com.example.group_investment.user.exception.UserErrorCode;
 import com.example.group_investment.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.mapping.Join;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -151,10 +149,16 @@ public class TeamService {
         RuleDto ruleDto = rule.fromEntity(rule);
         //2-3. is 모임장
         int isLeader = 0;
-        if (memberRepository.findByUserIdAndTeamId(userId, teamId).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND))
-                .getRole() == MemberRole.LEADER)
-            isLeader = 1;
+        
+        List<Member> joinedMembers = memberRepository.findByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        for (Member member : joinedMembers) {
+            if (member.getUser().getId() == userId) {
+                if (member.getRole()==MemberRole.LEADER)
+                    isLeader = 1;
+            }
+        }
         //2-4. is 참여
+
         int isParticipating = 0;
         if (isLeader == 0) {
             List<Member> members = memberRepository.findByTeam(team).orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
@@ -268,10 +272,12 @@ public class TeamService {
             RulePeriod period = rule.getPeriod();
             Team team = rule.getTeam();
 
+            Team findTeam = teamRepository.findById(team.getId()).orElseThrow(()->new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+
             boolean isPayDate = false;
 
 
-            if (!payDate.isAfter(today)) {
+            if (!payDate.isAfter(today)&&team.getEndAt().isAfter(LocalDateTime.now())&&findTeam.getStatus()!= TeamStatus.FINISHED) {
                 if (period == RulePeriod.WEEK) {
                     if (payDate.getDayOfWeek() == today.getDayOfWeek()) {
                         isPayDate = true;
@@ -381,6 +387,36 @@ public class TeamService {
             memberRepository.save(member);
         }
     }
+
+
+    public Category getTeamCategory(int teamId){
+        Team findteam = teamRepository.findById(teamId).orElseThrow(()->new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+        return findteam.getCategory();
+    }
+
+    public List<Integer> getFinishTeam(){
+        LocalDate today = LocalDate.now();
+
+        List<Team> teamsToFinish = teamRepository.findAll().stream()
+                .filter(team -> team.getEndAt().toLocalDate().equals(today))
+                .toList();
+
+        teamsToFinish.forEach(team -> {
+            team.finishTeam();
+            teamRepository.save(team);
+        });
+
+        return teamsToFinish.stream()
+                .map(Team::getId) // 팀의 ID 추출
+                .collect(Collectors.toList());
+    }
+    public String selectUserName(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
+        String name = user.getName();
+        return name;
+    }
+
+
 }
 
 

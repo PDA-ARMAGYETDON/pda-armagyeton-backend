@@ -63,22 +63,25 @@ public class HoldingsService {
         return realTimeStockService.getRealTimeHoldings(holdingsDtoList, stockCodes);
     }
 
-    @Scheduled(cron = "0 59 15 * * MON-FRI", zone = "Asia/Seoul")
-    public void updateHoldingsWithCurrentPriceAtEndOfDay() {
+    @Scheduled(cron = "0 55 15 * * MON-FRI", zone = "Asia/Seoul")
+    public void updateHoldingsWithCurrentPriceAtEndOfDay() throws InterruptedException {
         updateHoldingsWithCurrentPrice();
     }
 
     @Scheduled(cron = "0 10 15 * * MON-FRI", zone = "Asia/Seoul")
-    public void updateHoldingsWithCurrentPriceAtMiddleOfDay() {
+    public void updateHoldingsWithCurrentPriceAtMiddleOfDay() throws InterruptedException {
         updateHoldingsWithCurrentPrice();
     }
 
 
-    public void updateHoldingsWithCurrentPrice() {
+    public void updateHoldingsWithCurrentPrice() throws InterruptedException {
         List<Holdings> holdingsList = holdingsRepository.findAll();
 
         for (Holdings holding : holdingsList) {
+
             String stockCode = holding.getStockCode().getCode();
+
+            Thread.sleep(1000);
 
             StockCurrentPrice stockCurrentPrice = stocksService.getCurrentData(stockCode);
 
@@ -93,8 +96,8 @@ public class HoldingsService {
             holding.updateWithClosingPrice(saveClosingPrice);
 
             holdingsRepository.save(holding);
-        }
 
+        }
     }
 
     public Integer getNumOfHoldings(int teamId, String code) {
