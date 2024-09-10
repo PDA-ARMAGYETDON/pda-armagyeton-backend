@@ -16,10 +16,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +38,7 @@ public class AskPriceService {
     @Value("${HANTU_REALTIMESTOCK_URL_M}")
     private String askPriceUrl;
 
-    @Value("${STOCK.FILE.PATH:stockCode.txt}")
+    @Value("${STOCK_FILE}")
     private String stockFilePath;
 
     private final List<Disposable> connections = new CopyOnWriteArrayList<>();
@@ -100,10 +98,18 @@ public class AskPriceService {
     }
 
     private List<String> getStockCodes() throws IOException {
-        Path path = Paths.get(stockFilePath);
-        String jsonContent = Files.readString(path);
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {});
+        // getResourceAsStream을 사용하여 클래스패스에서 파일을 읽어옴
+        try (InputStream inputStream = getClass().getResourceAsStream(stockFilePath)) {
+            if (inputStream == null) {
+                throw new IOException("File not found: " + stockFilePath);
+            }
+            // InputStream을 문자열로 변환
+            String jsonContent = new String(inputStream.readAllBytes());
+            ObjectMapper objectMapper = new ObjectMapper();
+            // JSON 문자열을 List<String>으로 변환
+            return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {
+            });
+        }
     }
 
     private String getApprovalKey(String appKey, String appSecretKey) {
@@ -163,7 +169,7 @@ public class AskPriceService {
         }
 
         if (data.trim().startsWith("{")) {
-            System.out.println("연결 json data 형식: " + data);
+            System.out.println("연결 AskPrice data 형식: " + data);
             return;
         }
 
