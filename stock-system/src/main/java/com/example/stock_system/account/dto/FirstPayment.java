@@ -8,16 +8,18 @@ import java.util.List;
 public class FirstPayment {
 
     private int teamId;
+    private String teamName;
     private int paymentMoney;
     private List<Integer> users;
 
-    public FirstPayment(){
-
-    }
-
-    public FirstPayment(int teamId,int paymentMoney, List<Integer> users){
+    public FirstPayment(int teamId,String teamName,int paymentMoney, List<Integer> users){
         this.teamId = teamId;
+        this.teamName = teamName;
         this.paymentMoney = paymentMoney;
         this.users = users;
+    }
+
+    public FirstPayment(){
+
     }
 }

@@ -15,6 +15,7 @@ public class UserController {
     private final UserService userService;
     private final UserPInfoService userPInfoService;
 
+
     @Operation(summary = "사용자 정보 조회. jwt 토큰의 userId와 pathVariable의 User id가 일치해야 합니다.")
     @GetMapping("/api/users")
     public ApiResponse<GetUserResponse> getUser(@RequestAttribute("userId") int userId) {
@@ -78,4 +79,14 @@ public class UserController {
 
         return new ApiResponse<>(200, true, "토큰을 등록하였습니다.", null);
     }
+
+    @Operation(summary = "유저 id로 이름 반환",description = "토큰에서 유저 id가져와서 이름 가져옴")
+    @GetMapping("/api/id")
+    public ApiResponse<String> getUserName(@RequestAttribute("userId") int userId){
+        return new ApiResponse<>(200,true,"유저 이름을 조회했습니다.",userService.getUserName(userId));
+
+    }
+
+
+
 }

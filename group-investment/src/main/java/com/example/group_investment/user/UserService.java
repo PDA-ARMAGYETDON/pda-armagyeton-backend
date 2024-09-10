@@ -183,4 +183,10 @@ public class UserService {
         }
     }
 
+
+    public String getUserName(int userId){
+        User user = userRepository.findById(userId).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
+        return user.getName();
+    }
+
 }
