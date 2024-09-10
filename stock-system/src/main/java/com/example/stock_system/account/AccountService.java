@@ -54,6 +54,8 @@ public class AccountService {
         return accountDtoConverter.fromEntity(account);
     }
 
+
+    @Transactional
     public Account createTeamAccount(String name, int userId,int teamId) {
 
         String accountNumber = "81902" + generateRandomNumber();

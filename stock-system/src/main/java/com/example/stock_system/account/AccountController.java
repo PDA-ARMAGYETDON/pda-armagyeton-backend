@@ -8,6 +8,7 @@ import com.example.stock_system.ranking.RankingService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
@@ -30,6 +31,7 @@ public class AccountController {
     }
 
     @Operation(summary = "팀 계좌 생성",description = "비밀번호를 입력값으로 받아 팀 계좌를 생성해줍니다.")
+    @Transactional
     @PostMapping("/team")
     public ApiResponse<AccountDto> createTeamAccount(@RequestBody CreateAccountRequest createAccountRequest,@RequestAttribute("teamId") int teamId){
         Account savedAccount = accountService.createTeamAccount(createAccountRequest.getName(),createAccountRequest.getUserId(),teamId);
