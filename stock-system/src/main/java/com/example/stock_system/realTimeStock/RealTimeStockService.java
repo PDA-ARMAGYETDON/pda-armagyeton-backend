@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.socket.WebSocketSession;
@@ -23,12 +22,10 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +47,7 @@ public class RealTimeStockService {
     @Value("${HANTU_REALTIMESTOCK_URL_M}")
     private String realTimeStockUrl;
 
-    @Value("${STOCK.FILE.PATH:stockCode.txt}")
+    @Value("${STOCK_FILE}")
     private String stockFilePath;
 
     private final List<Disposable> connections = new CopyOnWriteArrayList<>();
@@ -66,8 +63,9 @@ public class RealTimeStockService {
     private final Map<Integer, Disposable> activeStreams = new ConcurrentHashMap<>();
 
     private final Map<String, HoldingsDto> holdingsMap = new ConcurrentHashMap<>();
+
     @Autowired
-    public RealTimeStockService(WebClient.Builder webClientBuilder,StocksService stocksService,TradeService tradeService) {
+    public RealTimeStockService(WebClient.Builder webClientBuilder, StocksService stocksService, TradeService tradeService) {
         this.webClient = webClientBuilder.build();
         this.stocksService = stocksService;
         this.tradeService = tradeService;
@@ -110,8 +108,8 @@ public class RealTimeStockService {
         allStockDataSink.asFlux().subscribe(stockData -> {
             String stockCode = stockData[1].toString();
             int price = Integer.parseInt(stockData[2].toString());
-            tradeService.buyProcessPendingTrades(stockCode,price);
-            tradeService.sellProcessPendingTrades(stockCode,price);
+            tradeService.buyProcessPendingTrades(stockCode, price);
+            tradeService.sellProcessPendingTrades(stockCode, price);
         });
 
         // 데이터만 처리하는 로직
@@ -138,11 +136,20 @@ public class RealTimeStockService {
     }
 
     private List<String> getStockCodes() throws IOException {
-        Path path = Paths.get(stockFilePath);
-        String jsonContent = Files.readString(path);
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {});
+        // getResourceAsStream을 사용하여 클래스패스에서 파일을 읽어옴
+        try (InputStream inputStream = getClass().getResourceAsStream(stockFilePath)) {
+            if (inputStream == null) {
+                throw new IOException("File not found: " + stockFilePath);
+            }
+            // InputStream을 문자열로 변환
+            String jsonContent = new String(inputStream.readAllBytes());
+            ObjectMapper objectMapper = new ObjectMapper();
+            // JSON 문자열을 List<String>으로 변환
+            return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {
+            });
+        }
     }
+
 
     private String getApprovalKey(String appKey, String appSecretKey) {
         return webClient.post()
@@ -154,7 +161,7 @@ public class RealTimeStockService {
                 ))
                 .retrieve()
                 .bodyToMono(Map.class)
-                .map(response ->  response.get("approval_key").toString())
+                .map(response -> response.get("approval_key").toString())
                 .block();
     }
 
@@ -249,8 +256,6 @@ public class RealTimeStockService {
     }
 
 
-
-
     public void streamByStockCode(String stockCode) {
         isStreamingActiveMap.put(stockCode, true);
         System.out.println("해당 코드 시세 조회 - 코드: " + stockCode);
@@ -299,7 +304,7 @@ public class RealTimeStockService {
                     int evluPfls = evluAmt - holdingsDto.getPchsAmt(); // 평가 손익
                     double evluPflsRt = (double) evluPfls / holdingsDto.getPchsAmt() * 100; // 평가 손익률
 
-                    return new HoldingsDto(holdingsDto.getHldgQty(), holdingsDto.getPchsAmt(), evluAmt, evluPfls, evluPflsRt, stockCode,holdingsDto.getStockName());
+                    return new HoldingsDto(holdingsDto.getHldgQty(), holdingsDto.getPchsAmt(), evluAmt, evluPfls, evluPflsRt, stockCode, holdingsDto.getStockName());
                 });
     }
 
@@ -382,16 +387,13 @@ public class RealTimeStockService {
     }
 
 
-
-
-
-
     public void stopStreamingByTeamId(int teamId) {
         if (activeStreams.containsKey(teamId)) {
             activeStreams.get(teamId).dispose();
             activeStreams.remove(teamId);
         }
     }
+
     private double roundToTwoDecimalPlaces(double value) {
         BigDecimal bd = BigDecimal.valueOf(value);
         bd = bd.setScale(2, RoundingMode.HALF_UP);

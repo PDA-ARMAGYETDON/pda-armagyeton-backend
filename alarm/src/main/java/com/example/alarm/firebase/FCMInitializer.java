@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -19,10 +18,13 @@ public class FCMInitializer {
     @Value("${fcm.service.key}")
     private String googleApplicationCredentials;
 
-    // 빈 객체가 생성되고 의존성 주입이 완료된 후에 초기화가 실행될 수 있도록
     @PostConstruct
     public void initialize() {
-        try (InputStream is = new FileInputStream(googleApplicationCredentials)) {
+        try (InputStream is = getClass().getResourceAsStream(googleApplicationCredentials)) {
+            if (is == null) {
+                throw new IOException("Resource not found: " + googleApplicationCredentials);
+            }
+
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(is))
                     .build();
