@@ -26,7 +26,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             "/api/group/backend", "/api/stock/backend",
             "/api/teams/autoPayment", "/api/teams/expelMember",
             "/api/users/valid",
-            "/api/auth/health-check", "/api/chat/health-check", "/api/stock/health-check"
+            "/api/auth/health-check", "/api/chat/health-check", "/api/stocks/health-check"
     );
 
     @Override
