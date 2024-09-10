@@ -6,9 +6,9 @@ import com.google.firebase.FirebaseOptions;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -22,10 +22,7 @@ public class FCMInitializer {
     // 빈 객체가 생성되고 의존성 주입이 완료된 후에 초기화가 실행될 수 있도록
     @PostConstruct
     public void initialize() {
-
-        ClassPathResource resource = new ClassPathResource(googleApplicationCredentials);
-
-        try (InputStream is = resource.getInputStream()) {
+        try (InputStream is = new FileInputStream(googleApplicationCredentials)) {
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(is))
                     .build();

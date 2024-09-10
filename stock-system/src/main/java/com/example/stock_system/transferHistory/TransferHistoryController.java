@@ -22,7 +22,6 @@ public class TransferHistoryController {
         Page<TransferDetailDto> accountTransferDetailList = transferHistoryService
                 .getPrivateAccountTransferDetail(userId, page, size);
         return new ApiResponse<>(200, true, "계좌 이체 내역 조회에 성공하였습니다.", accountTransferDetailList);
-
     }
 
     @Operation(summary = "모임계좌 이체 내역 조회", description = "모임계좌의 이체내역을 조회.\n ex).../history/team?page=0&size=10")

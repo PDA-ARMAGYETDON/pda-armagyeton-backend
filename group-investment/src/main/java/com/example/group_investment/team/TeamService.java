@@ -21,11 +21,13 @@ import com.example.group_investment.user.exception.UserErrorCode;
 import com.example.group_investment.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -270,10 +272,12 @@ public class TeamService {
             RulePeriod period = rule.getPeriod();
             Team team = rule.getTeam();
 
+            Team findTeam = teamRepository.findById(team.getId()).orElseThrow(()->new TeamException(TeamErrorCode.TEAM_NOT_FOUND));
+
             boolean isPayDate = false;
 
 
-            if (!payDate.isAfter(today)) {
+            if (!payDate.isAfter(today)&&team.getEndAt().isAfter(LocalDateTime.now())&&findTeam.getStatus()!= TeamStatus.FINISHED) {
                 if (period == RulePeriod.WEEK) {
                     if (payDate.getDayOfWeek() == today.getDayOfWeek()) {
                         isPayDate = true;
@@ -390,11 +394,29 @@ public class TeamService {
         return findteam.getCategory();
     }
 
+    public List<Integer> getFinishTeam(){
+        LocalDate today = LocalDate.now();
+
+        List<Team> teamsToFinish = teamRepository.findAll().stream()
+                .filter(team -> team.getEndAt().toLocalDate().equals(today))
+                .toList();
+
+        teamsToFinish.forEach(team -> {
+            team.finishTeam();
+            teamRepository.save(team);
+        });
+
+        return teamsToFinish.stream()
+                .map(Team::getId) // 팀의 ID 추출
+                .collect(Collectors.toList());
+    }
     public String selectUserName(int userId) {
         User user = userRepository.findById(userId).orElseThrow(()->new UserException(UserErrorCode.USER_NOT_FOUND));
         String name = user.getName();
         return name;
     }
+
+
 }
 
 

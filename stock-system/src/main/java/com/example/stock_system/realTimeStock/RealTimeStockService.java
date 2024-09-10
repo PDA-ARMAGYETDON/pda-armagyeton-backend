@@ -28,6 +28,7 @@ import java.math.RoundingMode;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -137,13 +138,10 @@ public class RealTimeStockService {
     }
 
     private List<String> getStockCodes() throws IOException {
-        ClassPathResource resource = new ClassPathResource(stockFilePath);
-        Path path = resource.getFile().toPath();
-
+        Path path = Paths.get(stockFilePath);
         String jsonContent = Files.readString(path);
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {
-        });
+        return objectMapper.readValue(jsonContent, new TypeReference<List<String>>() {});
     }
 
     private String getApprovalKey(String appKey, String appSecretKey) {

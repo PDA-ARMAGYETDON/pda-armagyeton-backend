@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -53,13 +54,13 @@ public class AccountService {
         return accountDtoConverter.fromEntity(account);
     }
 
-    public Account createTeamAccount(String name, int userId,int teamId) {
 
+    public Account createTeamAccount(String name, int userId, int teamId) {
         String accountNumber = "81902" + generateRandomNumber();
         Account account = new Account(name, userId, accountNumber);
         Account savedAccount = accountRepository.save(account);
 
-        TeamAccount teamAccount = new TeamAccount(savedAccount,teamId);
+        TeamAccount teamAccount = new TeamAccount(savedAccount, teamId);
         teamAccountRepository.save(teamAccount);
 
         List<Integer> failPaymentUser = processFirstPayment(teamId);
@@ -94,7 +95,7 @@ public class AccountService {
 
     public List<AccountPayment> convertPaymentData() {
 
-        String url = AG_URL+"/api/group/backend/auto-payment";
+        String url = AG_URL + "/api/group/backend/auto-payment";
 
         HttpHeaders httpHeaders = new HttpHeaders();
 
@@ -145,12 +146,16 @@ public class AccountService {
                 .filter(account -> account.getAccountNumber().startsWith("81901"))
                 .findFirst()
                 .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
+    }
 
-
+    public Account getTeamAccount(int id) {
+        TeamAccount teamAccount = teamAccountRepository.findByTeamId(id)
+                .orElseThrow(() -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
+        return teamAccount.getAccount();
     }
 
     public void expelMember(List<PayFail> payFails) {
-        String url = AG_URL+"/api/group/backend/expel-member";
+        String url = AG_URL + "/api/group/backend/expel-member";
 
 
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -216,11 +221,10 @@ public class AccountService {
             int price = stocksService.getCurrentData(holding.getStockCode().getCode()).getCurrentPrice();
             price *= holding.getHldgQty();
             sumPrice += price;
-            // 주식 매도 후 삭제 (추후 활성화 할 예정)
-            // holdingsRepository.delete(holding);
+            holdingsRepository.delete(holding);
         }
 
-        String url = AG_URL+"/api/group/backend/member";
+        String url = AG_URL + "/api/group/backend/member";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -243,7 +247,7 @@ public class AccountService {
             }
         }
 
-        return teamId;  //종료 팀 반환
+        return teamId;
     }
 
 
@@ -251,8 +255,12 @@ public class AccountService {
         realTimeStockService.stopStreamingByTeamId(teamId);
     }
 
-    public FirstPayment getFirstPaymentFromAPI(int teamId) {
-        String url = AG_URL+"/api/group/backend/first-payment?teamId=" + teamId;
+
+    public List<Integer> processFirstPayment(int teamId) {
+
+        List<Integer> failedUserIds = new ArrayList<>();
+
+        String url = AG_URL + "/api/group/backend/first-payment?teamId=" + teamId;
 
         ResponseEntity<ApiResponse> response = restTemplate.exchange(
                 url,
@@ -264,17 +272,6 @@ public class AccountService {
 
         ObjectMapper objectMapper = new ObjectMapper();
         FirstPayment firstPayment = objectMapper.convertValue(response.getBody().getData(), FirstPayment.class);
-
-        return firstPayment;
-    }
-
-    @Transactional
-    public List<Integer> processFirstPayment(int teamId) {
-
-        List<Integer> failedUserIds = new ArrayList<>();
-
-        FirstPayment firstPayment = getFirstPaymentFromAPI(teamId);
-
 
         TeamAccount teamAccount = teamAccountRepository.findByTeamId(firstPayment.getTeamId())
                 .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
@@ -300,16 +297,19 @@ public class AccountService {
         }
         return failedUserIds;
     }
-  
+
     @Transactional
+    @Scheduled(cron = "0 10 16 * * MON-FRI", zone = "Asia/Seoul")
     public void checkDisband() throws JsonProcessingException {
-        String url = AG_URL+"/api/group/backend/rule-check";
+        String url = AG_URL + "/api/group/backend/rule-check";
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        Map<String, Object> responseBody = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {});
-        List<CheckDisband> checkDisbands = objectMapper.convertValue(responseBody.get("data"), new TypeReference<List<CheckDisband>>() {});
+        Map<String, Object> responseBody = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {
+        });
+        List<CheckDisband> checkDisbands = objectMapper.convertValue(responseBody.get("data"), new TypeReference<List<CheckDisband>>() {
+        });
 
         for (CheckDisband checkDisband : checkDisbands) {
             TeamAccount teamAccount;
@@ -323,25 +323,54 @@ public class AccountService {
             double totalEvluPflsRt = account.getTotalEvluPflsRt();
 
             if (totalEvluPflsRt > checkDisband.getMaxProfitRt() || totalEvluPflsRt < checkDisband.getMaxLossRt()) {
-                System.out.println(teamAccount.getTeamId());
-                //추후 실제 매도를 위해서 주석 풀어야함
-                //allStockSell(teamAccount.getTeamId());
+                allStockSell(teamAccount.getTeamId());
             }
         }
     }
 
+    @Transactional
+    @Scheduled(cron = "0 58 15 * * MON-FRI", zone = "Asia/Seoul")
     public void updateRanking() {
-        List<Account> accounts = accountRepository.findByAccountNumberStartingWith("81902").orElseThrow(()->new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
+        List<Account> accounts = accountRepository.findByAccountNumberStartingWith("81902").orElseThrow(() -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
 
         List<Ranking> rankings = rankingRepository.findByAccountIn(accounts).orElseThrow(() -> new RankingException(RankingErrorCode.RANKING_NOT_FOUNT));
         List<Ranking> updatedRankings = rankings.stream()
                 .map(ranking -> ranking.toBuilder()
-                        .seedMoney(ranking.getAccount().getDeposit()+ranking.getAccount().getTotalPchsAmt())
+                        .seedMoney(ranking.getAccount().getDeposit() + ranking.getAccount().getTotalPchsAmt())
                         .evluPflsRt(ranking.getAccount().getTotalEvluPflsRt())
                         .build())
                 .collect(Collectors.toList());
 
         rankingRepository.saveAll(updatedRankings);
+    }
+
+
+    @Transactional
+    @Scheduled(cron = "0 10 00 * * MON-SUN", zone = "Asia/Seoul")
+    public void autoPaymentAndExpel() {
+        List<AccountPayment> accountPayments= convertPaymentData();
+        List<PayFail> payFails = autoPaymentService(accountPayments);
+        expelMember(payFails);
+    }
+
+
+    @Transactional
+    @Scheduled(cron = "0 05 00 * * MON-SUN", zone = "Asia/Seoul")
+    public void finishTeam() throws JsonProcessingException {
+        String url = AG_URL+"/api/group/backend/finish-team";
+
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Map<String, Object> responseBody = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {});
+        List<Integer> finishTeamIds = objectMapper.convertValue(responseBody.get("data"), new TypeReference<List<Integer>>() {});
+
+
+        for (Integer teamId : finishTeamIds) {
+            allStockSell(teamId);
+        }
+
     }
 
 }

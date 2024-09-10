@@ -13,7 +13,6 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -81,6 +80,7 @@ public class Team {
     public void cancelTeam() {
         this.status = TeamStatus.CANCEL;
     }
+    public void finishTeam() {this.status = TeamStatus.FINISHED;}
 
     public boolean isPending() {
         return this.status == TeamStatus.PENDING;
