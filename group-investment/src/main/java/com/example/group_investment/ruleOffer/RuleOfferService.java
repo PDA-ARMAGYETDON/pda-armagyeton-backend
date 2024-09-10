@@ -53,8 +53,8 @@ public class RuleOfferService {
         ruleOfferRepository.save(ruleOffer);
 
         //Mq 전송
-        MqSender<VoteRuleToAlarmDTO> mqSender = new MqSender<>(rabbitTemplate);
-        mqSender.send(new VoteRuleToAlarmDTO(teamId, team.getName()));
+        MqSender<VoteRuleToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
+        mqSender.send(new VoteRuleToAlarmDto(teamId, team.getName()));
 
         return CreateROfferResponse.builder()
                 .type(type).build();
