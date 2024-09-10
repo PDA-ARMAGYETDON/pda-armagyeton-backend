@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Service
@@ -120,6 +121,7 @@ public class FcmService {
 
     @RabbitListener(queues = "${spring.rabbitmq.vote-alarm-queue.name}")
     private void voteStockAlarmToTopic(String message) {
+        log.info("[FCM] : 투표 알림 전송 시작");
 
         try {
 
@@ -146,7 +148,7 @@ public class FcmService {
 
     @RabbitListener(queues = "${spring.rabbitmq.rule-alarm-queue.name}")
     private void voteRuleAlarmToTopic(String message) {
-
+        log.info("[FCM] : 투표 알림 전송 시작");
         try {
 
             VoteToAlarmDto data = new ObjectMapper().readValue(message, VoteToAlarmDto.class);
@@ -160,12 +162,17 @@ public class FcmService {
                     .setNotification(Notification.builder().setTitle(title).setBody(body).build())
                     .build();
 
-            FirebaseMessaging.getInstance().sendAsync(fcmMessage);
+            FirebaseMessaging.getInstance().sendAsync(fcmMessage).get();
+            
 
             log.info("[FCM] : {}번 방 규칙제안 알림 전송 완료", topic);
 
         } catch (JsonProcessingException e) {
             throw new AlarmException(ErrorCode.JSON_PARSE_ERROR);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
