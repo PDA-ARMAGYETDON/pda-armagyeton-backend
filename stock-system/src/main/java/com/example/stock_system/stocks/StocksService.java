@@ -56,7 +56,9 @@ public class StocksService {
         return new StockName().fromEntity(stocks);
     }
 
-    public String getAccessToken() {
+
+    @Scheduled(cron = "0 0 0 * * ?", zone = "Asia/Seoul")
+    public void refreshAccessToken() {
         String tokenUri = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .path("/oauth2/tokenP")
                 .toUriString();
@@ -75,20 +77,37 @@ public class StocksService {
         }
 
         if (response != null && response.getAccessToken() != null) {
-            return response.getAccessToken();
+            this.accessToken = response.getAccessToken();
         } else {
             throw new StocksException(StocksErrorCode.API_BAD_RESPONSE);
         }
     }
 
-    @Scheduled(cron = "0 0 0 * * ?", zone = "Asia/Seoul")
-    public void refreshAccessToken() {
-        this.accessToken = getAccessToken();
-    }
 
     public StockCurrentPrice getCurrentData(String stockCode) {
         if (this.accessToken == null) {
-            this.accessToken = getAccessToken();
+            String tokenUri = UriComponentsBuilder.fromHttpUrl(baseUrl)
+                    .path("/oauth2/tokenP")
+                    .toUriString();
+
+            Map<String, String> requestBody = Map.of(
+                    "grant_type", "client_credentials",
+                    "appkey", appKey,
+                    "appsecret", appSecret
+            );
+
+            TokenResponse response;
+            try {
+                response = restTemplate.postForObject(tokenUri, requestBody, TokenResponse.class);
+            } catch (Exception e) {
+                throw new StocksException(StocksErrorCode.ACCESS_TOKEN_BAD_REQUEST);
+            }
+
+            if (response != null && response.getAccessToken() != null) {
+                this.accessToken = response.getAccessToken();
+            } else {
+                throw new StocksException(StocksErrorCode.API_BAD_RESPONSE);
+            }
         }
 
         String uri = UriComponentsBuilder.fromHttpUrl(baseUrl)
