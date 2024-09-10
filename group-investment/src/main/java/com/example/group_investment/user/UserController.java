@@ -81,7 +81,7 @@ public class UserController {
     }
 
     @Operation(summary = "유저 id로 이름 반환",description = "토큰에서 유저 id가져와서 이름 가져옴")
-    @GetMapping("/api/id")
+    @GetMapping("/api/users/id")
     public ApiResponse<String> getUserName(@RequestAttribute("userId") int userId){
         return new ApiResponse<>(200,true,"유저 이름을 조회했습니다.",userService.getUserName(userId));
 
