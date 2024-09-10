@@ -1,7 +1,7 @@
 package com.example.group_investment.rabbitMq;
 
 import com.example.common.exception.ErrorCode;
-import com.example.group_investment.ruleOffer.dto.VoteRuleToAlarmDTO;
+import com.example.group_investment.ruleOffer.dto.VoteRuleToAlarmDto;
 import com.example.group_investment.ruleOffer.exception.RuleOfferException;
 import com.example.group_investment.tradeOffer.dto.VoteStockToAlarmDto;
 import com.example.group_investment.tradeOffer.exception.TradeOfferException;
@@ -41,7 +41,7 @@ public class MqSender<D> {
     }
 
 
-    public void send(VoteRuleToAlarmDTO data) {
+    public void send(VoteRuleToAlarmDto data) {
         try {
             //json 으로 직렬화 하여 전송
             ObjectMapper objectMapper = new ObjectMapper();
