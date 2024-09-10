@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -13,6 +14,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthInterceptor implements HandlerInterceptor {
+
+    @Value("${spring.ag.url}")
+    private String clientUrl;
 
     private final JwtUtil jwtUtil;
 
@@ -30,7 +34,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         if(HttpMethod.OPTIONS.matches(request.getMethod())){
             response.setStatus(HttpServletResponse.SC_OK);
-            response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+            response.setHeader("Access-Control-Allow-Origin", clientUrl);
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             return true;
