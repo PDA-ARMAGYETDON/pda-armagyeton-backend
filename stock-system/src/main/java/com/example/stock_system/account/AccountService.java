@@ -13,6 +13,8 @@ import com.example.stock_system.ranking.exception.RankingErrorCode;
 import com.example.stock_system.ranking.exception.RankingException;
 import com.example.stock_system.realTimeStock.RealTimeStockService;
 import com.example.stock_system.stocks.StocksService;
+import com.example.stock_system.transferHistory.TransferHistory;
+import com.example.stock_system.transferHistory.TransferHistoryRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +30,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,6 +50,8 @@ public class AccountService {
     private final HoldingsRepository holdingsRepository;
     private final StocksService stocksService;
     private final RankingRepository rankingRepository;
+    private final TransferHistoryRepository transferHistoryRepository;
+
 
     public AccountDto getAccount(int id) {
         Account account = accountRepository.findById(id).orElseThrow(
@@ -125,6 +130,18 @@ public class AccountService {
                     TeamAccount teamAccount = teamAccountRepository.findByTeamId(accountPayment.getTeamId()).orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
                     teamAccount.getAccount().sellStock(accountPayment.getPaymentMoney());
                     accountRepository.save(teamAccount.getAccount());
+
+                    TransferHistory transferHistory = new TransferHistory(
+                            personalAccount,
+                            personalAccount.getName(),
+                            LocalDateTime.now(),
+                            accountPayment.getPaymentMoney(),
+                            teamAccount.getAccount().getId(),
+                            teamAccount.getAccount().getName()
+                    );
+
+                    transferHistoryRepository.save(transferHistory);
+
                 } else {
                     failedUsers.add(userId);
                 }
@@ -260,7 +277,8 @@ public class AccountService {
 
         List<Integer> failedUserIds = new ArrayList<>();
 
-        String url = AG_URL + "/api/group/backend/first-payment?teamId=" + teamId;
+       String url = AG_URL + "/api/group/backend/first-payment?teamId=" + teamId;
+
 
         ResponseEntity<ApiResponse> response = restTemplate.exchange(
                 url,
@@ -291,6 +309,18 @@ public class AccountService {
 
                 teamAccountEntity.sellStock(paymentAmount);
                 accountRepository.save(teamAccountEntity);
+
+                TransferHistory transferHistory = new TransferHistory(
+                        personalAccount,
+                        personalAccount.getName(),
+                        LocalDateTime.now(),
+                        paymentAmount,
+                        teamAccount.getAccount().getId(),
+                        teamAccount.getAccount().getName()
+                );
+
+                transferHistoryRepository.save(transferHistory);
+
             } else {
                 failedUserIds.add(userId);
             }
