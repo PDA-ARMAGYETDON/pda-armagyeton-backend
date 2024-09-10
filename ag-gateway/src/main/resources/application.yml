@@ -21,6 +21,7 @@ route:
     invest-reference: ${INVEST_REFERENCES_URL}
     chatting: ${CHAT_URL}
     alarm: ${ALARM_URL}
+    ws-chat: ${WS_CHAT_URL}
 
 springdoc:
   default-consumes-media-type: application/json;charset=UTF-8
