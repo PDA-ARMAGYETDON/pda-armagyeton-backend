@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.Arrays;
@@ -20,11 +21,16 @@ public class AuthInterceptor implements HandlerInterceptor {
             "/swagger-ui", "/v3/api-docs",
             "/api/group/backend", "/api/stock/backend",
             "/api/teams/autoPayment", "/api/teams/expelMember",
-            "/api/users/valid", "/api/auth/health-check"
+            "/api/users/valid",
+            "/api/auth/health-check", "/api/chat/health-check", "/api/stock/health-check"
     );
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+        if(HttpMethod.OPTIONS.matches(request.getMethod())){
+            return true;
+        }
 
         String currentUri = request.getRequestURI();
 
@@ -33,21 +39,27 @@ public class AuthInterceptor implements HandlerInterceptor {
                 return true;
             }
         }
+        try {
+            String authHeader = request.getHeader("Authorization");
+            String jwtToken = jwtUtil.extractToken(authHeader);
 
-        String authHeader = request.getHeader("Authorization");
-        String jwtToken = jwtUtil.extractToken(authHeader);
+            int userId = jwtUtil.getUserId(jwtToken);
+            request.setAttribute("userId", userId);
 
-        int userId = jwtUtil.getUserId(jwtToken);
-        request.setAttribute("userId", userId);
+            int teamId = 0;
 
-        int teamId = 0;
+            if (jwtUtil.containsTeam(jwtToken)) {
+                teamId = jwtUtil.getTeamId(jwtToken);
+            }
+            request.setAttribute("teamId", teamId);
 
-        if (jwtUtil.containsTeam(jwtToken)) {
-            teamId = jwtUtil.getTeamId(jwtToken);
+            log.info("[INTERCEPTOR] userId : " + userId + ", teamId : " + teamId);
+
+        } catch (NullPointerException e) {
+            log.error("[INTERCEPTOR] JWT Token is null");
+            response.sendError(401, "JWT Token is null");
+            return false;
         }
-        request.setAttribute("teamId", teamId);
-
-        log.info("[INTERCEPTOR] userId : " + userId + ", teamId : " + teamId);
 
         return true;
     }
