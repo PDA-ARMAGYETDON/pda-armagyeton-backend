@@ -204,6 +204,7 @@ public class RealTimeStockService {
 
     private void processStockData(String data) {
         if (data.trim().startsWith("{")) {
+            System.out.println("연결 Realtime 형식: " + data);
             return;
         }
 
