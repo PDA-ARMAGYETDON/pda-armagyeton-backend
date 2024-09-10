@@ -55,8 +55,7 @@ public class AccountService {
     }
 
 
-    @Transactional
-    public Account createTeamAccount(String name, int userId,int teamId) {
+    public Account createTeamAccount(String name, int userId, int teamId) {
         String accountNumber = "81902" + generateRandomNumber();
         Account account = new Account(name, userId, accountNumber);
         Account savedAccount = accountRepository.save(account);
@@ -222,8 +221,7 @@ public class AccountService {
             int price = stocksService.getCurrentData(holding.getStockCode().getCode()).getCurrentPrice();
             price *= holding.getHldgQty();
             sumPrice += price;
-            // 주식 매도 후 삭제 (추후 활성화 할 예정)
-            // holdingsRepository.delete(holding);
+            holdingsRepository.delete(holding);
         }
 
         String url = AG_URL + "/api/group/backend/member";
@@ -249,7 +247,7 @@ public class AccountService {
             }
         }
 
-        return teamId;  //종료 팀 반환
+        return teamId;
     }
 
 
@@ -257,7 +255,11 @@ public class AccountService {
         realTimeStockService.stopStreamingByTeamId(teamId);
     }
 
-    public FirstPayment getFirstPaymentFromAPI(int teamId) {
+
+    public List<Integer> processFirstPayment(int teamId) {
+
+        List<Integer> failedUserIds = new ArrayList<>();
+
         String url = AG_URL + "/api/group/backend/first-payment?teamId=" + teamId;
 
         ResponseEntity<ApiResponse> response = restTemplate.exchange(
@@ -270,17 +272,6 @@ public class AccountService {
 
         ObjectMapper objectMapper = new ObjectMapper();
         FirstPayment firstPayment = objectMapper.convertValue(response.getBody().getData(), FirstPayment.class);
-
-        return firstPayment;
-    }
-
-    @Transactional
-    public List<Integer> processFirstPayment(int teamId) {
-
-        List<Integer> failedUserIds = new ArrayList<>();
-
-        FirstPayment firstPayment = getFirstPaymentFromAPI(teamId);
-
 
         TeamAccount teamAccount = teamAccountRepository.findByTeamId(firstPayment.getTeamId())
                 .orElseThrow(() -> new AccountException(AccountErrorCode.ACCOUNT_NOT_FOUND));
@@ -332,8 +323,7 @@ public class AccountService {
             double totalEvluPflsRt = account.getTotalEvluPflsRt();
 
             if (totalEvluPflsRt > checkDisband.getMaxProfitRt() || totalEvluPflsRt < checkDisband.getMaxLossRt()) {
-                //추후 실제 매도를 위해서 주석 풀어야함
-                //allStockSell(teamAccount.getTeamId());
+                allStockSell(teamAccount.getTeamId());
             }
         }
     }
