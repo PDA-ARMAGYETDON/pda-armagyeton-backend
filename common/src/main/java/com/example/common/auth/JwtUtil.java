@@ -1,5 +1,6 @@
 package com.example.common.auth;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,27 +20,28 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
+    public Claims parseJwt(String token){
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token).getPayload();
+    }
+
     public int getUserId(String token){
-        return Jwts.parser().verifyWith(secretKey).build()
-                .parseSignedClaims(token).getPayload()
-                .get("userId", Integer.class);
+        return parseJwt(token).get("userId", Integer.class);
     }
 
     public int getTeamId(String token){
-        return Jwts.parser().verifyWith(secretKey).build()
-                .parseSignedClaims(token).getPayload()
-                .get("teamId", Integer.class);
+        return parseJwt(token).get("teamId", Integer.class);
     }
 
     public boolean getIsTeamExist(String token){
-        return Jwts.parser().verifyWith(secretKey).build()
-                .parseSignedClaims(token).getPayload()
-                .get("isTeamExist", Boolean.class);
+        return parseJwt(token).get("isTeamExist", Boolean.class);
     }
 
     public boolean validateToken(String token){
         try{
-            Jwts.parser().verifyWith(secretKey).build().parseClaimsJws(token);
+            parseJwt(token);
             return true;
         }catch (Exception e){
             return false;
@@ -47,9 +49,7 @@ public class JwtUtil {
     }
 
     public Boolean isExpired(String token){
-        return Jwts.parser().verifyWith(secretKey).build()
-                .parseSignedClaims(token).getPayload()
-                .getExpiration().before(new Date());
+        return parseJwt(token).getExpiration().before(new Date());
     }
 
     public String createJwt(int loginId, Integer teamId, boolean isTeam){
