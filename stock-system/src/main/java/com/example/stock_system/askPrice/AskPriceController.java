@@ -1,6 +1,7 @@
 package com.example.stock_system.askPrice;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +21,7 @@ public class AskPriceController {
     }
 
 
-    @Operation(summary = "호가 처리 웹소켓 실행",description = "실시간 호가 data를 80개 받아올 수 있도록 연결합니다.")
-    @PostMapping("/start")
+    @PostConstruct
     public void startWebSocket() throws IOException {
         askPriceService.start();
     }
