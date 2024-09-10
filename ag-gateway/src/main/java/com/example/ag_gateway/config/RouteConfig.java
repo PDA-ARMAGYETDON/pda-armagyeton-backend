@@ -2,12 +2,16 @@ package com.example.ag_gateway.config;
 
 import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.RequestContextFilter;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
+
+import java.net.URI;
 
 import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
 import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions.http;
@@ -22,6 +26,7 @@ public class RouteConfig {
     private final String investRefUrl;
     private final String chatUrl;
     private final String alarmUrl;
+    private final String webSocketChatUrl;
 
     public RouteConfig(@Value("${route.url.group-investment}")String groupInvestmentUrl,
                        @Value("${route.url.stock-system}")String stockUrl,
@@ -33,6 +38,7 @@ public class RouteConfig {
         this.investRefUrl = investRefUrl;
         this.chatUrl = chatUrl;
         this.alarmUrl = alarmUrl;
+        this.webSocketChatUrl = "ws://localhost:8080/stomp/chat";
     }
 
     @Bean
@@ -88,7 +94,10 @@ public class RouteConfig {
     @Bean
     public RouterFunction<ServerResponse> chatRouter(){
         return route("chatting")
-                .route(path("/api/chat/**"), http(chatUrl))
+                .route(path(
+                        "/api/chat/**",
+                        "/stomp/chat/**"
+                ), http(chatUrl))
                 .build();
     }
 
