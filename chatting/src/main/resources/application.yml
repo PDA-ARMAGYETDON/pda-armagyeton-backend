@@ -5,6 +5,8 @@ spring:
     secret: ${JWT_SECRET}
   ag:
     url: ${AG_URL}
+  client:
+    url: ${CLIENT_URL}
 
   rabbitmq:
     host: ${MQ_HOST}
@@ -36,7 +38,8 @@ redis:
   port: ${REDIS_PORT}
 
 chat:
-  path: http://localhost:8082
+  path: http://localhost:8084
 
 server:
   port: 8084
+
