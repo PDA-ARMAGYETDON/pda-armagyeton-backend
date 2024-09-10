@@ -36,7 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // login/sign up에 대해서는 필터링을 수행하지 않음
         if (excludeUrls.stream().anyMatch(requestURI::startsWith)) {
-            log.info("login/signup/swagger에 대해서는 필터링을 수행하지 않음");
+            log.info("login/signup/swagger 등에 대해서는 필터링을 수행하지 않음");
             filterChain.doFilter(request, response);
             return;
         }

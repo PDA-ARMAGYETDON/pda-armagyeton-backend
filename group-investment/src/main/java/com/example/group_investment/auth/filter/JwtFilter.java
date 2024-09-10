@@ -37,14 +37,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // 요청 URL을 가져와서 제외할 URL 목록과 비교
         String requestURI = request.getRequestURI();
-        log.info("Request URI 출력 : " + requestURI);
-
-        // login/sign up/swagger에 대해서는 필터링을 수행하지 않음
+        // login/sign up/swagger 등에 대해서는 필터링을 수행하지 않음
         if (excludeUrls.stream().anyMatch(requestURI::startsWith)) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        log.info("Request URI 요청 : " + requestURI);
         String authorization = request.getHeader("Authorization");
 
         // authorization 헤더 검증
