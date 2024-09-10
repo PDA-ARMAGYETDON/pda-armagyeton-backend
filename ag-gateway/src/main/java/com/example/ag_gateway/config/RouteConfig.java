@@ -71,7 +71,7 @@ public class RouteConfig {
                         "/api/realtime/**",
                         "/api/stocks/**",
                         "/api/trades/**",
-                        "/api/accounts/history/**",
+                        "/api/transfer/history/**",
                         "/api/stock/backend/**",
                         "/api/ranking/**"
                         ), http(stockUrl))

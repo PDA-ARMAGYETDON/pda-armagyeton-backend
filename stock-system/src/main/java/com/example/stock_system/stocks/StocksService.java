@@ -93,11 +93,10 @@ public class StocksService {
 
         String uri = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .path("/uapi/domestic-stock/v1/quotations/inquire-price")
-                .queryParam("fid_cond_mrkt_div_code", "J")
-                .queryParam("fid_input_iscd", stockCode)
+                .queryParam("FID_COND_MRKT_DIV_CODE", "J")
+                .queryParam("FID_INPUT_ISCD", stockCode)
                 .toUriString();
 
-        // HttpHeaders 객체를 생성하고 헤더를 설정합니다.
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + this.accessToken);
         headers.add("appkey", appKey);

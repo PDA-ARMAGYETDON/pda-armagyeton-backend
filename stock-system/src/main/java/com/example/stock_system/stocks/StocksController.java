@@ -25,4 +25,11 @@ public class StocksController {
     public ApiResponse<GetStockPricesResponse> getStockPrices(@RequestParam String code) {
         return new ApiResponse<>(200, true, "종목 가격을 조회했습니다.", stocksService.getStockPrices(code));
     }
+
+
+
+    @GetMapping("/current-price")
+    public ApiResponse getCurrentPrice(@RequestParam String stockCode){
+        return new ApiResponse<>(200,true,"현재가(장 마감후엔 종가) 입니다.",stocksService.getCurrentData(stockCode));
+    }
 }

@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -53,8 +54,9 @@ public class AccountService {
         return accountDtoConverter.fromEntity(account);
     }
 
-    public Account createTeamAccount(String name, int userId, int teamId) {
 
+    @Transactional
+    public Account createTeamAccount(String name, int userId,int teamId) {
         String accountNumber = "81902" + generateRandomNumber();
         Account account = new Account(name, userId, accountNumber);
         Account savedAccount = accountRepository.save(account);
@@ -306,6 +308,7 @@ public class AccountService {
     }
 
     @Transactional
+    @Scheduled(cron = "0 10 16 * * MON-FRI", zone = "Asia/Seoul")
     public void checkDisband() throws JsonProcessingException {
         String url = AG_URL + "/api/group/backend/rule-check";
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
@@ -329,13 +332,14 @@ public class AccountService {
             double totalEvluPflsRt = account.getTotalEvluPflsRt();
 
             if (totalEvluPflsRt > checkDisband.getMaxProfitRt() || totalEvluPflsRt < checkDisband.getMaxLossRt()) {
-                System.out.println(teamAccount.getTeamId());
                 //추후 실제 매도를 위해서 주석 풀어야함
                 //allStockSell(teamAccount.getTeamId());
             }
         }
     }
 
+    @Transactional
+    @Scheduled(cron = "0 58 15 * * MON-FRI", zone = "Asia/Seoul")
     public void updateRanking() {
         List<Account> accounts = accountRepository.findByAccountNumberStartingWith("81902").orElseThrow(() -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND));
 
@@ -348,6 +352,35 @@ public class AccountService {
                 .collect(Collectors.toList());
 
         rankingRepository.saveAll(updatedRankings);
+    }
+
+
+    @Transactional
+    @Scheduled(cron = "0 10 00 * * MON-SUN", zone = "Asia/Seoul")
+    public void autoPaymentAndExpel() {
+        List<AccountPayment> accountPayments= convertPaymentData();
+        List<PayFail> payFails = autoPaymentService(accountPayments);
+        expelMember(payFails);
+    }
+
+
+    @Transactional
+    @Scheduled(cron = "0 05 00 * * MON-SUN", zone = "Asia/Seoul")
+    public void finishTeam() throws JsonProcessingException {
+        String url = AG_URL+"/api/group/backend/finish-team";
+
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Map<String, Object> responseBody = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {});
+        List<Integer> finishTeamIds = objectMapper.convertValue(responseBody.get("data"), new TypeReference<List<Integer>>() {});
+
+
+        for (Integer teamId : finishTeamIds) {
+            allStockSell(teamId);
+        }
+
     }
 
 }
