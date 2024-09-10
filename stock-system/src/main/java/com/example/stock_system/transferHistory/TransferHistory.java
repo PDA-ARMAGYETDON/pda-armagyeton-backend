@@ -3,14 +3,12 @@ package com.example.stock_system.transferHistory;
 import com.example.stock_system.account.Account;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@NoArgsConstructor
 public class TransferHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,4 +29,16 @@ public class TransferHistory {
 
     private String receiverName;
 
+    public TransferHistory() {
+
+    }
+
+    public TransferHistory(Account account, String senderName, LocalDateTime transferAt, int transferAmt, int receivingAccountId, String receiverName) {
+        this.account = account;
+        this.senderName = senderName;
+        this.transferAt = transferAt;
+        this.transferAmt = transferAmt;
+        this.receivingAccountId = receivingAccountId;
+        this.receiverName = receiverName;
+    }
 }
