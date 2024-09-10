@@ -1,5 +1,6 @@
 package com.example.stock_system.account.dto;
 
+import com.example.stock_system.account.Account;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -27,6 +28,17 @@ public class GetTeamAccountResponse {
         this.totalEvluPflsRt = totalEvluPflsRt;
         this.deposit = deposit;
         this.totalAsset = totalAsset;
+    }
 
+    public GetTeamAccountResponse fromEntity(Account account) {
+        return GetTeamAccountResponse.builder()
+                .accountNumber(account.getAccountNumber())
+                .totalPchsAmt(account.getTotalPchsAmt())
+                .totalEvluAmt(account.getTotalEvluAmt())
+                .totalEvluPfls(account.getTotalEvluPfls())
+                .totalEvluPflsRt(account.getTotalEvluPflsRt())
+                .deposit(account.getDeposit())
+                .totalAsset(account.getDeposit() + account.getTotalEvluAmt())
+                .build();
     }
 }
