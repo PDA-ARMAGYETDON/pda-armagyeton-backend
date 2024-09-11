@@ -18,6 +18,15 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Value("${spring.client.url}")
     private String clientUrl;
 
+    @Value("${spring.chat.url}")
+    private String chatUrl;
+
+    @Value("${spring.ag.url}")
+    private String agUrl;
+
+    @Value("${spring.stock.url}")
+    private String stockUrl;
+
     private final JwtUtil jwtUtil;
 
     private final List<String> excludeUrls = Arrays.asList(
@@ -37,6 +46,8 @@ public class AuthInterceptor implements HandlerInterceptor {
             response.setHeader("Access-Control-Allow-Origin", clientUrl);
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            log.info("[interceptor] OPTIONS Request");
+            log.info(request.getMethod() + " " + request.getRequestURI());
             return true;
         }
 
@@ -64,7 +75,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             log.info("[INTERCEPTOR] userId : " + userId + ", teamId : " + teamId);
 
         } catch (NullPointerException e) {
-            log.error("[INTERCEPTOR] JWT Token is null");
+            log.error("[INTERCEPTOR] JWT Token is null" + request.getMethod() + " " + currentUri);
             response.sendError(401, "JWT Token is null");
             return false;
         }
