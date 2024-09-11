@@ -3,9 +3,14 @@ spring:
     name: stock-system
   jwt:
     secret: ${JWT_SECRET}
-
+  client:
+    url: ${CLIENT_URL}
   ag:
     url: ${AG_URL}
+  chat:
+    url: ${CHAT_URL}
+  stock:
+    url: ${STOCK_URL}
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

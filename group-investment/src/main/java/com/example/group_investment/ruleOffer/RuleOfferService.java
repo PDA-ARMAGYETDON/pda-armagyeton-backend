@@ -1,11 +1,11 @@
 package com.example.group_investment.ruleOffer;
 
+import com.example.common.exception.ErrorCode;
 import com.example.group_investment.enums.RuleType;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.exception.MemberErrorCode;
 import com.example.group_investment.member.exception.MemberException;
-import com.example.group_investment.rabbitMq.MqSender;
 import com.example.group_investment.rule.Rule;
 import com.example.group_investment.rule.RuleRepository;
 import com.example.group_investment.rule.exception.RuleErrorCode;
@@ -16,15 +16,19 @@ import com.example.group_investment.team.Team;
 import com.example.group_investment.team.TeamRepository;
 import com.example.group_investment.team.exception.TeamErrorCode;
 import com.example.group_investment.team.exception.TeamException;
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class RuleOfferService {
 
     private final RuleOfferRepository ruleOfferRepository;
@@ -53,11 +57,26 @@ public class RuleOfferService {
         ruleOfferRepository.save(ruleOffer);
 
         //Mq 전송
-        MqSender<VoteRuleToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
-        mqSender.send(new VoteRuleToAlarmDto(teamId, team.getName()));
+//        MqSender<VoteRuleToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
+//        mqSender.send(new VoteRuleToAlarmDto(teamId, team.getName()));
 
-        return CreateROfferResponse.builder()
-                .type(type).build();
+        VoteRuleToAlarmDto data = new VoteRuleToAlarmDto(teamId, team.getName());
+        try {
+            log.info("규칙 제안 알림 전송 from TradeOfferService");
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String objToJson = objectMapper.writeValueAsString(data);
+
+            rabbitTemplate.convertAndSend("rule_to_alarm", objToJson);
+
+            return CreateROfferResponse.builder()
+                    .type(type).build();
+
+        } catch (JsonProcessingException e) {
+            throw new RuleException(ErrorCode.JACKSON_PROCESS_ERROR);
+        }
+
+
     }
 
     public GetROfferResponse get(int userId, int jwtTeamId, int teamId) {

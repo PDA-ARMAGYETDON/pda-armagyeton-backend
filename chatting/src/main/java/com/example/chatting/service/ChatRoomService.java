@@ -2,18 +2,19 @@ package com.example.chatting.service;
 
 import com.example.chatting.domain.ChatMessage;
 import com.example.chatting.domain.ChatRoom;
+import com.example.chatting.dto.ChatAlarmDto;
 import com.example.chatting.dto.ChatMessageResponse;
-import com.example.chatting.exception.ChatErrorCode;
 import com.example.chatting.exception.ChatException;
 import com.example.chatting.repository.ChatRoomRepository;
 import com.example.common.dto.ApiResponse;
+import com.example.common.exception.ErrorCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -36,10 +37,11 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final SimpMessageSendingOperations messageTemplate;
     private final RedisTemplate<String, ChatMessage> redisTemplateForMessage;
+    private final RabbitTemplate rabbitTemplate;
 
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
-    private final String teamServiceUrl = AG_URL+"/api/group/backend/chat-member";
+    private final String teamServiceUrl = AG_URL + "/api/group/backend/chat-member";
     @Value("${redis.chatroom.prefix}")
     private String prefix;
 
@@ -88,6 +90,23 @@ public class ChatRoomService {
         redisTemplateForMessage.opsForZSet().add(key, updatedMessageDto, score);
 
         messageTemplate.convertAndSend("/sub/chat/room/" + messageDto.getTeamId(), updatedMessageDto);
+
+        //MQ 전송
+        ChatAlarmDto data = new ChatAlarmDto(updatedMessageDto.getId(), updatedMessageDto.getTeamId(), updatedMessageDto.getUserId(), updatedMessageDto.getName(), updatedMessageDto.getMessage());
+
+        try {
+            //json 으로 직렬화 하여 전송
+            ObjectMapper objectMapper = new ObjectMapper();
+            String objToJson = objectMapper.writeValueAsString(data);
+
+            rabbitTemplate.convertAndSend("chat_to_alarm", objToJson);
+
+            log.info("[{}] 알림 전송 완료", "chat_to_alarm");
+
+        } catch (JsonProcessingException e) {
+            throw new ChatException(ErrorCode.JACKSON_PROCESS_ERROR);
+        }
+
     }
 
 
@@ -97,7 +116,8 @@ public class ChatRoomService {
         ResponseEntity<ApiResponse> response = restTemplate.getForEntity(url, ApiResponse.class);
 
 
-        List<String> memberNames = objectMapper.convertValue(response.getBody().getData(), new TypeReference<List<String>>() {});
+        List<String> memberNames = objectMapper.convertValue(response.getBody().getData(), new TypeReference<List<String>>() {
+        });
 
         System.out.println(memberNames);
         return memberNames;
@@ -109,7 +129,8 @@ public class ChatRoomService {
         System.out.println("2");
         ResponseEntity<ApiResponse> response = restTemplate.getForEntity(url, ApiResponse.class);
         System.out.println("3");
-        String name = objectMapper.convertValue(response.getBody().getData(), new TypeReference<String>() {});
+        String name = objectMapper.convertValue(response.getBody().getData(), new TypeReference<String>() {
+        });
         System.out.println("4");
 
         return name;

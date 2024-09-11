@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 public class AuthInterceptor implements HandlerInterceptor {
 
-    @Value("${spring.ag.url}")
+    @Value("${spring.client.url}")
     private String clientUrl;
 
     private final JwtUtil jwtUtil;
@@ -32,7 +32,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        if(HttpMethod.OPTIONS.matches(request.getMethod())){
+        if (HttpMethod.OPTIONS.matches(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
             response.setHeader("Access-Control-Allow-Origin", clientUrl);
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");

@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Service
@@ -95,6 +94,7 @@ public class FcmService {
 
     @RabbitListener(queues = "${spring.rabbitmq.chatQueue.name}")
     private void chatAlarmToTopic(String message) {
+        log.info("[FCM] : 채팅 알림 전송 요청 접수");
 
         try {
 
@@ -162,17 +162,12 @@ public class FcmService {
                     .setNotification(Notification.builder().setTitle(title).setBody(body).build())
                     .build();
 
-            FirebaseMessaging.getInstance().sendAsync(fcmMessage).get();
-            
+            FirebaseMessaging.getInstance().sendAsync(fcmMessage);
 
             log.info("[FCM] : {}번 방 규칙제안 알림 전송 완료", topic);
 
         } catch (JsonProcessingException e) {
             throw new AlarmException(ErrorCode.JSON_PARSE_ERROR);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
 

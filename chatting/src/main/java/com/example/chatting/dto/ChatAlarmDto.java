@@ -1,8 +1,9 @@
-package com.example.alarm.firebase.dto;
+package com.example.chatting.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 
 @Getter
 @AllArgsConstructor

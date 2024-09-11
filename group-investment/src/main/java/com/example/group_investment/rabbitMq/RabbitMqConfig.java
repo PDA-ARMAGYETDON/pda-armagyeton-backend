@@ -27,21 +27,38 @@ public class RabbitMqConfig {
     private String rabbitmqPassword;
 
     @Value("${spring.rabbitmq.fcm-queue.name}")
-    private String queueName;
+    private String mainToAlarm;
 
     @Value("${spring.rabbitmq.main-stock-queue.name}")
-    private String stockQueueName;
+    private String offerToTradeQueue;
+
+    @Value("${spring.rabbitmq.vote-alarm-queue.name}")
+    private String voteToAlarmQueueName;
+
+    @Value("${spring.rabbitmq.rule-alarm-queue.name}")
+    private String ruleToAlarmQueueName;
 
 
     @Bean
     public Queue mainToAlarmQueue() {
-        return new Queue(queueName, true);
+        return new Queue(mainToAlarm, true);
     }
 
     @Bean
     public Queue mainToStockQueue() {
-        return new Queue(stockQueueName, true);
+        return new Queue(offerToTradeQueue, true);
     }
+
+    @Bean
+    public Queue voteToAlarmQueue() {
+        return new Queue(voteToAlarmQueueName, true);
+    }
+
+    @Bean
+    public Queue ruleToAlarmQueue() {
+        return new Queue(ruleToAlarmQueueName, true);
+    }
+
 
     @Bean
     public ConnectionFactory connectionFactory() {

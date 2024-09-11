@@ -8,7 +8,6 @@ import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.exception.MemberErrorCode;
 import com.example.group_investment.member.exception.MemberException;
-import com.example.group_investment.rabbitMq.MqSender;
 import com.example.group_investment.rule.Rule;
 import com.example.group_investment.rule.RuleRepository;
 import com.example.group_investment.rule.exception.RuleErrorCode;
@@ -25,6 +24,8 @@ import com.example.group_investment.tradeOffer.utils.TradeOfferConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +41,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TradeOfferService {
+    private static final Logger log = LoggerFactory.getLogger(TradeOfferService.class);
     private final TradeOfferRepository tradeOfferRepository;
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
@@ -49,6 +51,9 @@ public class TradeOfferService {
     private final TradeOfferConverter tradeOfferConverter;
     private final TradeOfferCommunicator tradeOfferCommunicator;
     private final RabbitTemplate rabbitTemplate;
+
+//    @Value("${spring.rabbitmq.vote-alarm-queue.name}")
+//    private String voteToAlarmQueueName;
 
     @Value("${spring.rabbitmq.main-stock-queue.name}")
     private String mainStockQueue;
@@ -83,9 +88,17 @@ public class TradeOfferService {
 
         VoteStockToAlarmDto message = new VoteStockToAlarmDto(team.getId(), team.getName());
 
-        MqSender<VoteStockToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
+        try {
+            //json 으로 직렬화 하여 전송
+            ObjectMapper objectMapper = new ObjectMapper();
+            String objToJson = objectMapper.writeValueAsString(message);
+            log.info("주식 매매 제안 알림 전송 from TradeOfferService");
+            rabbitTemplate.convertAndSend("vote_to_alarm", objToJson);
 
-        mqSender.send(message);
+
+        } catch (JsonProcessingException e) {
+            throw new RuleException(ErrorCode.JACKSON_PROCESS_ERROR);
+        }
 
         try {
             tradeOfferRepository.save(tradeOfferDto.toEntity());
