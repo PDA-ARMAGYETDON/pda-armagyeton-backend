@@ -1,8 +1,6 @@
 package com.example.group_investment.rabbitMq;
 
 import com.example.common.exception.ErrorCode;
-import com.example.group_investment.ruleOffer.dto.VoteRuleToAlarmDto;
-import com.example.group_investment.ruleOffer.exception.RuleOfferException;
 import com.example.group_investment.tradeOffer.dto.VoteStockToAlarmDto;
 import com.example.group_investment.tradeOffer.exception.TradeOfferException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -37,20 +35,6 @@ public class MqSender<D> {
 
         } catch (JsonProcessingException e) {
             throw new TradeOfferException(ErrorCode.JSON_PARSE_ERROR);
-        }
-    }
-
-
-    public void send(VoteRuleToAlarmDto data) {
-        try {
-            //json 으로 직렬화 하여 전송
-            ObjectMapper objectMapper = new ObjectMapper();
-            String objToJson = objectMapper.writeValueAsString(data);
-
-            rabbitTemplate.convertAndSend(ruleToAlarmQueueName, objToJson);
-
-        } catch (JsonProcessingException e) {
-            throw new RuleOfferException(ErrorCode.JSON_PARSE_ERROR);
         }
     }
 }
