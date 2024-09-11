@@ -89,6 +89,8 @@ public class ChatRoomService {
         long score = updatedMessageDto.getCreatedAt().toEpochSecond(ZoneOffset.UTC);
         redisTemplateForMessage.opsForZSet().add(key, updatedMessageDto, score);
 
+        messageTemplate.convertAndSend("/sub/chat/room/" + messageDto.getTeamId(), updatedMessageDto);
+
         //MQ 전송
         ChatAlarmDto data = new ChatAlarmDto(updatedMessageDto.getId(), updatedMessageDto.getTeamId(), updatedMessageDto.getUserId(), updatedMessageDto.getName(), updatedMessageDto.getMessage(), updatedMessageDto.getCreatedAt());
 
@@ -105,7 +107,6 @@ public class ChatRoomService {
             throw new ChatException(ErrorCode.JACKSON_PROCESS_ERROR);
         }
 
-        messageTemplate.convertAndSend("/sub/chat/room/" + messageDto.getTeamId(), updatedMessageDto);
     }
 
 
