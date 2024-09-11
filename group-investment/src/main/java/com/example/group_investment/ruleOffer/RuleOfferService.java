@@ -18,6 +18,7 @@ import com.example.group_investment.team.exception.TeamErrorCode;
 import com.example.group_investment.team.exception.TeamException;
 import lombok.AllArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +34,13 @@ public class RuleOfferService {
     private final MemberRepository memberRepository;
     private final RuleOfferVoteRepository ruleOfferVoteRepository;
     private final RabbitTemplate rabbitTemplate;
+
+    @Value("${spring.rabbitmq.vote-alarm-queue.name}")
+    private String ruleToAlarmQueueName;
+
+    @Value("${spring.rabbitmq.vote-alarm-queue.name}")
+    private String voteToAlarmQueueName;
+
 
     public CreateROfferResponse create(int jwtUserId, int jwtTeamId, int teamId, CreateROfferRequest request) {
         if (jwtTeamId != teamId) {
@@ -55,6 +63,7 @@ public class RuleOfferService {
         //Mq 전송
         MqSender<VoteRuleToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
         mqSender.send(new VoteRuleToAlarmDto(teamId, team.getName()));
+
 
         return CreateROfferResponse.builder()
                 .type(type).build();

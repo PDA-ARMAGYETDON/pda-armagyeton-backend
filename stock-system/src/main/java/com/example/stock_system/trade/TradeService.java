@@ -14,7 +14,6 @@ import com.example.stock_system.holdings.HoldingsRepository;
 import com.example.stock_system.holdings.dto.ToAlarmDto;
 import com.example.stock_system.holdings.exception.HoldingsErrorCode;
 import com.example.stock_system.holdings.exception.HoldingsException;
-import com.example.stock_system.rabbitMq.MqSender;
 import com.example.stock_system.stocks.Stocks;
 import com.example.stock_system.stocks.StocksRepository;
 import com.example.stock_system.stocks.exception.StocksErrorCode;
@@ -53,7 +52,8 @@ public class TradeService {
     private final RabbitTemplate rabbitTemplate;
 
     @Value("${spring.rabbitmq.sendQueue.name}")
-    private String sendQueueName;
+    private String stockAlarmQueueName;
+
 
     @RabbitListener(queues = "${spring.rabbitmq.mainToStock.name}")
     public void createTrade(String message) {
@@ -137,10 +137,20 @@ public class TradeService {
                 int teamId = teamAccountRepository.findByAccountId(account.getUserId()).orElseThrow(
                         () -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND)).getTeamId();
 
-                MqSender<ToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
-                ToAlarmDto data = new ToAlarmDto(teamId, account.getName(), findStock.getName(), trade.getQuantity(), true);
 
-                mqSender.send(data);
+                ToAlarmDto data = new ToAlarmDto(teamId, account.getName(), findStock.getName(), trade.getQuantity(), true);
+                try {
+                    //json 으로 직렬화 하여 전송
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    String objToJson = objectMapper.writeValueAsString(data);
+
+                    rabbitTemplate.convertAndSend(stockAlarmQueueName, objToJson);
+
+                    log.info("[{}] 알림 전송 완료", stockAlarmQueueName);
+
+                } catch (JsonProcessingException e) {
+                    throw new StocksException(ErrorCode.JACKSON_PROCESS_ERROR);
+                }
 
 
             } else {
@@ -181,10 +191,24 @@ public class TradeService {
             int teamId = teamAccountRepository.findByAccountId(account.getUserId()).orElseThrow(
                     () -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND)).getTeamId();
 
-            MqSender<ToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
             ToAlarmDto data = new ToAlarmDto(teamId, account.getName(), findStock.getName(), trade.getQuantity(), false);
 
-            mqSender.send(data);
+            try {
+                //json 으로 직렬화 하여 전송
+                ObjectMapper objectMapper = new ObjectMapper();
+                String objToJson = objectMapper.writeValueAsString(data);
+
+                rabbitTemplate.convertAndSend(stockAlarmQueueName, objToJson);
+
+                log.info("[{}] 알림 전송 완료", stockAlarmQueueName);
+
+            } catch (JsonProcessingException e) {
+                throw new StocksException(ErrorCode.JACKSON_PROCESS_ERROR);
+            }
+
+//            MqSender<ToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
+//            mqSender.send(data);
+
 
             System.out.println("매도 완료 - 주식 코드: " + stockCode + ", 거래 ID: " + trade.getId());
         }
