@@ -17,7 +17,7 @@ spring:
     show-sql: true
 
   ag:
-    url: ${AG_URL}
+    url: ${CLIENT_URL}
 
   devtools:
     restart:
