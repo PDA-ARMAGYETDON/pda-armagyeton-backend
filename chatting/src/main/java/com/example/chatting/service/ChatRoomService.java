@@ -92,7 +92,7 @@ public class ChatRoomService {
         messageTemplate.convertAndSend("/sub/chat/room/" + messageDto.getTeamId(), updatedMessageDto);
 
         //MQ 전송
-        ChatAlarmDto data = new ChatAlarmDto(updatedMessageDto.getId(), updatedMessageDto.getTeamId(), updatedMessageDto.getUserId(), updatedMessageDto.getName(), updatedMessageDto.getMessage(), updatedMessageDto.getCreatedAt());
+        ChatAlarmDto data = new ChatAlarmDto(updatedMessageDto.getId(), updatedMessageDto.getTeamId(), updatedMessageDto.getUserId(), updatedMessageDto.getName(), updatedMessageDto.getMessage());
 
         try {
             //json 으로 직렬화 하여 전송
