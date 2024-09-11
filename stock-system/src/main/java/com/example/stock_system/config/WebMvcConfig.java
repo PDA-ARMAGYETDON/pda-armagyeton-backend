@@ -22,6 +22,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Value("${spring.ag.url}")
     private String agUrl;
 
+    @Value("${spring.stock.url}")
+    private String stockUrl;
+
     private final JwtUtil jwtUtil;
 
     @Override
@@ -40,7 +43,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins(clientUrl, chatUrl, agUrl)
+                .allowedOrigins(clientUrl, chatUrl, agUrl, stockUrl)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowCredentials(true)
                 .allowedHeaders("*")
