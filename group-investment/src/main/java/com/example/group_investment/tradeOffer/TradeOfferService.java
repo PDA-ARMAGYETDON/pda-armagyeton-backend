@@ -8,7 +8,6 @@ import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.exception.MemberErrorCode;
 import com.example.group_investment.member.exception.MemberException;
-import com.example.group_investment.rabbitMq.MqSender;
 import com.example.group_investment.rule.Rule;
 import com.example.group_investment.rule.RuleRepository;
 import com.example.group_investment.rule.exception.RuleErrorCode;
@@ -50,6 +49,10 @@ public class TradeOfferService {
     private final TradeOfferCommunicator tradeOfferCommunicator;
     private final RabbitTemplate rabbitTemplate;
 
+    @Value("${spring.rabbitmq.vote-alarm-queue.name}")
+    private String voteToAlarmQueueName;
+
+
     @Value("${spring.rabbitmq.main-stock-queue.name}")
     private String mainStockQueue;
 
@@ -83,9 +86,17 @@ public class TradeOfferService {
 
         VoteStockToAlarmDto message = new VoteStockToAlarmDto(team.getId(), team.getName());
 
-        MqSender<VoteStockToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
+        try {
+            //json 으로 직렬화 하여 전송
+            ObjectMapper objectMapper = new ObjectMapper();
+            String objToJson = objectMapper.writeValueAsString(message);
 
-        mqSender.send(message);
+            rabbitTemplate.convertAndSend(voteToAlarmQueueName, objToJson);
+
+
+        } catch (JsonProcessingException e) {
+            throw new RuleException(ErrorCode.JACKSON_PROCESS_ERROR);
+        }
 
         try {
             tradeOfferRepository.save(tradeOfferDto.toEntity());

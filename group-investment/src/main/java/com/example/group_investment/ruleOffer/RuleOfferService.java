@@ -1,11 +1,11 @@
 package com.example.group_investment.ruleOffer;
 
+import com.example.common.exception.ErrorCode;
 import com.example.group_investment.enums.RuleType;
 import com.example.group_investment.member.Member;
 import com.example.group_investment.member.MemberRepository;
 import com.example.group_investment.member.exception.MemberErrorCode;
 import com.example.group_investment.member.exception.MemberException;
-import com.example.group_investment.rabbitMq.MqSender;
 import com.example.group_investment.rule.Rule;
 import com.example.group_investment.rule.RuleRepository;
 import com.example.group_investment.rule.exception.RuleErrorCode;
@@ -16,7 +16,9 @@ import com.example.group_investment.team.Team;
 import com.example.group_investment.team.TeamRepository;
 import com.example.group_investment.team.exception.TeamErrorCode;
 import com.example.group_investment.team.exception.TeamException;
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class RuleOfferService {
 
     private final RuleOfferRepository ruleOfferRepository;
@@ -35,11 +37,8 @@ public class RuleOfferService {
     private final RuleOfferVoteRepository ruleOfferVoteRepository;
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${spring.rabbitmq.vote-alarm-queue.name}")
+    @Value("${spring.rabbitmq.rule-alarm-queue.name}")
     private String ruleToAlarmQueueName;
-
-    @Value("${spring.rabbitmq.vote-alarm-queue.name}")
-    private String voteToAlarmQueueName;
 
 
     public CreateROfferResponse create(int jwtUserId, int jwtTeamId, int teamId, CreateROfferRequest request) {
@@ -61,12 +60,25 @@ public class RuleOfferService {
         ruleOfferRepository.save(ruleOffer);
 
         //Mq 전송
-        MqSender<VoteRuleToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
-        mqSender.send(new VoteRuleToAlarmDto(teamId, team.getName()));
+//        MqSender<VoteRuleToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
+//        mqSender.send(new VoteRuleToAlarmDto(teamId, team.getName()));
+
+        VoteRuleToAlarmDto data = new VoteRuleToAlarmDto(teamId, team.getName());
+        try {
+            //json 으로 직렬화 하여 전송
+            ObjectMapper objectMapper = new ObjectMapper();
+            String objToJson = objectMapper.writeValueAsString(data);
+
+            rabbitTemplate.convertAndSend(ruleToAlarmQueueName, objToJson);
+
+            return CreateROfferResponse.builder()
+                    .type(type).build();
+
+        } catch (JsonProcessingException e) {
+            throw new RuleException(ErrorCode.JACKSON_PROCESS_ERROR);
+        }
 
 
-        return CreateROfferResponse.builder()
-                .type(type).build();
     }
 
     public GetROfferResponse get(int userId, int jwtTeamId, int teamId) {
