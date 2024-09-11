@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TeamService {
 
-    @Value("${ag.url}")
+    @Value("${tg.url}")
     private static String AG_URL;
 
     private final TeamRepository teamRepository;
