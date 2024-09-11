@@ -94,6 +94,7 @@ public class FcmService {
 
     @RabbitListener(queues = "${spring.rabbitmq.chatQueue.name}")
     private void chatAlarmToTopic(String message) {
+        log.info("[FCM] : 채팅 알림 전송 요청 접수");
 
         try {
 
