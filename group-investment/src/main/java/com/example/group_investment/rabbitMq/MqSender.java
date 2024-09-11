@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MqSender<D> {
 
-    @Value("${spring.rabbitmq.vote-alarm-queue.name}")
+    @Value("${spring.rabbitmq.rule-alarm-queue.name}")
     private String ruleToAlarmQueueName;
 
     @Value("${spring.rabbitmq.vote-alarm-queue.name}")
