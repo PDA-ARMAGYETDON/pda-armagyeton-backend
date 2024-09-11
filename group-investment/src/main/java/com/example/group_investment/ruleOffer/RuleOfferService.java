@@ -19,13 +19,14 @@ import com.example.group_investment.team.exception.TeamException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RuleOfferService {
@@ -36,10 +37,6 @@ public class RuleOfferService {
     private final MemberRepository memberRepository;
     private final RuleOfferVoteRepository ruleOfferVoteRepository;
     private final RabbitTemplate rabbitTemplate;
-
-    @Value("${spring.rabbitmq.rule-alarm-queue.name}")
-    private String ruleToAlarmQueueName;
-
 
     public CreateROfferResponse create(int jwtUserId, int jwtTeamId, int teamId, CreateROfferRequest request) {
         if (jwtTeamId != teamId) {
@@ -65,11 +62,12 @@ public class RuleOfferService {
 
         VoteRuleToAlarmDto data = new VoteRuleToAlarmDto(teamId, team.getName());
         try {
-            //json 으로 직렬화 하여 전송
+            log.info("규칙 제안 알림 전송 from TradeOfferService");
+
             ObjectMapper objectMapper = new ObjectMapper();
             String objToJson = objectMapper.writeValueAsString(data);
 
-            rabbitTemplate.convertAndSend(ruleToAlarmQueueName, objToJson);
+            rabbitTemplate.convertAndSend("rule_to_alarm", objToJson);
 
             return CreateROfferResponse.builder()
                     .type(type).build();
