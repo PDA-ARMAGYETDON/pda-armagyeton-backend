@@ -2,15 +2,15 @@ package com.example.stock_system.backend_only;
 
 import com.example.common.dto.ApiResponse;
 import com.example.stock_system.holdings.HoldingsService;
+import com.example.stock_system.realTimeStock.RealTimeStockService;
 import com.example.stock_system.stocks.StocksService;
 import com.example.stock_system.stocks.dto.StockName;
 import com.example.stock_system.trade.TradeService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 @RestController
 @AllArgsConstructor
@@ -19,6 +19,8 @@ public class BackendController {
     private final HoldingsService holdingsService;
     private final StocksService stocksService;
     private final TradeService tradeService;
+
+    private final RealTimeStockService realTimeStockService;
 
     @Operation(summary = "(백엔드 전용)종목 이름 조회", description = "종목 코드로 이름을 조회하는 API")
     @GetMapping("/stocks/names")
@@ -50,4 +52,12 @@ public class BackendController {
     public ApiResponse<Integer> getAvailableAsset(@RequestParam int teamId) {
         return new ApiResponse<>(200, true, "거래 가능한 예수금을 조회했습니다.", holdingsService.getAvailableAsset(teamId));
     }
+
+    @Operation(summary = "단일 종목 조회",description = "단일 종목의 실시간 시세를 조회")
+    @GetMapping(value = "/stocks/{stockCode}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<Object[]> streamByStockCode(@PathVariable String stockCode) {
+        realTimeStockService.streamByStockCode(stockCode);
+        return realTimeStockService.getStockDataStream(stockCode);
+    }
+
 }

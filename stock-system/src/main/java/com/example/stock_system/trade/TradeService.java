@@ -14,6 +14,7 @@ import com.example.stock_system.holdings.HoldingsRepository;
 import com.example.stock_system.holdings.dto.ToAlarmDto;
 import com.example.stock_system.holdings.exception.HoldingsErrorCode;
 import com.example.stock_system.holdings.exception.HoldingsException;
+//import com.example.stock_system.rabbitMq.MqSender;
 import com.example.stock_system.stocks.Stocks;
 import com.example.stock_system.stocks.StocksRepository;
 import com.example.stock_system.stocks.exception.StocksErrorCode;
@@ -27,8 +28,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+//import org.springframework.amqp.rabbit.annotation.RabbitListener;
+//import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -49,13 +50,13 @@ public class TradeService {
     private final HoldingsRepository holdingsRepository;
     private final TradeRepository tradeRepository;
     private final TeamAccountRepository teamAccountRepository;
-    private final RabbitTemplate rabbitTemplate;
+//    private final RabbitTemplate rabbitTemplate;
 
     @Value("${spring.rabbitmq.sendQueue.name}")
     private String stockAlarmQueueName;
 
 
-    @RabbitListener(queues = "${spring.rabbitmq.mainToStock.name}")
+//    @RabbitListener(queues = "${spring.rabbitmq.mainToStock.name}")
     public void createTrade(String message) {
         CreateTradeRequest createTradeRequest;
         try {
@@ -134,23 +135,23 @@ public class TradeService {
                 accountRepository.save(account);
 
                 //알람 전송 파트
-                int teamId = teamAccountRepository.findByAccountId(account.getUserId()).orElseThrow(
-                        () -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND)).getTeamId();
-
-
-                ToAlarmDto data = new ToAlarmDto(teamId, account.getName(), findStock.getName(), trade.getQuantity(), true);
-                try {
-                    //json 으로 직렬화 하여 전송
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    String objToJson = objectMapper.writeValueAsString(data);
-
-                    rabbitTemplate.convertAndSend(stockAlarmQueueName, objToJson);
-
-                    log.info("[{}] 알림 전송 완료", stockAlarmQueueName);
-
-                } catch (JsonProcessingException e) {
-                    throw new StocksException(ErrorCode.JACKSON_PROCESS_ERROR);
-                }
+//                int teamId = teamAccountRepository.findByAccountId(account.getUserId()).orElseThrow(
+//                        () -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND)).getTeamId();
+//
+//
+//                ToAlarmDto data = new ToAlarmDto(teamId, account.getName(), findStock.getName(), trade.getQuantity(), true);
+//                try {
+//                    //json 으로 직렬화 하여 전송
+//                    ObjectMapper objectMapper = new ObjectMapper();
+//                    String objToJson = objectMapper.writeValueAsString(data);
+//
+//                    rabbitTemplate.convertAndSend(stockAlarmQueueName, objToJson);
+//
+//                    log.info("[{}] 알림 전송 완료", stockAlarmQueueName);
+//
+//                } catch (JsonProcessingException e) {
+//                    throw new StocksException(ErrorCode.JACKSON_PROCESS_ERROR);
+//                }
 
 
             } else {
@@ -188,23 +189,23 @@ public class TradeService {
             accountRepository.save(account);
 
             //알람 전송 파트
-            int teamId = teamAccountRepository.findByAccountId(account.getUserId()).orElseThrow(
-                    () -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND)).getTeamId();
-
-            ToAlarmDto data = new ToAlarmDto(teamId, account.getName(), findStock.getName(), trade.getQuantity(), false);
-
-            try {
-                //json 으로 직렬화 하여 전송
-                ObjectMapper objectMapper = new ObjectMapper();
-                String objToJson = objectMapper.writeValueAsString(data);
-
-                rabbitTemplate.convertAndSend(stockAlarmQueueName, objToJson);
-
-                log.info("[{}] 알림 전송 완료", stockAlarmQueueName);
-
-            } catch (JsonProcessingException e) {
-                throw new StocksException(ErrorCode.JACKSON_PROCESS_ERROR);
-            }
+//            int teamId = teamAccountRepository.findByAccountId(account.getUserId()).orElseThrow(
+//                    () -> new AccountException(AccountErrorCode.TEAM_ACCOUNT_NOT_FOUND)).getTeamId();
+//
+//            ToAlarmDto data = new ToAlarmDto(teamId, account.getName(), findStock.getName(), trade.getQuantity(), false);
+//
+//            try {
+//                //json 으로 직렬화 하여 전송
+//                ObjectMapper objectMapper = new ObjectMapper();
+//                String objToJson = objectMapper.writeValueAsString(data);
+//
+//                rabbitTemplate.convertAndSend(stockAlarmQueueName, objToJson);
+//
+//                log.info("[{}] 알림 전송 완료", stockAlarmQueueName);
+//
+//            } catch (JsonProcessingException e) {
+//                throw new StocksException(ErrorCode.JACKSON_PROCESS_ERROR);
+//            }
 
 //            MqSender<ToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
 //            mqSender.send(data);

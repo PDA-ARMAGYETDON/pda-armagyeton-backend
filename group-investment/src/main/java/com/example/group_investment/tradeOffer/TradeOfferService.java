@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.AmqpException;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+//import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -50,7 +50,7 @@ public class TradeOfferService {
 
     private final TradeOfferConverter tradeOfferConverter;
     private final TradeOfferCommunicator tradeOfferCommunicator;
-    private final RabbitTemplate rabbitTemplate;
+//    private final RabbitTemplate rabbitTemplate;
 
 //    @Value("${spring.rabbitmq.vote-alarm-queue.name}")
 //    private String voteToAlarmQueueName;
@@ -88,17 +88,17 @@ public class TradeOfferService {
 
         VoteStockToAlarmDto message = new VoteStockToAlarmDto(team.getId(), team.getName());
 
-        try {
-            //json 으로 직렬화 하여 전송
-            ObjectMapper objectMapper = new ObjectMapper();
-            String objToJson = objectMapper.writeValueAsString(message);
-            log.info("주식 매매 제안 알림 전송 from TradeOfferService");
-            rabbitTemplate.convertAndSend("vote_to_alarm", objToJson);
-
-
-        } catch (JsonProcessingException e) {
-            throw new RuleException(ErrorCode.JACKSON_PROCESS_ERROR);
-        }
+//        try {
+//            //json 으로 직렬화 하여 전송
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            String objToJson = objectMapper.writeValueAsString(message);
+//            log.info("주식 매매 제안 알림 전송 from TradeOfferService");
+//            rabbitTemplate.convertAndSend("vote_to_alarm", objToJson);
+//
+//
+//        } catch (JsonProcessingException e) {
+//            throw new RuleException(ErrorCode.JACKSON_PROCESS_ERROR);
+//        }
 
         try {
             tradeOfferRepository.save(tradeOfferDto.toEntity());
@@ -193,7 +193,7 @@ public class TradeOfferService {
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 String objToJson = objectMapper.writeValueAsString(tradeOfferConverter.tradeOfferToCreateTradeRequest(tradeOffer));
-                rabbitTemplate.convertAndSend(mainStockQueue, objToJson);
+//                rabbitTemplate.convertAndSend(mainStockQueue, objToJson);
             } catch (JsonProcessingException e) {
                 throw new TradeOfferException(ErrorCode.JSON_PARSE_ERROR);
             } catch (AmqpException e) {

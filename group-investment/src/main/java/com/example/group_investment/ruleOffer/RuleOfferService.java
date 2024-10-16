@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+//import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class RuleOfferService {
     private final TeamRepository teamRepository;
     private final MemberRepository memberRepository;
     private final RuleOfferVoteRepository ruleOfferVoteRepository;
-    private final RabbitTemplate rabbitTemplate;
+//    private final RabbitTemplate rabbitTemplate;
 
     public CreateROfferResponse create(int jwtUserId, int jwtTeamId, int teamId, CreateROfferRequest request) {
         if (jwtTeamId != teamId) {
@@ -60,21 +60,21 @@ public class RuleOfferService {
 //        MqSender<VoteRuleToAlarmDto> mqSender = new MqSender<>(rabbitTemplate);
 //        mqSender.send(new VoteRuleToAlarmDto(teamId, team.getName()));
 
-        VoteRuleToAlarmDto data = new VoteRuleToAlarmDto(teamId, team.getName());
-        try {
-            log.info("규칙 제안 알림 전송 from TradeOfferService");
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            String objToJson = objectMapper.writeValueAsString(data);
-
-            rabbitTemplate.convertAndSend("rule_to_alarm", objToJson);
+//        VoteRuleToAlarmDto data = new VoteRuleToAlarmDto(teamId, team.getName());
+//        try {
+//            log.info("규칙 제안 알림 전송 from TradeOfferService");
+//
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            String objToJson = objectMapper.writeValueAsString(data);
+//
+//            rabbitTemplate.convertAndSend("rule_to_alarm", objToJson);
 
             return CreateROfferResponse.builder()
                     .type(type).build();
 
-        } catch (JsonProcessingException e) {
-            throw new RuleException(ErrorCode.JACKSON_PROCESS_ERROR);
-        }
+//        } catch (JsonProcessingException e) {
+//            throw new RuleException(ErrorCode.JACKSON_PROCESS_ERROR);
+//        }
 
 
     }

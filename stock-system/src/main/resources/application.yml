@@ -10,7 +10,7 @@ spring:
   chat:
     url: ${CHAT_URL}
   stock:
-    url: ${STOCK_AG_URL}
+    url: ${STOCK_SYSTEM_URL}
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

@@ -14,10 +14,10 @@ public class GlobalExceptionHandler {
         return new ApiResponse<>(exception.getCode(), false, exception.getMessage(), null);
     }
 
-    @ExceptionHandler(Exception.class)
-    protected final ApiResponse<String> handleAllException(Exception exception) {
-        return new ApiResponse<>(500, false, "내부 서버 에러가 발생했습니다.", null);
-    }
+//    @ExceptionHandler(Exception.class)
+//    protected final ApiResponse<String> handleAllException(Exception exception) {
+//        return new ApiResponse<>(500, false, "내부 서버 에러가 발생했습니다.", null);
+//    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiResponse<String> handleValidationException(MethodArgumentNotValidException e) {
