@@ -15,7 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class TradeOfferCommunicator {
     private final WebClient.Builder webClientBuilder;
 
-    @Value("${ag.url}")
+    @Value("${spring.ag.url}")
     private String AG_URL;
 
     @Value("${STOCK_SYSTEM_URL}")

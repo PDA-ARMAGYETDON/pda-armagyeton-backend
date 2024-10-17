@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AccountService {
 
-    @Value("${ag.url}")
+    @Value("${spring.ag.url}")
     private String AG_URL;
 
     private final AccountRepository accountRepository;
