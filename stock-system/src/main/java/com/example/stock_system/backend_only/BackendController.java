@@ -4,6 +4,7 @@ import com.example.common.dto.ApiResponse;
 import com.example.stock_system.holdings.HoldingsService;
 import com.example.stock_system.realTimeStock.RealTimeStockService;
 import com.example.stock_system.stocks.StocksService;
+import com.example.stock_system.stocks.dto.GetStockPricesResponse;
 import com.example.stock_system.stocks.dto.StockName;
 import com.example.stock_system.trade.TradeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,11 +54,26 @@ public class BackendController {
         return new ApiResponse<>(200, true, "거래 가능한 예수금을 조회했습니다.", holdingsService.getAvailableAsset(teamId));
     }
 
+
+    /*
+    추후 삭제 예정 jwt에러 때문에 옮겨놓음
+     */
     @Operation(summary = "단일 종목 조회",description = "단일 종목의 실시간 시세를 조회")
     @GetMapping(value = "/stocks/{stockCode}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Object[]> streamByStockCode(@PathVariable String stockCode) {
         realTimeStockService.streamByStockCode(stockCode);
         return realTimeStockService.getStockDataStream(stockCode);
     }
+
+    @GetMapping("/prices")
+    public ApiResponse<GetStockPricesResponse> getStockPrices(@RequestParam String code) {
+        return new ApiResponse<>(200, true, "종목 가격을 조회했습니다.", stocksService.getStockPrices(code));
+    }
+
+    @GetMapping("/current-price")
+    public ApiResponse getCurrentPrice(@RequestParam String stockCode){
+        return new ApiResponse<>(200,true,"현재가(장 마감후엔 종가) 입니다.",stocksService.getCurrentData(stockCode));
+    }
+
 
 }

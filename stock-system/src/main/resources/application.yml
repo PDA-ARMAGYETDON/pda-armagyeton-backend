@@ -6,7 +6,7 @@ spring:
   client:
     url: ${CLIENT_URL}
   ag:
-    url: ${AG_URL}
+    url: ${ARMAGYETDON_URL}
   chat:
     url: ${CHAT_URL}
   stock:
