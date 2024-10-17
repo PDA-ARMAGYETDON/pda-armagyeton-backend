@@ -18,14 +18,14 @@ public class TradeOfferCommunicator {
     @Value("${spring.ag.url}")
     private String AG_URL;
 
-    @Value("${STOCK_SYSTEM_URL}")
-    private String STOCK_SYSTEM_URL;
+    @Value("${ARMAGYETDON_URL}")
+    private String ARMAGYETDON_URL;
 
     public StockName getStockNameFromStockSystem(String code) {
         WebClient webClient = webClientBuilder.build();
 
         ApiResponse<StockName> stockName = webClient.get()
-                .uri(STOCK_SYSTEM_URL + "/api/stock/backend/stocks/names?code=" + code)
+                .uri(ARMAGYETDON_URL + "/api/stock/backend/stocks/names?code=" + code)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<StockName>>() {
                 })
@@ -42,7 +42,7 @@ public class TradeOfferCommunicator {
         WebClient webClient = webClientBuilder.build();
 
         ApiResponse<Double> prdyVrssRt = webClient.get()
-                .uri(STOCK_SYSTEM_URL + "/api/stock/backend/stocks/prdyVrssRt?code=" + code)
+                .uri(ARMAGYETDON_URL + "/api/stock/backend/stocks/prdyVrssRt?code=" + code)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<Double>>() {
                 })
@@ -59,7 +59,7 @@ public class TradeOfferCommunicator {
         WebClient webClient = webClientBuilder.build();
 
         ApiResponse<Integer> numOfHoldings = webClient.get()
-                .uri(STOCK_SYSTEM_URL + "/api/stock/backend/holdings/count?teamId=" + teamId + "&code=" + code)
+                .uri(ARMAGYETDON_URL + "/api/stock/backend/holdings/count?teamId=" + teamId + "&code=" + code)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<Integer>>() {
                 })
@@ -76,7 +76,7 @@ public class TradeOfferCommunicator {
         WebClient webClient = webClientBuilder.build();
 
         ApiResponse<Integer> numOfPendingTrade = webClient.get()
-                .uri(STOCK_SYSTEM_URL + "/api/stock/backend/trades/count?teamId=" + teamId + "&code=" + code)
+                .uri(ARMAGYETDON_URL + "/api/stock/backend/trades/count?teamId=" + teamId + "&code=" + code)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<Integer>>() {
                 })
@@ -93,7 +93,7 @@ public class TradeOfferCommunicator {
         WebClient webClient = webClientBuilder.build();
 
         ApiResponse<Integer> restAsset = webClient.get()
-                .uri(STOCK_SYSTEM_URL + "/api/stock/backend/accounts/asset?teamId=" + teamId)
+                .uri(ARMAGYETDON_URL + "/api/stock/backend/accounts/asset?teamId=" + teamId)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<Integer>>() {
                 })

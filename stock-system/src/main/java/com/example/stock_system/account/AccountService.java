@@ -277,7 +277,7 @@ public class AccountService {
 
         List<Integer> failedUserIds = new ArrayList<>();
 
-       String url = AG_URL + "/api/group/backend/first-payment?teamId=" + teamId;
+        String url = AG_URL + "/api/group/backend/first-payment?teamId=" + teamId;
 
 
         ResponseEntity<ApiResponse> response = restTemplate.exchange(
@@ -378,7 +378,7 @@ public class AccountService {
     @Transactional
     @Scheduled(cron = "0 10 00 * * MON-SUN", zone = "Asia/Seoul")
     public void autoPaymentAndExpel() {
-        List<AccountPayment> accountPayments= convertPaymentData();
+        List<AccountPayment> accountPayments = convertPaymentData();
         List<PayFail> payFails = autoPaymentService(accountPayments);
         expelMember(payFails);
     }
@@ -387,14 +387,16 @@ public class AccountService {
     @Transactional
     @Scheduled(cron = "0 05 00 * * MON-SUN", zone = "Asia/Seoul")
     public void finishTeam() throws JsonProcessingException {
-        String url = AG_URL+"/api/group/backend/finish-team";
+        String url = AG_URL + "/api/group/backend/finish-team";
 
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        Map<String, Object> responseBody = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {});
-        List<Integer> finishTeamIds = objectMapper.convertValue(responseBody.get("data"), new TypeReference<List<Integer>>() {});
+        Map<String, Object> responseBody = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, Object>>() {
+        });
+        List<Integer> finishTeamIds = objectMapper.convertValue(responseBody.get("data"), new TypeReference<List<Integer>>() {
+        });
 
 
         for (Integer teamId : finishTeamIds) {
