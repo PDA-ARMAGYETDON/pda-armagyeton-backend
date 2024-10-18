@@ -121,8 +121,7 @@ public class TradeService {
                 trade.setStatus(TradeStatus.COMPLETED);
                 tradeRepository.save(trade);
 
-                Holdings existingHolding = holdingsRepository.findByAccountAndStockCode(account, findStock)
-                        .orElseThrow(() -> new HoldingsException(HoldingsErrorCode.HOLDINGS_NOT_FOUND));
+                Holdings existingHolding = holdingsRepository.findByAccountAndStockCode(account, findStock).orElse(null);
 
                 if (existingHolding != null) {
                     existingHolding.addData(trade.getQuantity(), requiredAmount);
